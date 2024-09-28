@@ -1,6 +1,7 @@
-import { useNavigate } from "react-router-dom";
 /* eslint-disable react/prop-types */
 import { Link } from "react-router-dom";
+import { PROVIDER_MAP } from "../../constants";
+import { useGuardar } from "../../hooks/useGuardar";
 
 const DatosG1 = ({
   setCargaActual,
@@ -9,37 +10,29 @@ const DatosG1 = ({
   cargas,
   setCargas,
 }) => {
-  const navigate = useNavigate();
+  const key = PROVIDER_MAP[proveedor];
+  const guardar = useGuardar(setCargas);
 
-  const guardar = (event) => {
+  const handleSubmit = (event) => {
     event.preventDefault();
-
     const newData = {
       nombre: event.target.nombre.value,
       cedula: event.target.cedula.value,
       marca: event.target.marca.value,
       placa: event.target.placa.value,
       tk: event.target.tk.value,
-      provider: proveedor,
     };
 
-    setCargas((prevCargas) =>
-      prevCargas.map((carga) =>
-        carga.id === cargaActual ? { ...carga, ...newData } : carga
-      )
-    );
-
-    navigate("/datosg2");
-    console.log("guardado");
+    guardar(proveedor, cargaActual, "/datosG2", newData);
   };
 
   // Get the current carga based on cargaActual and proveedor
-  const currentCarga = cargas[proveedor]?.[cargaActual] || {};
+  const currentCarga = cargas[key]?.[cargaActual - 1] || {};
 
   return (
     <>
       <h2>Chofer:</h2>
-      <form onSubmit={guardar}>
+      <form onSubmit={handleSubmit}>
         <label htmlFor="nombre">Nombre: </label>
         <input
           type="text"

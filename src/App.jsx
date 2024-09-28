@@ -15,12 +15,17 @@ import RevisionGuias from "./components/guias/RevisionGuias";
 function App() {
   const [rol, setRol] = useState("");
   const [proveedor, setProveedor] = useState("");
-  const [cargasTr, setCargasTr] = useState([]);
-  const [cargasTg, setCargasTg] = useState([]);
-  const [cargasAv, setCargasAv] = useState([]);
-  const [cargasAl, setCargasAl] = useState([]);
-  const [cargas, setCargas] = useState({});
+  const [cargas, setCargas] = useState({
+    tr: [],
+    tg: [],
+    al: [],
+    av: [],
+  });
   const [cargaActual, setCargaActual] = useState(0);
+  const [guias_precintos, setGuias_precintos] = useState({
+    guias: 0,
+    precintos: 0,
+  });
   const [infoCarga, setInfoCarga] = useState([
     {
       id: 1,
@@ -91,16 +96,9 @@ function App() {
           element={
             <DatosG2
               cargaActual={cargaActual}
-              setCargaActual={setCargaActual}
               proveedor={proveedor}
-              cargasTr={cargasTr}
-              setCargasTr={setCargasTr}
-              cargasTg={cargasTg}
-              setCargasTg={setCargasTg}
-              cargasAv={cargasAv}
-              setCargasAv={setCargasAv}
-              cargasAl={cargasAl}
-              setCargasAl={setCargasAl}
+              cargas={cargas}
+              setCargas={setCargas}
             />
           }
         />
@@ -109,16 +107,9 @@ function App() {
           element={
             <DatosG3
               cargaActual={cargaActual}
-              setCargaActual={setCargaActual}
               proveedor={proveedor}
-              cargasTr={cargasTr}
-              setCargasTr={setCargasTr}
-              cargasTg={cargasTg}
-              setCargasTg={setCargasTg}
-              cargasAv={cargasAv}
-              setCargasAv={setCargasAv}
-              cargasAl={cargasAl}
-              setCargasAl={setCargasAl}
+              cargas={cargas}
+              setCargas={setCargas}
             />
           }
         />
@@ -127,16 +118,11 @@ function App() {
           element={
             <DatosG4
               cargaActual={cargaActual}
-              setCargaActual={setCargaActual}
               proveedor={proveedor}
-              cargasTr={cargasTr}
-              setCargasTr={setCargasTr}
-              cargasTg={cargasTg}
-              setCargasTg={setCargasTg}
-              cargasAv={cargasAv}
-              setCargasAv={setCargasAv}
-              cargasAl={cargasAl}
-              setCargasAl={setCargasAl}
+              cargas={cargas}
+              setCargas={setCargas}
+              guias_precintos={guias_precintos}
+              setGuias_precintos={setGuias_precintos}
             />
           }
         />

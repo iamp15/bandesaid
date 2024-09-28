@@ -1,65 +1,38 @@
 /* eslint-disable react/prop-types */
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
+import { useGuardar } from "../../hooks/useGuardar";
+import { PROVIDER_MAP } from "../../constants";
 
-const DatosG2 = ({
-  proveedor,
-  cargaActual,
-  cargasTr,
-  setCargasTr,
-  cargasTg,
-  setCargasTg,
-  cargasAv,
-  setCargasAv,
-  cargasAl,
-  setCargasAl,
-}) => {
-  const navigate = useNavigate();
+const DatosG2 = ({ proveedor, cargaActual, setCargas, cargas }) => {
+  const guardar = useGuardar(setCargas);
+  const currentCarga = cargas[PROVIDER_MAP[proveedor]]?.[cargaActual - 1] || {};
 
-  const guardar2 = (event) => {
-    event.preventDefault();
-
+  const handleSubmit = (e) => {
+    e.preventDefault();
     const newData = {
-      empresa: event.target.empresa.value,
-      destino: event.target.destino.value,
+      empresa: document.getElementById("empresa").value,
+      destino: document.getElementById("destino").value,
     };
-
-    const updateCargas = (setCargasFn, cargasArr) => {
-      setCargasFn((prevCargas) =>
-        prevCargas.map((carga) =>
-          carga.id === cargaActual ? { ...carga, ...newData } : carga
-        )
-      );
-    };
-
-    switch (proveedor) {
-      case "Toro Rojo":
-        updateCargas(setCargasTr, cargasTr);
-        break;
-      case "Toro Gordo":
-        updateCargas(setCargasTg, cargasTg);
-        break;
-      case "Avícola Nam":
-        updateCargas(setCargasAv, cargasAv);
-        break;
-      case "Alimentos Lad":
-        updateCargas(setCargasAl, cargasAl);
-        break;
-      default:
-        break;
-    }
-    console.log("guardadox2");
-    navigate("/datosg3");
+    guardar(proveedor, cargaActual, "/datosG3", newData);
   };
 
   return (
-    <form onSubmit={guardar2}>
+    <form onSubmit={handleSubmit}>
       <h2>Distribuidora: </h2>
       <label htmlFor="empresa">Empresa: </label>
-      <input type="text" id="empresa" />
+      <input
+        type="text"
+        id="empresa"
+        defaultValue={currentCarga?.empresa || ""}
+      />
       <br />
       <br />
       <label htmlFor="destino">Destino: </label>
-      <input type="text" id="destino" />
+      <input
+        type="text"
+        id="destino"
+        defaultValue={currentCarga?.destino || ""}
+      />
       <br />
       <br />
       <Link to={"/datosg1"}>

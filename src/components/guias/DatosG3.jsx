@@ -1,21 +1,13 @@
 /* eslint-disable react/prop-types */
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
+import { useGuardar } from "../../hooks/useGuardar";
+import { PROVIDER_MAP } from "../../constants";
 
-const DatosG3 = ({
-  proveedor,
-  cargaActual,
-  cargasTr,
-  setCargasTr,
-  cargasTg,
-  setCargasTg,
-  cargasAv,
-  setCargasAv,
-  cargasAl,
-  setCargasAl,
-}) => {
-  const navigate = useNavigate();
+const DatosG3 = ({ proveedor, cargaActual, cargas, setCargas }) => {
+  const guardar = useGuardar(setCargas);
+  const currentCarga = cargas[PROVIDER_MAP[proveedor]]?.[cargaActual - 1] || {};
 
-  const guardar = (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     const newData = {
       p_promedio: e.target.pp.value,
@@ -23,52 +15,37 @@ const DatosG3 = ({
       p_guia: e.target.pg.value,
       p_verificado: e.target.pv.value,
     };
-
-    const updateCargas = (setCargasFn, cargasArr) => {
-      setCargasFn((prevCargas) =>
-        prevCargas.map((carga) =>
-          carga.id === cargaActual ? { ...carga, ...newData } : carga
-        )
-      );
-    };
-
-    switch (proveedor) {
-      case "Toro Rojo":
-        updateCargas(setCargasTr, cargasTr);
-        break;
-      case "Toro Gordo":
-        updateCargas(setCargasTg, cargasTg);
-        break;
-      case "Avícola Nam":
-        updateCargas(setCargasAv, cargasAv);
-        break;
-      case "Alimentos Lad":
-        updateCargas(setCargasAl, cargasAl);
-        break;
-      default:
-        break;
-    }
-
-    console.log("guardadox3");
-    navigate("/datosg4");
+    guardar(proveedor, cargaActual, "/datosG4", newData);
   };
 
   return (
-    <form onSubmit={guardar}>
+    <form onSubmit={handleSubmit}>
       <h3>Control de Calidad</h3>
       <label htmlFor="pp">Peso promedio: </label>
-      <input type="text" id="pp" />
+      <input
+        type="text"
+        id="pp"
+        defaultValue={currentCarga?.p_promedio || ""}
+      />
       <br />
       <label htmlFor="tp">Temperatura promedio: </label>
-      <input type="text" id="tp" />
+      <input
+        type="text"
+        id="tp"
+        defaultValue={currentCarga?.t_promedio || ""}
+      />
       <br />
       <br />
       <h3>Control de Peso</h3>
       <label htmlFor="pg">Peso según guía: </label>
-      <input type="text" id="pg" />
+      <input type="text" id="pg" defaultValue={currentCarga?.p_guia || ""} />
       <br />
       <label htmlFor="pv">Peso verificado: </label>
-      <input type="text" id="pv" />
+      <input
+        type="text"
+        id="pv"
+        defaultValue={currentCarga?.p_verificado || ""}
+      />
       <br />
       <br />
 

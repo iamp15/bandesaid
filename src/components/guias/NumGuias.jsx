@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 
-const NumGuias = ({ num, setCodigos }) => {
+const NumGuias = ({ num, setCodigos, cargas, mapeo, cargaActual }) => {
   const handleInputChange = (index, value) => {
     setCodigos((prevCodigos) => {
       const newCodigos = [...prevCodigos];
@@ -8,6 +8,8 @@ const NumGuias = ({ num, setCodigos }) => {
       return newCodigos;
     });
   };
+
+  const currentCodigos = cargas[mapeo][cargaActual - 1].codigos_guias || [];
 
   return (
     <div>
@@ -18,6 +20,7 @@ const NumGuias = ({ num, setCodigos }) => {
             type="text"
             id={`guia-${index}`}
             onChange={(e) => handleInputChange(index, e.target.value)}
+            defaultValue={currentCodigos[index]}
             required
           />
         </div>

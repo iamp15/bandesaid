@@ -3,101 +3,40 @@ import { Link } from "react-router-dom";
 import CuadroCargas from "./guias/CuadroCargas";
 
 const Carga = ({ cargas, setCargas, rol, proveedor, setCargaActual }) => {
-  const aggCarga = () => {
-    const newCarga = {
-      id: 0,
-      proveedor: proveedor,
-    };
+  const providerMap = {
+    "Toro Rojo": "tr",
+    "Toro Gordo": "tg",
+    "Alimentos Lad": "al",
+    "Avícola Nam": "av",
+  };
 
-    switch (proveedor) {
-      case "Toro Rojo":
-        newCarga.id = cargas.tr.length + 1;
-        setCargas((prevCargas) => ({
-          ...prevCargas,
-          tr: [...prevCargas.tr, newCarga],
-        }));
-        break;
-      case "Toro Gordo":
-        newCarga.id = cargas.tg.length + 1;
-        setCargas((prevCargas) => ({
-          ...prevCargas,
-          tg: [...prevCargas.tg, newCarga],
-        }));
-        break;
-      case "Alimentos Lad":
-        newCarga.id = cargas.al.length + 1;
-        setCargas((prevCargas) => ({
-          ...prevCargas,
-          al: [...prevCargas.al, newCarga],
-        }));
-        break;
-      case "Avícola Nam":
-        newCarga.id = cargas.av.length + 1;
-        setCargas((prevCargas) => ({
-          ...prevCargas,
-          av: [...prevCargas.av, newCarga],
-        }));
-        break;
-      default:
-        break;
+  const aggCarga = () => {
+    const key = providerMap[proveedor];
+    if (key) {
+      const newCarga = {
+        id: cargas[key].length + 1,
+        proveedor: proveedor,
+      };
+      setCargas((prevCargas) => ({
+        ...prevCargas,
+        [key]: [...prevCargas[key], newCarga],
+      }));
     }
   };
 
   const renderCargas = () => {
-    let componentToRender;
-    switch (proveedor) {
-      case "Toro Rojo":
-        componentToRender = cargas.tr.length ? (
-          <CuadroCargas
-            numCarga={cargas.tr.length}
-            proveedor={proveedor}
-            rol={rol}
-            setCargaActual={setCargaActual}
-          />
-        ) : (
-          <p>No hay cargas creadas de {proveedor}</p>
-        );
-        break;
-      case "Toro Gordo":
-        componentToRender = cargas.tg.length ? (
-          <CuadroCargas
-            numCarga={cargas.tg.length}
-            proveedor={proveedor}
-            rol={rol}
-            setCargaActual={setCargaActual}
-          />
-        ) : (
-          <p>No hay cargas creadas de {proveedor}</p>
-        );
-        break;
-      case "Alimentos Lad":
-        componentToRender = cargas.al.length ? (
-          <CuadroCargas
-            numCarga={cargas.al.length}
-            proveedor={proveedor}
-            rol={rol}
-            setCargaActual={setCargaActual}
-          />
-        ) : (
-          <p>No hay cargas creadas de {proveedor}</p>
-        );
-        break;
-      case "Avícola Nam":
-        componentToRender = cargas.av.length ? (
-          <CuadroCargas
-            numCarga={cargas.av.length}
-            proveedor={proveedor}
-            rol={rol}
-            setCargaActual={setCargaActual}
-          />
-        ) : (
-          <p>No hay cargas creadas de {proveedor}</p>
-        );
-        break;
-      default:
-        componentToRender = null;
-    }
-    return componentToRender;
+    const key = providerMap[proveedor];
+    if (!key || cargas[key].length === 0)
+      return <p>No hay cargas creadas de {proveedor}</p>;
+
+    return (
+      <CuadroCargas
+        numCarga={cargas[key].length}
+        proveedor={proveedor}
+        rol={rol}
+        setCargaActual={setCargaActual}
+      />
+    );
   };
 
   return (

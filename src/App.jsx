@@ -11,6 +11,7 @@ import DatosG2 from "./components/guias/DatosG2";
 import DatosG3 from "./components/guias/DatosG3";
 import DatosG4 from "./components/guias/DatosG4";
 import RevisionGuias from "./components/guias/RevisionGuias";
+import FormulariosGuia from "./components/guias/FormulariosGuia";
 
 function App() {
   const [rol, setRol] = useState("");
@@ -126,7 +127,17 @@ function App() {
             />
           }
         />
-        <Route path="/revisionguias" element={<RevisionGuias />} />
+        <Route
+          path="/revisionguias"
+          element={
+            <RevisionGuias
+              cargas={cargas}
+              proveedor={proveedor}
+              cargaActual={cargaActual}
+            />
+          }
+        />
+        <Route path="/formulariosguia" element={<FormulariosGuia />} />
         <Route path="*" element={<h1>Not Found</h1>} />
       </Routes>
     </>

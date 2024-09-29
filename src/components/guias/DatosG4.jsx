@@ -22,10 +22,13 @@ const DatosG4 = ({
   useEffect(() => {
     const initialCodigos =
       cargas[mapeo]?.[cargaActual - 1]?.codigos_guias || [];
+    const initialPrecintos = cargas[mapeo]?.[cargaActual - 1]?.precintos || [];
     setCodigos(initialCodigos);
+    setPrecintos(initialPrecintos);
     setGuias_precintos((prev) => ({
       ...prev,
       guias: initialCodigos.length,
+      precintos: initialPrecintos.length,
     }));
   }, [cargas, cargaActual, mapeo, setGuias_precintos]);
 
@@ -36,7 +39,7 @@ const DatosG4 = ({
       precintos: precintos,
     };
 
-    guardar(proveedor, cargaActual, "/datosG4", newData);
+    guardar(proveedor, cargaActual, "/revisionguias", newData);
   };
 
   const handleGuiasChange = (e) => {
@@ -59,6 +62,17 @@ const DatosG4 = ({
   const handlePrecintosChange = (e) => {
     const newPrecintosValue = Number(e.target.value);
     setGuias_precintos((prev) => ({ ...prev, precintos: newPrecintosValue }));
+    setPrecintos((prev) => {
+      const newPrecintos = [...prev];
+      if (newPrecintosValue > prev.length) {
+        for (let i = prev.length; i < newPrecintosValue; i++) {
+          newPrecintos.push("");
+        }
+      } else if (newPrecintosValue < prev.length) {
+        newPrecintos.splice(newPrecintosValue);
+      }
+      return newPrecintos;
+    });
   };
 
   return (
@@ -96,6 +110,9 @@ const DatosG4 = ({
       <NumPrecintos
         num={guias_precintos.precintos}
         setPrecintos={setPrecintos}
+        cargas={cargas}
+        mapeo={mapeo}
+        cargaActual={cargaActual}
       />
       <br />
       <br />

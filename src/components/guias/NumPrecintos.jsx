@@ -1,13 +1,15 @@
 /* eslint-disable react/prop-types */
 
-const NumPrecintos = ({ num, setPrecintos }) => {
+const NumPrecintos = ({ num, setPrecintos, cargas, mapeo, cargaActual }) => {
   const handleInputChange = (index, value) => {
-    setPrecintos((prevCodigos) => {
-      const newCodigos = [...prevCodigos];
-      newCodigos[index] = value;
-      return newCodigos;
+    setPrecintos((prevPrecintos) => {
+      const newPrecintos = [...prevPrecintos];
+      newPrecintos[index] = value;
+      return newPrecintos;
     });
   };
+
+  const currentPrecintos = cargas[mapeo][cargaActual - 1].precintos || [];
 
   return (
     <div>
@@ -20,6 +22,7 @@ const NumPrecintos = ({ num, setPrecintos }) => {
             type="text"
             id={`precinto-${index}`}
             onChange={(e) => handleInputChange(index, e.target.value)}
+            defaultValue={currentPrecintos[index]}
             required
           />
         </div>

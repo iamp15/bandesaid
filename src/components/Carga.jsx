@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import { Link } from "react-router-dom";
-import CuadroCargas from "./guias/CuadroCargas";
+import CuadroCargas from "./CuadroCargas";
 
 const Carga = ({ cargas, setCargas, rol, proveedor, setCargaActual }) => {
   const providerMap = {

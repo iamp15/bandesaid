@@ -1,7 +1,9 @@
 /* eslint-disable react/prop-types */
 import { Link } from "react-router-dom";
-import { PROVIDER_MAP } from "../../constants";
-import { useGuardar } from "../../hooks/useGuardar";
+import { PROVIDER_MAP } from "../../../constants";
+import { useGuardar } from "../../../hooks/useGuardar";
+import { formatDate } from "../../../utils/FormatDate";
+import { capitalizeWords } from "../../../utils/Capitalizer";
 
 const DatosG1 = ({
   setCargaActual,
@@ -15,12 +17,26 @@ const DatosG1 = ({
 
   const handleSubmit = (event) => {
     event.preventDefault();
+    const formatCedula = (cedula) => {
+      // Remove any existing non-digit characters
+      const cleanedCedula = cedula.replace(/\D/g, "");
+
+      // Add dots to the cleaned cedula
+      const parts = [];
+      for (let i = cleanedCedula.length; i > 0; i -= 3) {
+        parts.unshift(cleanedCedula.slice(Math.max(0, i - 3), i));
+      }
+
+      return parts.join(".");
+    };
+
     const newData = {
-      nombre: event.target.nombre.value,
-      cedula: event.target.cedula.value,
-      marca: event.target.marca.value,
-      placa: event.target.placa.value,
+      chofer: capitalizeWords(event.target.nombre.value),
+      cedula: formatCedula(event.target.cedula.value),
+      marcaVehiculo: capitalizeWords(event.target.marca.value),
+      placa: event.target.placa.value.toUpperCase(),
       tk: event.target.tk.value,
+      fecha: formatDate(),
     };
 
     guardar(proveedor, cargaActual, "/datosG2", newData);
@@ -37,7 +53,7 @@ const DatosG1 = ({
         <input
           type="text"
           id="nombre"
-          defaultValue={currentCarga?.nombre || ""}
+          defaultValue={currentCarga?.chofer || ""}
         />
         <br />
         <label htmlFor="placa">Cédula: </label>
@@ -53,7 +69,7 @@ const DatosG1 = ({
         <input
           type="text"
           id="marca"
-          defaultValue={currentCarga?.marca || ""}
+          defaultValue={currentCarga?.marcaVehiculo || ""}
         />
         <br />
         <label htmlFor="placa">Placa: </label>
@@ -65,8 +81,8 @@ const DatosG1 = ({
         <br />
         <label htmlFor="tk">Therno King: </label>
         <select name="tk" id="tk" defaultValue={currentCarga?.tk || "si"}>
-          <option value="si">Sí</option>
-          <option value="no">No</option>
+          <option value="Si">Sí</option>
+          <option value="No">No</option>
         </select>
         <br />
         <br />

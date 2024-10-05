@@ -3,8 +3,9 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import NumGuias from "./NumGuias";
 import NumPrecintos from "./NumPrecintos";
-import { useGuardar } from "../../hooks/useGuardar";
-import { PROVIDER_MAP } from "../../constants";
+import { useGuardar } from "../../../hooks/useGuardar";
+import { PROVIDER_MAP } from "../../../constants";
+import { isValidNumber } from "../../../utils/CharLimit";
 
 const DatosG4 = ({
   proveedor,
@@ -59,6 +60,16 @@ const DatosG4 = ({
     });
   };
 
+  const handleGuideNumberChange = (index, value) => {
+    if (value === "" || isValidNumber(value, 9)) {
+      setCodigos((prev) => {
+        const newCodigos = [...prev];
+        newCodigos[index] = value;
+        return newCodigos;
+      });
+    }
+  };
+
   const handlePrecintosChange = (e) => {
     const newPrecintosValue = Number(e.target.value);
     setGuias_precintos((prev) => ({ ...prev, precintos: newPrecintosValue }));
@@ -73,6 +84,16 @@ const DatosG4 = ({
       }
       return newPrecintos;
     });
+  };
+
+  const handlePrecintoNumberChange = (index, value) => {
+    if (value === "" || isValidNumber(value, 8)) {
+      setPrecintos((prev) => {
+        const newPrecintos = [...prev];
+        newPrecintos[index] = value;
+        return newPrecintos;
+      });
+    }
   };
 
   return (
@@ -90,10 +111,10 @@ const DatosG4 = ({
       <br />
       <NumGuias
         num={guias_precintos.guias}
-        setCodigos={setCodigos}
         cargas={cargas}
         mapeo={mapeo}
         cargaActual={cargaActual}
+        onGuideNumberChange={handleGuideNumberChange}
       />
       <br />
       <h3>Datos Precintos</h3>
@@ -109,10 +130,10 @@ const DatosG4 = ({
       <br />
       <NumPrecintos
         num={guias_precintos.precintos}
-        setPrecintos={setPrecintos}
         cargas={cargas}
         mapeo={mapeo}
         cargaActual={cargaActual}
+        onPrecintoNumberChange={handlePrecintoNumberChange}
       />
       <br />
       <br />

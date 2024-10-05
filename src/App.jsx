@@ -5,11 +5,11 @@ import ControlPesaje from "./components/controlPesaje/ControlPesaje";
 import ControlCalidad from "./components/controlCalidad/ControlCalidad";
 import Carga from "./components/Carga";
 import { Rol } from "./components/Rol";
-import DatosG1 from "./components/guias/DatosG1";
+import DatosG1 from "./components/guias/chofer-vehiculo/DatosG1";
 import Proveedor from "./components/Proveedor";
-import DatosG2 from "./components/guias/DatosG2";
-import DatosG3 from "./components/guias/DatosG3";
-import DatosG4 from "./components/guias/DatosG4";
+import DatosG2 from "./components/guias/distribuidora/DatosG2";
+import DatosG3 from "./components/guias/controles/DatosG3";
+import DatosG4 from "./components/guias/guias/DatosG4";
 import RevisionGuias from "./components/guias/RevisionGuias";
 import FormulariosGuia from "./components/guias/FormulariosGuia";
 
@@ -27,22 +27,6 @@ function App() {
     guias: 0,
     precintos: 0,
   });
-  const [infoCarga, setInfoCarga] = useState([
-    {
-      id: 1,
-      proveedor: "Toro Rojo",
-      galpon: "Súper Pollo Carrizal",
-      rubro: "Pollo",
-      montoGuia: "3.000,00",
-      montoVerificado: "3.001,10",
-      NumGuia: "154688856",
-      marca: "San José",
-      pesoProm: "2,02",
-      tempProm: "-4,9",
-      estadoDestino: "Distrito Capital",
-      entidadDestino: "PDVAL Distrito Capital",
-    },
-  ]);
 
   console.log(cargas);
 
@@ -137,7 +121,17 @@ function App() {
             />
           }
         />
-        <Route path="/formulariosguia" element={<FormulariosGuia />} />
+        <Route
+          path="/formulariosguia"
+          element={
+            <FormulariosGuia
+              cargaActual={cargaActual}
+              setCargaActual={setCargaActual}
+              proveedor={proveedor}
+              cargas={cargas}
+            />
+          }
+        />
         <Route path="*" element={<h1>Not Found</h1>} />
       </Routes>
     </>

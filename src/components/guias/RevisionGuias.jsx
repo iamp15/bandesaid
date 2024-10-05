@@ -1,6 +1,7 @@
-import { useNavigate } from "react-router-dom";
 /* eslint-disable react/prop-types */
+import { useNavigate } from "react-router-dom";
 import { PROVIDER_MAP } from "../../constants";
+import { RUBRO } from "../../constants";
 
 const RevisionGuias = ({ cargas, proveedor, cargaActual }) => {
   const mapeo = PROVIDER_MAP[proveedor];
@@ -9,24 +10,29 @@ const RevisionGuias = ({ cargas, proveedor, cargaActual }) => {
 
   return (
     <div>
+      <h2>Fecha: {infoCarga.fecha}</h2>
       <h2>Verificación de Datos</h2>
       <h3>Chofer y Vehículo</h3>
-      <p>Nombre: {infoCarga.nombre} </p>
+      <p>Nombre: {infoCarga.chofer} </p>
       <p>Cédula: {infoCarga.cedula} </p>
-      <p>Marca: {infoCarga.marca} </p>
+      <p>Marca vehículo: {infoCarga.marcaVehiculo} </p>
       <p>Placa: {infoCarga.placa} </p>
       <button onClick={() => navigate("/datosg1")}>Editar</button>
 
-      <h3>Distribuidora</h3>
+      <h3>Comercializadora</h3>
       <p>Nombre: {infoCarga.empresa} </p>
-      <p>Destino: {infoCarga.destino} </p>
+      <p>Entidad destino: {infoCarga.destino} </p>
+      <p>Estado destino: {infoCarga.estadoDestino} </p>
+      <p>Transporte: {infoCarga.transporte}</p>
       <button onClick={() => navigate("/datosg2")}>Editar</button>
 
       <h3>Control de Calidad y Pesaje</h3>
-      <p>Peso promedio: {infoCarga.p_promedio}</p>
-      <p>Temperatura promedio: {infoCarga.t_promedio}</p>
-      <p>Peso según guía: {infoCarga.p_guia}</p>
-      <p>Peso verificado: {infoCarga.p_verificado}</p>
+      <p>Rubro: {RUBRO}</p>
+      <p>Marca: {infoCarga.marca_rubro}</p>
+      <p>Peso promedio: {infoCarga.p_promedio} kg</p>
+      <p>Temperatura promedio: {infoCarga.t_promedio} ºC</p>
+      <p>Peso según guía: {infoCarga.p_guia} kg</p>
+      <p>Peso verificado: {infoCarga.p_verificado} kg</p>
       <button onClick={() => navigate("/datosg3")}>Editar</button>
 
       <h3>Datos Guía</h3>

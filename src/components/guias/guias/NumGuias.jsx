@@ -1,14 +1,6 @@
 /* eslint-disable react/prop-types */
 
-const NumGuias = ({ num, setCodigos, cargas, mapeo, cargaActual }) => {
-  const handleInputChange = (index, value) => {
-    setCodigos((prevCodigos) => {
-      const newCodigos = [...prevCodigos];
-      newCodigos[index] = value;
-      return newCodigos;
-    });
-  };
-
+const NumGuias = ({ num, cargas, mapeo, cargaActual, onGuideNumberChange }) => {
   const currentCodigos = cargas[mapeo][cargaActual - 1].codigos_guias || [];
 
   return (
@@ -19,8 +11,11 @@ const NumGuias = ({ num, setCodigos, cargas, mapeo, cargaActual }) => {
           <input
             type="text"
             id={`guia-${index}`}
-            onChange={(e) => handleInputChange(index, e.target.value)}
+            onChange={(e) => onGuideNumberChange(index, e.target.value)}
             defaultValue={currentCodigos[index]}
+            maxLength={9}
+            pattern="\d{9}"
+            title="Ingrese un número de guía válido (9 dígitos)"
             required
           />
         </div>

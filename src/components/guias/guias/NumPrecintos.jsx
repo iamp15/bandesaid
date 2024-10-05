@@ -1,14 +1,12 @@
 /* eslint-disable react/prop-types */
 
-const NumPrecintos = ({ num, setPrecintos, cargas, mapeo, cargaActual }) => {
-  const handleInputChange = (index, value) => {
-    setPrecintos((prevPrecintos) => {
-      const newPrecintos = [...prevPrecintos];
-      newPrecintos[index] = value;
-      return newPrecintos;
-    });
-  };
-
+const NumPrecintos = ({
+  num,
+  cargas,
+  mapeo,
+  cargaActual,
+  onPrecintoNumberChange,
+}) => {
   const currentPrecintos = cargas[mapeo][cargaActual - 1].precintos || [];
 
   return (
@@ -21,8 +19,11 @@ const NumPrecintos = ({ num, setPrecintos, cargas, mapeo, cargaActual }) => {
           <input
             type="text"
             id={`precinto-${index}`}
-            onChange={(e) => handleInputChange(index, e.target.value)}
+            onChange={(e) => onPrecintoNumberChange(index, e.target.value)}
             defaultValue={currentPrecintos[index]}
+            maxLength={8}
+            pattern="\d{8}"
+            title="El número de precinto debe tener 8 dígitos"
             required
           />
         </div>

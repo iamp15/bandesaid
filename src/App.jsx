@@ -29,8 +29,6 @@ function App() {
     precintos: 0,
   });
 
-  console.log(cargas);
-
   return (
     <>
       <Navbar

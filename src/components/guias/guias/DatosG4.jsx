@@ -6,6 +6,7 @@ import NumPrecintos from "./NumPrecintos";
 import { useGuardar } from "../../../hooks/useGuardar";
 import { PROVIDER_MAP } from "../../../constants";
 import { isValidNumber } from "../../../utils/CharLimit";
+import "../../../styles/guias/DatosG4.css";
 
 const DatosG4 = ({
   proveedor,
@@ -97,51 +98,57 @@ const DatosG4 = ({
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <h3>Datos Guía</h3>
-      <label htmlFor="n_guias">Cantidad de guías: </label>
-      <input
-        type="number"
-        id="n_guias"
-        min={0}
-        max={100}
-        value={guias_precintos.guias}
-        onChange={handleGuiasChange}
-      />
-      <br />
-      <NumGuias
-        num={guias_precintos.guias}
-        cargas={cargas}
-        mapeo={mapeo}
-        cargaActual={cargaActual}
-        onGuideNumberChange={handleGuideNumberChange}
-      />
-      <br />
-      <h3>Datos Precintos</h3>
-      <label htmlFor="n_precintos">Cantidad de precintos: </label>
-      <input
-        type="number"
-        id="n_precintos"
-        min={0}
-        max={100}
-        value={guias_precintos.precintos}
-        onChange={handlePrecintosChange}
-      />
-      <br />
-      <NumPrecintos
-        num={guias_precintos.precintos}
-        cargas={cargas}
-        mapeo={mapeo}
-        cargaActual={cargaActual}
-        onPrecintoNumberChange={handlePrecintoNumberChange}
-      />
-      <br />
-      <br />
-      <Link to={"/datosg3"}>
-        <button type="button">Atras</button>
-      </Link>
-      <button type="submit">Continuar</button>
-    </form>
+    <div className="wrap-container">
+      <div className="menu">
+        <form onSubmit={handleSubmit}>
+          <div className="number-input-container">
+            <h2>Datos Guía</h2>
+            <label htmlFor="n_guias">Cantidad de guías: </label>
+            <input
+              type="number"
+              id="n_guias"
+              min={0}
+              max={100}
+              value={guias_precintos.guias}
+              onChange={handleGuiasChange}
+            />
+          </div>
+          <NumGuias
+            num={guias_precintos.guias}
+            cargas={cargas}
+            mapeo={mapeo}
+            cargaActual={cargaActual}
+            onGuideNumberChange={handleGuideNumberChange}
+          />
+          <div className="number-input-container">
+            <h2>Datos Precintos</h2>
+            <label htmlFor="n_precintos">Cantidad de precintos: </label>
+            <input
+              type="number"
+              id="n_precintos"
+              min={0}
+              max={100}
+              value={guias_precintos.precintos}
+              onChange={handlePrecintosChange}
+            />
+          </div>
+
+          <NumPrecintos
+            num={guias_precintos.precintos}
+            cargas={cargas}
+            mapeo={mapeo}
+            cargaActual={cargaActual}
+            onPrecintoNumberChange={handlePrecintoNumberChange}
+          />
+          <div className="button-group">
+            <Link to={"/datosg3"}>
+              <button type="button">Atras</button>
+            </Link>
+            <button type="submit">Continuar</button>
+          </div>
+        </form>
+      </div>
+    </div>
   );
 };
 

@@ -1,10 +1,10 @@
 /* eslint-disable react/prop-types */
-
 import { MARCA } from "../../../constants";
+import "../../../styles/guias/SelectorMarca.css";
 
 const SelectorMarca = ({ chickenBrand, onChange }) => {
   return (
-    <>
+    <div className="radio-buttons-container">
       <p>Marca de Pollo: </p>
       {Object.values(MARCA).map((brand) => (
         <div key={brand.CND}>
@@ -20,7 +20,7 @@ const SelectorMarca = ({ chickenBrand, onChange }) => {
           </label>
         </div>
       ))}
-    </>
+    </div>
   );
 };
 

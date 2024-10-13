@@ -1,0 +1,47 @@
+.menu h2 {
+  color: #333;
+  border-bottom: 2px solid #ddd;
+  padding-bottom: 10px;
+  margin-top: 20px;
+}
+
+.number-input-container {
+  margin-bottom: 15px;
+}
+
+.number-input-container label {
+  display: block;
+  margin-bottom: 5px;
+}
+
+.number-input-container input[type="number"] {
+  width: 100%;
+  padding: 8px 12px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #f8f8f8;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.number-input-container input[type="number"]:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.number-input-container input[type="number"]:hover {
+  border-color: #999;
+}
+
+/* Remove spinner buttons for webkit browsers */
+.number-input-container input[type="number"]::-webkit-inner-spin-button,
+.number-input-container input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Remove spinner buttons for Firefox */
+.number-input-container input[type="number"] {
+  -moz-appearance: textfield;
+}

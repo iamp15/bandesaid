@@ -1,0 +1,64 @@
+.wrap-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: var(--background-color); /* Light blue-gray background */
+}
+
+.menu {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: white;
+  padding: 2rem;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  min-height: 80vh;
+  width: 400px;
+  height: calc(
+    100vh - 50px
+  ); /* Adjust 100px to match your header/footer height */
+  overflow-y: auto; /* Adds vertical scrolling if content exceeds viewport height */
+}
+
+.menu h2 {
+  color: var(--font-color);
+  margin-bottom: 1.5rem;
+  font-size: 1.8rem;
+}
+
+.buttons-container {
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+}
+
+.menu button {
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  margin: 10px;
+  border-radius: 5px;
+  width: 80%;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.menu button:hover {
+  background-color: var(--hover-color);
+}
+
+.menu p {
+  margin-bottom: 20px;
+}
+
+@media (max-width: 480px) {
+  .menu {
+    width: 90%;
+    min-width: unset;
+  }
+}

@@ -6,6 +6,7 @@ import { useState } from "react";
 import SelectorMarca from "./SelectorMarca";
 import { decimalComma, decimalPeriod } from "../../../utils/FormatDecimal";
 import { formatNumber } from "../../../utils/FormatNumber";
+import "../../../styles/guias/DatosG3.css";
 
 const DatosG3 = ({ proveedor, cargaActual, cargas, setCargas }) => {
   const guardar = useGuardar(setCargas);
@@ -47,47 +48,48 @@ const DatosG3 = ({ proveedor, cargaActual, cargas, setCargas }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <h3>Control de Calidad</h3>
-      <SelectorMarca
-        chickenBrand={chickenBrand}
-        onChange={handleChickenBrandChange}
-      />
-      <br />
-      <br />
-      <label htmlFor="pp">Peso promedio: </label>
-      <input
-        type="text"
-        id="pp"
-        defaultValue={currentCarga?.p_promedio || ""}
-      />
-      <br />
-      <label htmlFor="tp">Temperatura promedio: </label>
-      <input
-        type="text"
-        id="tp"
-        defaultValue={currentCarga?.t_promedio || ""}
-      />
-      <br />
-      <br />
-      <h3>Control de Peso</h3>
-      <label htmlFor="pg">Peso según guía: </label>
-      <input type="text" id="pg" defaultValue={currentCarga?.p_guia || ""} />
-      <br />
-      <label htmlFor="pv">Peso verificado: </label>
-      <input
-        type="text"
-        id="pv"
-        defaultValue={currentCarga?.p_verificado || ""}
-      />
-      <br />
-      <br />
-
-      <Link to={"/datosg2"}>
-        <button>Atras</button>
-      </Link>
-      <input type="submit" value="Continuar" />
-    </form>
+    <div className="wrap-container">
+      <div className="menu">
+        <form onSubmit={handleSubmit}>
+          <h2>Control de Calidad</h2>
+          <SelectorMarca
+            chickenBrand={chickenBrand}
+            onChange={handleChickenBrandChange}
+          />
+          <label htmlFor="pp">Peso promedio: </label>
+          <input
+            type="text"
+            id="pp"
+            defaultValue={currentCarga?.p_promedio || ""}
+          />
+          <label htmlFor="tp">Temperatura promedio: </label>
+          <input
+            type="text"
+            id="tp"
+            defaultValue={currentCarga?.t_promedio || ""}
+          />
+          <h2>Control de Peso</h2>
+          <label htmlFor="pg">Peso según guía: </label>
+          <input
+            type="text"
+            id="pg"
+            defaultValue={currentCarga?.p_guia || ""}
+          />
+          <label htmlFor="pv">Peso verificado: </label>
+          <input
+            type="text"
+            id="pv"
+            defaultValue={currentCarga?.p_verificado || ""}
+          />
+          <div className="button-group">
+            <Link to={"/datosg2"}>
+              <button>Atras</button>
+            </Link>
+            <button type="submit">Continuar</button>
+          </div>
+        </form>
+      </div>
+    </div>
   );
 };
 

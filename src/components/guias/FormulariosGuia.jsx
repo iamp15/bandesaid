@@ -8,6 +8,7 @@ import {
   PERMISO_SANITARIO,
   LOTE,
 } from "../../constants";
+import "../../styles/guias/formulariosGuia.css";
 
 const FormulariosGuia = ({
   proveedor,
@@ -117,39 +118,44 @@ const FormulariosGuia = ({
   };
 
   return (
-    <div>
-      <h3>Escoge el formato a copiar</h3>
-      {[...Array(numGuias)].map((_, index) => (
+    <div className="wrap-container">
+      <div className="menu">
+        <h4>Selecciona el formato a copiar:</h4>
+        {[...Array(numGuias)].map((_, index) => (
+          <BotonCopiar
+            key={index}
+            text1={generateGuiaText1(index)}
+            text2={generateGuiaText2(index)}
+          />
+        ))}
         <BotonCopiar
-          key={index}
-          text1={generateGuiaText1(index)}
-          text2={generateGuiaText2(index)}
+          text1={generateDatosVehiculo()}
+          text2="Datos del vehículo"
         />
-      ))}
-      <BotonCopiar text1={generateDatosVehiculo()} text2="Datos del vehículo" />
-      {[...Array(numGuias)].map((_, index) => (
+        {[...Array(numGuias)].map((_, index) => (
+          <BotonCopiar
+            key={index}
+            text1={generateActaResponsabilidad(index)}
+            text2={generateActaText2(index)}
+          />
+        ))}
         <BotonCopiar
-          key={index}
-          text1={generateActaResponsabilidad(index)}
-          text2={generateActaText2(index)}
+          text1={generateSaliendoPlanta()}
+          text2="Saliendo de planta"
         />
-      ))}
-      <BotonCopiar
-        text1={generateSaliendoPlanta()}
-        text2="Saliendo de planta"
-      />
-      <br />
-      <br />
-      <br />
-      <button onClick={() => navigate("/revisionguias")}>Volver</button>
-      <button
-        onClick={() => {
-          setCargaActual(0);
-          navigate("/proveedor");
-        }}
-      >
-        Inicio
-      </button>
+
+        <div className="button-group">
+          <button onClick={() => navigate("/revisionguias")}>Volver</button>
+          <button
+            onClick={() => {
+              setCargaActual(0);
+              navigate("/proveedor");
+            }}
+          >
+            Inicio
+          </button>
+        </div>
+      </div>
     </div>
   );
 };

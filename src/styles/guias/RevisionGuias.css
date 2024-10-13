@@ -1,0 +1,36 @@
+h3 {
+  color: var(--primary-color);
+  margin-top: 25px;
+  margin-bottom: 15px;
+}
+
+.section {
+  margin-bottom: 25px;
+  padding-bottom: 15px;
+  width: 90%;
+  border-bottom: 1px solid #ddd;
+}
+
+.section button {
+  width: 100px;
+  margin-left: 0;
+}
+
+.section:last-child {
+  border-bottom: none;
+}
+
+.label {
+  font-weight: bold;
+  color: #555;
+}
+
+.value {
+  color: #333;
+}
+
+.button-group {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}

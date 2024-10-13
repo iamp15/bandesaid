@@ -12,6 +12,7 @@ import DatosG3 from "./components/guias/controles/DatosG3";
 import DatosG4 from "./components/guias/guias/DatosG4";
 import RevisionGuias from "./components/guias/RevisionGuias";
 import FormulariosGuia from "./components/guias/FormulariosGuia";
+import Navbar from "./components/Navbar";
 
 function App() {
   const [rol, setRol] = useState("");
@@ -32,108 +33,114 @@ function App() {
 
   return (
     <>
-      <nav>
-        {rol ? <a>{rol}</a> : "Bienvenido al sistema Bandes Aid"}
-        {proveedor ? <a> - {proveedor}</a> : null}
-        {cargaActual > 0 ? <a> - Carga #{cargaActual}</a> : null}
-      </nav>
-      <Routes>
-        <Route path="/" element={<Rol setRol={setRol} />} />
-        <Route
-          path="/proveedor"
-          element={
-            <Proveedor
-              proveedor={proveedor}
-              setProveedor={setProveedor}
-              rol={rol}
-            />
-          }
-        />
-        <Route
-          path="/carga"
-          element={
-            <Carga
-              cargas={cargas}
-              setCargas={setCargas}
-              rol={rol}
-              proveedor={proveedor}
-              cargaActual={cargaActual}
-              setCargaActual={setCargaActual}
-            />
-          }
-        />
-        <Route path="/cp" element={<ControlPesaje />} />
-        <Route path="/cc" element={<ControlCalidad />} />
-        <Route
-          path="/datosg1"
-          element={
-            <DatosG1
-              cargaActual={cargaActual}
-              setCargaActual={setCargaActual}
-              proveedor={proveedor}
-              cargas={cargas}
-              setCargas={setCargas}
-            />
-          }
-        />
-        <Route
-          path="/datosg2"
-          element={
-            <DatosG2
-              cargaActual={cargaActual}
-              proveedor={proveedor}
-              cargas={cargas}
-              setCargas={setCargas}
-            />
-          }
-        />
-        <Route
-          path="/datosg3"
-          element={
-            <DatosG3
-              cargaActual={cargaActual}
-              proveedor={proveedor}
-              cargas={cargas}
-              setCargas={setCargas}
-            />
-          }
-        />
-        <Route
-          path="/datosg4"
-          element={
-            <DatosG4
-              cargaActual={cargaActual}
-              proveedor={proveedor}
-              cargas={cargas}
-              setCargas={setCargas}
-              guias_precintos={guias_precintos}
-              setGuias_precintos={setGuias_precintos}
-            />
-          }
-        />
-        <Route
-          path="/revisionguias"
-          element={
-            <RevisionGuias
-              cargas={cargas}
-              proveedor={proveedor}
-              cargaActual={cargaActual}
-            />
-          }
-        />
-        <Route
-          path="/formulariosguia"
-          element={
-            <FormulariosGuia
-              cargaActual={cargaActual}
-              setCargaActual={setCargaActual}
-              proveedor={proveedor}
-              cargas={cargas}
-            />
-          }
-        />
-        <Route path="*" element={<h1>Not Found</h1>} />
-      </Routes>
+      <Navbar
+        rol={rol}
+        setRol={setRol}
+        proveedor={proveedor}
+        setProveedor={setProveedor}
+        cargaActual={cargaActual}
+        setCargaActual={setCargaActual}
+      />
+      <div className="content-wrapper">
+        <Routes>
+          <Route path="/" element={<Rol setRol={setRol} />} />
+          <Route
+            path="/proveedor"
+            element={
+              <Proveedor
+                proveedor={proveedor}
+                setProveedor={setProveedor}
+                rol={rol}
+              />
+            }
+          />
+          <Route
+            path="/carga"
+            element={
+              <Carga
+                cargas={cargas}
+                setCargas={setCargas}
+                rol={rol}
+                proveedor={proveedor}
+                cargaActual={cargaActual}
+                setCargaActual={setCargaActual}
+              />
+            }
+          />
+          <Route path="/cp" element={<ControlPesaje />} />
+          <Route path="/cc" element={<ControlCalidad />} />
+          <Route
+            path="/datosg1"
+            element={
+              <DatosG1
+                cargaActual={cargaActual}
+                setCargaActual={setCargaActual}
+                proveedor={proveedor}
+                cargas={cargas}
+                setCargas={setCargas}
+              />
+            }
+          />
+          <Route
+            path="/datosg2"
+            element={
+              <DatosG2
+                cargaActual={cargaActual}
+                proveedor={proveedor}
+                cargas={cargas}
+                setCargas={setCargas}
+              />
+            }
+          />
+          <Route
+            path="/datosg3"
+            element={
+              <DatosG3
+                cargaActual={cargaActual}
+                proveedor={proveedor}
+                cargas={cargas}
+                setCargas={setCargas}
+              />
+            }
+          />
+          <Route
+            path="/datosg4"
+            element={
+              <DatosG4
+                cargaActual={cargaActual}
+                proveedor={proveedor}
+                cargas={cargas}
+                setCargas={setCargas}
+                guias_precintos={guias_precintos}
+                setGuias_precintos={setGuias_precintos}
+              />
+            }
+          />
+          <Route
+            path="/revisionguias"
+            element={
+              <RevisionGuias
+                cargas={cargas}
+                proveedor={proveedor}
+                cargaActual={cargaActual}
+              />
+            }
+          />
+          <Route
+            path="/formulariosguia"
+            element={
+              <FormulariosGuia
+                cargaActual={cargaActual}
+                setCargaActual={setCargaActual}
+                proveedor={proveedor}
+                cargas={cargas}
+              />
+            }
+          />
+          <Route path="*" element={<h1>Not Found</h1>} />
+        </Routes>
+        <footer>Creado por ©iamp15 2024. Todos los derechos reservados.</footer>
+      </div>
     </>
   );
 }

@@ -1,0 +1,14 @@
+.content-wrapper {
+  padding-top: 40px; /* Adjust this value based on your navbar height */
+  width: 100%;
+}
+
+footer {
+  color: #7f8c8d;
+  font-size: 0.9rem;
+  padding-left: 10px;
+  background-color: var(--background-color);
+  text-align: center; /* This centers the text */
+  padding: 10px 0; /* Add some vertical padding */
+  width: 100%; /* Ensure the footer spans the full width */
+}

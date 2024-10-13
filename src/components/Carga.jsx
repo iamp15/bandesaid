@@ -1,5 +1,4 @@
 /* eslint-disable react/prop-types */
-import { Link } from "react-router-dom";
 import CuadroCargas from "./CuadroCargas";
 
 const Carga = ({ cargas, setCargas, rol, proveedor, setCargaActual }) => {
@@ -24,30 +23,43 @@ const Carga = ({ cargas, setCargas, rol, proveedor, setCargaActual }) => {
     }
   };
 
+  const eliminarCarga = (id) => {
+    const key = providerMap[proveedor];
+    if (key) {
+      setCargas((prevCargas) => ({
+        ...prevCargas,
+        [key]: prevCargas[key].filter((carga) => carga.id !== id),
+      }));
+    }
+  };
+
   const renderCargas = () => {
     const key = providerMap[proveedor];
-    if (!key || cargas[key].length === 0)
-      return <p>No hay cargas creadas de {proveedor}</p>;
+    const cargasForProvider = cargas[key] || [];
 
     return (
-      <CuadroCargas
-        numCarga={cargas[key].length}
-        proveedor={proveedor}
-        rol={rol}
-        setCargaActual={setCargaActual}
-      />
+      <div className="carga-container">
+        <p>Cargas creadas de {proveedor}:</p>
+        {cargasForProvider.length === 0 ? (
+          <p>No hay cargas creadas</p>
+        ) : (
+          <CuadroCargas
+            cargas={cargasForProvider}
+            rol={rol}
+            setCargaActual={setCargaActual}
+            eliminarCarga={eliminarCarga}
+          />
+        )}
+        <button className="crear-carga-button" onClick={aggCarga}>
+          Crear nueva carga
+        </button>
+      </div>
     );
   };
 
   return (
-    <div>
-      <button onClick={aggCarga}>Crear carga nueva</button>
-      {renderCargas()}
-      <br />
-      <br />
-      <Link to={"/proveedor"}>
-        <button>Atrás</button>
-      </Link>
+    <div className="wrap-container">
+      <div className="menu">{renderCargas()}</div>
     </div>
   );
 };

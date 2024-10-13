@@ -1,0 +1,38 @@
+.menu h4 {
+  font-size: 1.3rem;
+  margin-bottom: 25px;
+}
+
+.copy-button-container {
+  position: relative;
+}
+
+.copy-button-container button {
+  width: 200px;
+}
+
+.notification {
+  position: absolute;
+  bottom: 100%;
+  left: 100%;
+  transform: translateX(-50%);
+  background-color: #4caf50;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 14px;
+  white-space: nowrap;
+  opacity: 0;
+  animation: fadeInOut 2s ease-in-out;
+}
+
+@keyframes fadeInOut {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  10%,
+  90% {
+    opacity: 1;
+  }
+}

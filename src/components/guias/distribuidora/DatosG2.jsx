@@ -4,6 +4,7 @@ import { useGuardar } from "../../../hooks/useGuardar";
 import { PROVIDER_MAP } from "../../../constants";
 import { useState, useEffect } from "react";
 import { capitalizeWords } from "../../../utils/Capitalizer";
+import "../../../styles/guias/DatosG2.css";
 
 const DatosG2 = ({ proveedor, cargaActual, setCargas, cargas }) => {
   const guardar = useGuardar(setCargas);
@@ -40,58 +41,56 @@ const DatosG2 = ({ proveedor, cargaActual, setCargas, cargas }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <h2>Comercializadora: </h2>
-      <label htmlFor="empresa">Nombre: </label>
-      <input
-        type="text"
-        id="empresa"
-        defaultValue={currentCarga?.empresa || ""}
-      />
-      <br />
-      <br />
-      <label htmlFor="poneTransporte">¿Pone transporte?</label>
-      <input
-        type="checkbox"
-        id="poneTransporte"
-        checked={poneTransporte}
-        onChange={handleTransporteChange}
-      />
-      <br />
-      <br />
-      {!poneTransporte && (
-        <div>
-          <label htmlFor="transporte">Transporte: </label>
+    <div className="wrap-container">
+      <div className="menu">
+        <form onSubmit={handleSubmit}>
+          <h2>Comercializadora: </h2>
+          <label htmlFor="empresa">Nombre: </label>
           <input
             type="text"
-            id="transporte"
-            defaultValue={currentCarga?.transporte || ""}
+            id="empresa"
+            defaultValue={currentCarga?.empresa || ""}
           />
-        </div>
-      )}
-      <br />
-      <br />
-      <label htmlFor="destino">Entidad destino: </label>
-      <input
-        type="text"
-        id="destino"
-        defaultValue={currentCarga?.destino || ""}
-      />
-      <br />
-      <br />
-      <label htmlFor="estadoDestino">Estado destino: </label>
-      <input
-        type="text"
-        id="estadoDestino"
-        defaultValue={currentCarga?.estadoDestino || ""}
-      />
-      <br />
-      <br />
-      <Link to={"/datosg1"}>
-        <button>Atras</button>
-      </Link>
-      <input type="submit" value="Continuar" />
-    </form>
+          <div className="checkbox-container">
+            <label htmlFor="poneTransporte">¿Pone transporte?</label>
+            <input
+              type="checkbox"
+              id="poneTransporte"
+              checked={poneTransporte}
+              onChange={handleTransporteChange}
+            />
+          </div>
+          {!poneTransporte && (
+            <div>
+              <label htmlFor="transporte">Transporte: </label>
+              <input
+                type="text"
+                id="transporte"
+                defaultValue={currentCarga?.transporte || ""}
+              />
+            </div>
+          )}
+          <label htmlFor="destino">Entidad destino: </label>
+          <input
+            type="text"
+            id="destino"
+            defaultValue={currentCarga?.destino || ""}
+          />
+          <label htmlFor="estadoDestino">Estado destino: </label>
+          <input
+            type="text"
+            id="estadoDestino"
+            defaultValue={currentCarga?.estadoDestino || ""}
+          />
+          <div className="button-group">
+            <Link to={"/datosg1"}>
+              <button>Atras</button>
+            </Link>
+            <button type="submit">Continuar</button>
+          </div>
+        </form>
+      </div>
+    </div>
   );
 };
 

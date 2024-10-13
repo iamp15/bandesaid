@@ -4,6 +4,7 @@ import { PROVIDER_MAP } from "../../../constants";
 import { useGuardar } from "../../../hooks/useGuardar";
 import { formatDate } from "../../../utils/FormatDate";
 import { capitalizeWords } from "../../../utils/Capitalizer";
+import "../../../styles/guias/DatosG1.css";
 
 const DatosG1 = ({
   setCargaActual,
@@ -46,52 +47,49 @@ const DatosG1 = ({
   const currentCarga = cargas[key]?.[cargaActual - 1] || {};
 
   return (
-    <>
-      <h2>Chofer:</h2>
-      <form onSubmit={handleSubmit}>
-        <label htmlFor="nombre">Nombre: </label>
-        <input
-          type="text"
-          id="nombre"
-          defaultValue={currentCarga?.chofer || ""}
-        />
-        <br />
-        <label htmlFor="placa">Cédula: </label>
-        <input
-          type="text"
-          id="cedula"
-          defaultValue={currentCarga?.cedula || ""}
-        />
-        <br />
-        <br />
-        <h2>Vehículo:</h2>
-        <label htmlFor="marca">Marca: </label>
-        <input
-          type="text"
-          id="marca"
-          defaultValue={currentCarga?.marcaVehiculo || ""}
-        />
-        <br />
-        <label htmlFor="placa">Placa: </label>
-        <input
-          type="text"
-          id="placa"
-          defaultValue={currentCarga?.placa || ""}
-        />
-        <br />
-        <label htmlFor="tk">Therno King: </label>
-        <select name="tk" id="tk" defaultValue={currentCarga?.tk || "si"}>
-          <option value="Si">Sí</option>
-          <option value="No">No</option>
-        </select>
-        <br />
-        <br />
-        <Link to={"/carga"}>
-          <button onClick={() => setCargaActual(0)}>Atras</button>
-        </Link>
-        <button type="submit">Continuar</button>
-      </form>
-    </>
+    <div className="wrap-container">
+      <div className="menu">
+        <form onSubmit={handleSubmit}>
+          <h2>Chofer:</h2>
+          <label htmlFor="nombre">Nombre: </label>
+          <input
+            type="text"
+            id="nombre"
+            defaultValue={currentCarga?.chofer || ""}
+          />
+          <label htmlFor="placa">Cédula: </label>
+          <input
+            type="text"
+            id="cedula"
+            defaultValue={currentCarga?.cedula || ""}
+          />
+          <h2>Vehículo:</h2>
+          <label htmlFor="marca">Marca: </label>
+          <input
+            type="text"
+            id="marca"
+            defaultValue={currentCarga?.marcaVehiculo || ""}
+          />
+          <label htmlFor="placa">Placa: </label>
+          <input
+            type="text"
+            id="placa"
+            defaultValue={currentCarga?.placa || ""}
+          />
+          <label htmlFor="tk">Therno King: </label>
+          <select name="tk" id="tk" defaultValue={currentCarga?.tk || "si"}>
+            <option value="Si">Sí</option>
+            <option value="No">No</option>
+          </select>
+          <div className="button-group">
+            <Link to={"/carga"}>
+              <button onClick={() => setCargaActual(0)}>Atras</button>
+            </Link>
+            <button type="submit">Continuar</button>
+          </div>
+        </form>
+      </div>
+    </div>
   );
 };
 

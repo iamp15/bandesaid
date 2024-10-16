@@ -13,8 +13,14 @@
     <script>
       // Check if the page is being reloaded
       if (performance.navigation.type === 1) {
-        // Redirect to the home page
-        window.location.href = "/";
+        // Get the current path
+        const currentPath = window.location.pathname;
+        // Get the base URL for your GitHub Pages site
+        const baseUrl = '/bandesaid/'; // Adjust this if your repo name is different
+
+        // Redirect to the correct home page
+        if (currentPath !== baseUrl) {
+          window.location.href = baseUrl;
       }
       window.addEventListener("beforeunload", function (e) {
         // Cancel the event

@@ -14,13 +14,17 @@
       if (performance.navigation.type === 1) {
         // Get the current path
         const currentPath = window.location.pathname;
-        // Get the base URL for your GitHub Pages site
-        const baseUrl = '/bandesaid/'; // Adjust this if your repo name is different
+        // Determine if we're on GitHub Pages
+        const isGitHubPages = window.location.hostname.includes("github.io");
+        // Set the base URL accordingly
+        const baseUrl = isGitHubPages ? "/bandesaid/" : "/";
 
         // Redirect to the correct home page
         if (currentPath !== baseUrl) {
           window.location.href = baseUrl;
+        }
       }
+
       window.addEventListener("beforeunload", function (e) {
         // Cancel the event
         e.preventDefault();

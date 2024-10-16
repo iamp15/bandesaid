@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "./App.css";
 import { Route, Routes } from "react-router-dom";
 import ControlPesaje from "./components/controlPesaje/ControlPesaje";
@@ -15,19 +15,62 @@ import FormulariosGuia from "./components/guias/FormulariosGuia";
 import Navbar from "./components/Navbar";
 
 function App() {
-  const [rol, setRol] = useState("");
-  const [proveedor, setProveedor] = useState("");
-  const [cargas, setCargas] = useState({
-    tr: [],
-    tg: [],
-    al: [],
-    av: [],
+  const [rol, setRol] = useState(() => {
+    const savedRol = sessionStorage.getItem("rol");
+    return savedRol ? savedRol : "";
   });
-  const [cargaActual, setCargaActual] = useState(0);
-  const [guias_precintos, setGuias_precintos] = useState({
-    guias: 0,
-    precintos: 0,
+  const [proveedor, setProveedor] = useState(() => {
+    const savedProveedor = sessionStorage.getItem("proveedor");
+    return savedProveedor ? savedProveedor : "";
   });
+  const [cargas, setCargas] = useState(() => {
+    // Initialize cargas from sessionStorage or use default value
+    const savedCargas = sessionStorage.getItem("cargas");
+    return savedCargas
+      ? JSON.parse(savedCargas)
+      : {
+          tr: [],
+          tg: [],
+          al: [],
+          av: [],
+        };
+  });
+  const [cargaActual, setCargaActual] = useState(() => {
+    // Initialize cargaActual from sessionStorage or use default value
+    const savedCargaActual = sessionStorage.getItem("cargaActual");
+    return savedCargaActual ? parseInt(savedCargaActual) : 0;
+  });
+  const [guias_precintos, setGuias_precintos] = useState(() => {
+    const savedGuias_precintos = sessionStorage.getItem("guias_precintos");
+    return savedGuias_precintos
+      ? JSON.parse(savedGuias_precintos)
+      : {
+          guias: 0,
+          precintos: 0,
+        };
+  });
+
+  // Save cargas to sessionStorage whenever it changes
+  useEffect(() => {
+    sessionStorage.setItem("cargas", JSON.stringify(cargas));
+  }, [cargas]);
+
+  // Save cargaActual to sessionStorage whenever it changes
+  useEffect(() => {
+    sessionStorage.setItem("cargaActual", cargaActual.toString());
+  }, [cargaActual]);
+
+  useEffect(() => {
+    sessionStorage.setItem("rol", rol);
+  }, [rol]);
+
+  useEffect(() => {
+    sessionStorage.setItem("proveedor", proveedor);
+  }, [proveedor]);
+
+  useEffect(() => {
+    sessionStorage.setItem("guias_precintos", JSON.stringify(guias_precintos));
+  }, [guias_precintos]);
 
   return (
     <>

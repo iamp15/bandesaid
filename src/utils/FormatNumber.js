@@ -1,13 +1,16 @@
 export const formatNumber = (input) => {
-  // Remove any existing thousand separators and replace comma with dot for parsing
-  const cleanedInput = input.replace(/\./g, "").replace(",", ".");
+  // If input is a number, convert it to a string with 2 decimal places
+  if (typeof input === "number") {
+    input = input.toFixed(2);
+  }
 
   // Check if the input is already in the correct format
-  const isCorrectFormat = /^\d{1,3}(\.\d{3})*,\d{2}$/.test(input);
-
-  if (isCorrectFormat) {
-    return input; // Return the input as is if it's already correctly formatted
+  if (/^\d{1,3}(\.\d{3})*,\d{2}$/.test(input)) {
+    return input;
   }
+
+  // Remove existing thousand separators and replace comma with dot
+  const cleanedInput = input.replace(/\.(?=\d{3})/g, "").replace(",", ".");
 
   // Parse the cleaned input
   const number = parseFloat(cleanedInput);
@@ -18,6 +21,7 @@ export const formatNumber = (input) => {
 
   // Format the number
   const parts = number.toFixed(2).split(".");
+
   const integerPart = parts[0];
   const decimalPart = parts[1];
 

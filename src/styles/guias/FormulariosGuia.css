@@ -11,6 +11,10 @@
   width: 200px;
 }
 
+.button-group {
+  margin-top: 40px;
+}
+
 .notification {
   position: absolute;
   bottom: 100%;

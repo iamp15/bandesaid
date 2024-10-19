@@ -24,8 +24,8 @@ const RevisionGuias = ({ cargas, proveedor, cargaActual }) => {
 
         <div className="section">
           <h3>Comercializadora</h3>
-          <p>Nombre: {infoCarga.empresa} </p>
           <p>Entidad destino: {infoCarga.destino} </p>
+          <p>Código espejo: {infoCarga.codigo_espejo} </p>
           <p>Estado destino: {infoCarga.estadoDestino} </p>
           <p>Transporte: {infoCarga.transporte}</p>
           <button onClick={() => navigate("/datosg2")}>Editar</button>

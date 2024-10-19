@@ -22,8 +22,6 @@ const NumPrecintos = ({
             onChange={(e) => onPrecintoNumberChange(index, e.target.value)}
             defaultValue={currentPrecintos[index]}
             maxLength={8}
-            pattern="\d{8}"
-            title="El número de precinto debe tener 8 dígitos"
             required
           />
         </div>

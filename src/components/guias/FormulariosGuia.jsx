@@ -78,7 +78,7 @@ const FormulariosGuia = ({
       `*Nombre del chofer:* ${infoCarga.chofer}\n` +
       `*Cédula de identidad del chofer:* ${infoCarga.cedula}\n` +
       `*Placa del vehículo:* ${infoCarga.placa}\n` +
-      `*Número de precintos:*  ${infoCarga.precintos.join("/")}\n` +
+      `*Número de precintos:* ${infoCarga.precintos.join("/")}\n` +
       `*Marca del vehículo:* ${infoCarga.marcaVehiculo}\n`
     );
   };

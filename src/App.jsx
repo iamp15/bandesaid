@@ -45,8 +45,8 @@ function App() {
     return savedGuias_precintos
       ? JSON.parse(savedGuias_precintos)
       : {
-          guias: 0,
-          precintos: 0,
+          guias: "",
+          precintos: "",
         };
   });
 

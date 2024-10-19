@@ -20,6 +20,10 @@ const DatosG4 = ({
   const [precintos, setPrecintos] = useState([]);
   const guardar = useGuardar(setCargas);
   const mapeo = PROVIDER_MAP[proveedor];
+  const numGuias =
+    guias_precintos.guias === "" ? "" : Number(guias_precintos.guias);
+  const numPrecintos =
+    guias_precintos.precintos === "" ? "" : Number(guias_precintos.precintos);
 
   useEffect(() => {
     const initialCodigos =
@@ -29,8 +33,8 @@ const DatosG4 = ({
     setPrecintos(initialPrecintos);
     setGuias_precintos((prev) => ({
       ...prev,
-      guias: initialCodigos.length,
-      precintos: initialPrecintos.length,
+      guias: initialCodigos.length || "",
+      precintos: initialPrecintos.length || "",
     }));
   }, [cargas, cargaActual, mapeo, setGuias_precintos]);
 
@@ -45,17 +49,24 @@ const DatosG4 = ({
   };
 
   const handleGuiasChange = (e) => {
-    const newGuiasValue = Number(e.target.value);
+    const inputValue = e.target.value;
+    const newGuiasValue =
+      inputValue === "" ? "" : Math.min(Math.max(0, Number(inputValue)), 15);
+
     setGuias_precintos((prev) => ({ ...prev, guias: newGuiasValue }));
 
     setCodigos((prev) => {
+      if (newGuiasValue === "") {
+        return [];
+      }
+      const numGuias = Number(newGuiasValue);
       const newCodigos = [...prev];
-      if (newGuiasValue > prev.length) {
-        for (let i = prev.length; i < newGuiasValue; i++) {
+      if (numGuias > prev.length) {
+        for (let i = prev.length; i < numGuias; i++) {
           newCodigos.push("");
         }
-      } else if (newGuiasValue < prev.length) {
-        newCodigos.splice(newGuiasValue);
+      } else if (numGuias < prev.length) {
+        newCodigos.splice(numGuias);
       }
       return newCodigos;
     });
@@ -72,29 +83,36 @@ const DatosG4 = ({
   };
 
   const handlePrecintosChange = (e) => {
-    const newPrecintosValue = Number(e.target.value);
+    const inputValue = e.target.value;
+    const newPrecintosValue =
+      inputValue === "" ? "" : Math.min(Math.max(0, Number(inputValue)), 15);
+
     setGuias_precintos((prev) => ({ ...prev, precintos: newPrecintosValue }));
+
     setPrecintos((prev) => {
+      if (newPrecintosValue === "") {
+        return [];
+      }
+      const numPrecintos = Number(newPrecintosValue);
       const newPrecintos = [...prev];
-      if (newPrecintosValue > prev.length) {
-        for (let i = prev.length; i < newPrecintosValue; i++) {
+      if (numPrecintos > prev.length) {
+        for (let i = prev.length; i < numPrecintos; i++) {
           newPrecintos.push("");
         }
-      } else if (newPrecintosValue < prev.length) {
-        newPrecintos.splice(newPrecintosValue);
+      } else if (numPrecintos < prev.length) {
+        newPrecintos.splice(numPrecintos);
       }
       return newPrecintos;
     });
   };
 
   const handlePrecintoNumberChange = (index, value) => {
-    if (value === "" || isValidNumber(value, 8)) {
-      setPrecintos((prev) => {
-        const newPrecintos = [...prev];
-        newPrecintos[index] = value;
-        return newPrecintos;
-      });
-    }
+    const sanitizedValue = value.replace(/\D/g, "");
+    setPrecintos((prev) => {
+      const newPrecintos = [...prev];
+      newPrecintos[index] = sanitizedValue;
+      return newPrecintos;
+    });
   };
 
   return (
@@ -108,13 +126,15 @@ const DatosG4 = ({
               type="number"
               id="n_guias"
               min={0}
-              max={100}
-              value={guias_precintos.guias}
+              max={15}
+              step={1}
+              value={numGuias}
               onChange={handleGuiasChange}
+              placeholder="Ingrese la cantidad de guías"
             />
           </div>
           <NumGuias
-            num={guias_precintos.guias}
+            num={numGuias}
             cargas={cargas}
             mapeo={mapeo}
             cargaActual={cargaActual}
@@ -127,14 +147,16 @@ const DatosG4 = ({
               type="number"
               id="n_precintos"
               min={0}
-              max={100}
-              value={guias_precintos.precintos}
+              max={15}
+              step={1}
+              value={numPrecintos}
               onChange={handlePrecintosChange}
+              placeholder="Ingrese la cantidad de precintos"
             />
           </div>
 
           <NumPrecintos
-            num={guias_precintos.precintos}
+            num={numPrecintos}
             cargas={cargas}
             mapeo={mapeo}
             cargaActual={cargaActual}

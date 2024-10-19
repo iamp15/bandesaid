@@ -149,10 +149,12 @@ const FormulariosGuia = ({
           <button
             onClick={() => {
               setCargaActual(0);
+              localStorage.removeItem("selectedCompany");
+              localStorage.removeItem("inputValue");
               navigate("/proveedor");
             }}
           >
-            Inicio
+            Finalizar despacho
           </button>
         </div>
       </div>

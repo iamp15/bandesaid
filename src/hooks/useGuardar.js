@@ -14,7 +14,6 @@ export const useGuardar = (setCargas) => {
       ),
     }));
 
-    console.log("guardado");
     navigate(nextRoute);
   };
 

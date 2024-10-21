@@ -10,9 +10,11 @@ import Proveedor from "./components/Proveedor";
 import DatosG2 from "./components/guias/distribuidora/DatosG2";
 import DatosG3 from "./components/guias/controles/DatosG3";
 import DatosG4 from "./components/guias/guias/DatosG4";
+import ControlPesaje2 from "./components/controlPesaje/ControlPesaje2";
 import RevisionGuias from "./components/guias/RevisionGuias";
 import FormulariosGuia from "./components/guias/FormulariosGuia";
 import Navbar from "./components/Navbar";
+import ControlPesaje3 from "./components/controlPesaje/ControlPesaje3";
 
 function App() {
   const [rol, setRol] = useState(() => {
@@ -72,8 +74,6 @@ function App() {
     sessionStorage.setItem("guias_precintos", JSON.stringify(guias_precintos));
   }, [guias_precintos]);
 
-  console.log(cargas);
-
   return (
     <>
       <Navbar
@@ -110,7 +110,40 @@ function App() {
               />
             }
           />
-          <Route path="/cp" element={<ControlPesaje />} />
+          <Route
+            path="/pesaje1"
+            element={
+              <ControlPesaje
+                cargas={cargas}
+                setCargas={setCargas}
+                proveedor={proveedor}
+                cargaActual={cargaActual}
+                setCargaActual={setCargaActual}
+              />
+            }
+          />
+          <Route
+            path="/pesaje2"
+            element={
+              <ControlPesaje2
+                cargas={cargas}
+                setCargas={setCargas}
+                proveedor={proveedor}
+                cargaActual={cargaActual}
+              />
+            }
+          />
+          <Route
+            path="/pesaje3"
+            element={
+              <ControlPesaje3
+                cargas={cargas}
+                proveedor={proveedor}
+                cargaActual={cargaActual}
+                setCargaActual={setCargaActual}
+              />
+            }
+          />
           <Route path="/cc" element={<ControlCalidad />} />
           <Route
             path="/datosg1"

@@ -1,5 +1,6 @@
 /* eslint-disable react/prop-types */
 import CuadroCargas from "./CuadroCargas";
+import { formatDate } from "../utils/FormatDate";
 
 const Carga = ({ cargas, setCargas, rol, proveedor, setCargaActual }) => {
   const providerMap = {
@@ -15,6 +16,7 @@ const Carga = ({ cargas, setCargas, rol, proveedor, setCargaActual }) => {
       const newCarga = {
         id: cargas[key].length + 1,
         proveedor: proveedor,
+        fecha: formatDate(),
       };
       setCargas((prevCargas) => ({
         ...prevCargas,

@@ -49,11 +49,14 @@ const DatosG2 = ({ proveedor, cargaActual, setCargas, cargas }) => {
   };
 
   const handleEmpresaInput = (e) => {
-    const value = e.target.value.toLowerCase();
+    const value = e.target.value.toLowerCase().trim();
+    const searchWords = value.split(/\s+/); // Split input into words
+
     const filtered = companyNames.filter((company) =>
-      company.nombre.toLowerCase().startsWith(value)
+      searchWords.every((word) => company.nombre.toLowerCase().includes(word))
     );
     setSuggestions(filtered);
+
     // Only set selectedCompany to null if the input doesn't match any company
     if (
       !filtered.some(
@@ -94,6 +97,7 @@ const DatosG2 = ({ proveedor, cargaActual, setCargas, cargas }) => {
                 }}
                 onFocus={() => setShowSuggestions(true)}
                 onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+                placeholder="Escribe el nombre de la empresa"
               />
               {showSuggestions && suggestions.length > 0 && (
                 <ul className="suggestions-list">

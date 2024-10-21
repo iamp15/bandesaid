@@ -2,7 +2,6 @@
 import { Link } from "react-router-dom";
 import { PROVIDER_MAP } from "../../../constants";
 import { useGuardar } from "../../../hooks/useGuardar";
-import { formatDate } from "../../../utils/FormatDate";
 import { capitalizeWords } from "../../../utils/Capitalizer";
 import "../../../styles/guias/DatosG1.css";
 
@@ -37,7 +36,6 @@ const DatosG1 = ({
       marcaVehiculo: capitalizeWords(event.target.marca.value),
       placa: event.target.placa.value.toUpperCase(),
       tk: event.target.tk.value,
-      fecha: formatDate(),
     };
 
     guardar(proveedor, cargaActual, "/datosG2", newData);
@@ -50,6 +48,7 @@ const DatosG1 = ({
     <div className="wrap-container">
       <div className="menu">
         <form onSubmit={handleSubmit}>
+          {/****** Chofer ******/}
           <h2>Chofer:</h2>
           <label htmlFor="nombre">Nombre: </label>
           <input
@@ -63,6 +62,8 @@ const DatosG1 = ({
             id="cedula"
             defaultValue={currentCarga?.cedula || ""}
           />
+
+          {/****** Vehículo ******/}
           <h2>Vehículo:</h2>
           <label htmlFor="marca">Marca: </label>
           <input
@@ -76,11 +77,15 @@ const DatosG1 = ({
             id="placa"
             defaultValue={currentCarga?.placa || ""}
           />
+
+          {/****** Therno King ******/}
           <label htmlFor="tk">Therno King: </label>
           <select name="tk" id="tk" defaultValue={currentCarga?.tk || "si"}>
             <option value="Si">Sí</option>
             <option value="No">No</option>
           </select>
+
+          {/****** Botones ******/}
           <div className="button-group">
             <Link to={"/carga"}>
               <button onClick={() => setCargaActual(0)}>Atras</button>

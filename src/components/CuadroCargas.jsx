@@ -4,7 +4,7 @@ import "./../styles/guias/CuadroCargas.css";
 
 const CuadroCargas = ({ cargas, rol, setCargaActual, eliminarCarga }) => {
   const ruta = () => {
-    if (rol === "Control Pesaje") return "";
+    if (rol === "Control Pesaje") return "/pesaje1";
     if (rol === "Control de Calidad") return "";
     else return "/datosg1";
   };

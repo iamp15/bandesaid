@@ -15,6 +15,7 @@ import RevisionGuias from "./components/guias/RevisionGuias";
 import FormulariosGuia from "./components/guias/FormulariosGuia";
 import Navbar from "./components/Navbar";
 import ControlPesaje3 from "./components/controlPesaje/ControlPesaje3";
+import Menu from "./components/Menu";
 
 function App() {
   const [rol, setRol] = useState(() => {
@@ -88,7 +89,8 @@ function App() {
       />
       <div className="content-wrapper">
         <Routes>
-          <Route path="/" element={<Rol setRol={setRol} />} />
+          <Route path="/" element={<Menu />} />
+          <Route path="/despachos" element={<Rol setRol={setRol} />} />
           <Route
             path="/proveedor"
             element={

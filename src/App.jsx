@@ -74,6 +74,8 @@ function App() {
     sessionStorage.setItem("guias_precintos", JSON.stringify(guias_precintos));
   }, [guias_precintos]);
 
+  console.log(cargas);
+
   return (
     <>
       <Navbar

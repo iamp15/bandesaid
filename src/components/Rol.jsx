@@ -20,6 +20,11 @@ export const Rol = ({ setRol }) => {
             </button>
           </Link>
         </div>
+        <div className="button-group">
+          <Link to={"/"}>
+            <button>Volver a inicio</button>
+          </Link>
+        </div>
       </div>
     </div>
   );

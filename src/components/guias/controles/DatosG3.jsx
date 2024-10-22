@@ -61,12 +61,14 @@ const DatosG3 = ({ proveedor, cargaActual, cargas, setCargas }) => {
             type="text"
             id="pp"
             defaultValue={currentCarga?.p_promedio || ""}
+            placeholder="Peso promedio del/de los pollo(s)"
           />
           <label htmlFor="tp">Temperatura promedio: </label>
           <input
             type="text"
             id="tp"
             defaultValue={currentCarga?.t_promedio || ""}
+            placeholder="Temperatura promedio del/de los pollo(s)"
           />
           <h2>Control de Peso</h2>
           <label htmlFor="pg">Peso según guía: </label>
@@ -74,12 +76,14 @@ const DatosG3 = ({ proveedor, cargaActual, cargas, setCargas }) => {
             type="text"
             id="pg"
             defaultValue={currentCarga?.p_guia || ""}
+            placeholder="Ej.: 10000"
           />
           <label htmlFor="pv">Peso verificado: </label>
           <input
             type="text"
             id="pv"
             defaultValue={currentCarga?.p_verificado || ""}
+            placeholder="Ej.: 10000.5"
           />
           <div className="button-group">
             <Link to={"/datosg2"}>

@@ -12,26 +12,49 @@ const DatosG2 = ({ proveedor, cargaActual, setCargas, cargas }) => {
   const currentCarga = cargas[PROVIDER_MAP[proveedor]]?.[cargaActual - 1] || {};
   const [suggestions, setSuggestions] = useState([]);
   const [selectedCompany, setSelectedCompany] = useState(() => {
-    const saved = localStorage.getItem("selectedCompany");
-    return saved ? JSON.parse(saved) : null;
+    if (currentCarga?.destino) {
+      return (
+        companyNames.find(
+          (company) => company.nombre === currentCarga.destino
+        ) || {
+          nombre: currentCarga.destino,
+          codigo: currentCarga.codigo_espejo,
+        }
+      );
+    }
+    return null;
   });
   const [showSuggestions, setShowSuggestions] = useState(false);
-  const [inputValue, setInputValue] = useState(() => {
-    const saved = localStorage.getItem("inputValue");
-    return saved || currentCarga?.destino || "";
-  });
+  const [inputValue, setInputValue] = useState(
+    () => currentCarga?.destino || ""
+  );
 
   useEffect(() => {
-    if (selectedCompany) {
-      localStorage.setItem("selectedCompany", JSON.stringify(selectedCompany));
+    console.log("DatosG2 component mounted");
+    return () => {
+      console.log("DatosG2 component unmounted");
+    };
+  }, []);
+
+  useEffect(() => {
+    if (currentCarga) {
+      setInputValue(currentCarga.destino || "");
+      if (currentCarga.destino) {
+        const matchingCompany = companyNames.find(
+          (company) => company.nombre === currentCarga.destino
+        ) || {
+          nombre: currentCarga.destino,
+          codigo: currentCarga.codigo_espejo,
+        };
+        setSelectedCompany(matchingCompany);
+      } else {
+        setSelectedCompany(null);
+      }
     } else {
-      localStorage.removeItem("selectedCompany");
+      setInputValue("");
+      setSelectedCompany(null);
     }
-  }, [selectedCompany]);
-
-  useEffect(() => {
-    localStorage.setItem("inputValue", inputValue);
-  }, [inputValue]);
+  }, [currentCarga]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -79,6 +102,7 @@ const DatosG2 = ({ proveedor, cargaActual, setCargas, cargas }) => {
             type="text"
             id="transporte"
             defaultValue={currentCarga?.transporte || ""}
+            placeholder="Ej.: Mercal"
           />
 
           {/****** Entidad destino *****/}
@@ -122,7 +146,7 @@ const DatosG2 = ({ proveedor, cargaActual, setCargas, cargas }) => {
           {/****** Codigo espejo *****/}
           {selectedCompany && (
             <p className="selected-company-code">
-              Código espejo: {selectedCompany.codigo}
+              Código espejo: {selectedCompany.codigo || "N/A"}
             </p>
           )}
 
@@ -131,7 +155,10 @@ const DatosG2 = ({ proveedor, cargaActual, setCargas, cargas }) => {
           <input
             type="text"
             id="estadoDestino"
-            defaultValue={currentCarga?.estadoDestino || ""}
+            defaultValue={
+              currentCarga?.estadoDestino || currentCarga?.codigo_espejo || ""
+            }
+            placeholder="Ej.: Distrito Capital"
           />
 
           {/****** Botones *****/}

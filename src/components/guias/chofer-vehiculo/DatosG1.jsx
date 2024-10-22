@@ -55,12 +55,14 @@ const DatosG1 = ({
             type="text"
             id="nombre"
             defaultValue={currentCarga?.chofer || ""}
+            placeholder="Ingrese el nombre del chofer"
           />
           <label htmlFor="placa">Cédula: </label>
           <input
             type="text"
             id="cedula"
             defaultValue={currentCarga?.cedula || ""}
+            placeholder="Ingrese la cédula del chofer"
           />
 
           {/****** Vehículo ******/}
@@ -70,12 +72,14 @@ const DatosG1 = ({
             type="text"
             id="marca"
             defaultValue={currentCarga?.marcaVehiculo || ""}
+            placeholder="Ej.: Jac"
           />
           <label htmlFor="placa">Placa: </label>
           <input
             type="text"
             id="placa"
             defaultValue={currentCarga?.placa || ""}
+            placeholder="Ej.: ABC123"
           />
 
           {/****** Therno King ******/}

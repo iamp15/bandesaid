@@ -35,7 +35,7 @@ const ControlPesaje3 = ({ cargas, proveedor, cargaActual, setCargaActual }) => {
           <Link to={"/pesaje2"}>
             <button>Atras</button>
           </Link>
-          <Link to={"/carga"}>
+          <Link to={"/proveedor"}>
             <button onClick={() => setCargaActual(0)}>Inicio</button>
           </Link>
         </div>

@@ -6,6 +6,7 @@ import NumPrecintos from "./NumPrecintos";
 import { useGuardar } from "../../../hooks/useGuardar";
 import { PROVIDER_MAP } from "../../../constants";
 import { isValidNumber } from "../../../utils/CharLimit";
+import { formatNumber } from "../../../utils/FormatNumber";
 import "../../../styles/guias/DatosG4.css";
 
 const DatosG4 = ({
@@ -17,6 +18,7 @@ const DatosG4 = ({
   setGuias_precintos,
 }) => {
   const [codigos, setCodigos] = useState([]);
+  const [pesos, setPesos] = useState([]);
   const [precintos, setPrecintos] = useState([]);
   const guardar = useGuardar(setCargas);
   const mapeo = PROVIDER_MAP[proveedor];
@@ -28,23 +30,28 @@ const DatosG4 = ({
   useEffect(() => {
     const initialCodigos =
       cargas[mapeo]?.[cargaActual - 1]?.codigos_guias || [];
+    const initialPesos = cargas[mapeo]?.[cargaActual - 1]?.pesos_guias || [];
     const initialPrecintos = cargas[mapeo]?.[cargaActual - 1]?.precintos || [];
     setCodigos(initialCodigos);
+    setPesos(initialPesos);
     setPrecintos(initialPrecintos);
     setGuias_precintos((prev) => ({
       ...prev,
       guias: initialCodigos.length || "",
       precintos: initialPrecintos.length || "",
     }));
+    console.log("Initial pesos:", initialPesos);
   }, [cargas, cargaActual, mapeo, setGuias_precintos]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
     const newData = {
       codigos_guias: codigos,
-      precintos: precintos,
+      pesos_guias: pesos.map((peso) => (peso ? formatNumber(peso) : "")),
+      precintos: precintos.length > 0 ? precintos : ["S/P"],
     };
 
+    console.log("Submitting data:", newData);
     guardar(proveedor, cargaActual, "/revisionguias", newData);
   };
 
@@ -56,19 +63,25 @@ const DatosG4 = ({
     setGuias_precintos((prev) => ({ ...prev, guias: newGuiasValue }));
 
     setCodigos((prev) => {
-      if (newGuiasValue === "") {
-        return [];
-      }
-      const numGuias = Number(newGuiasValue);
-      const newCodigos = [...prev];
-      if (numGuias > prev.length) {
-        for (let i = prev.length; i < numGuias; i++) {
-          newCodigos.push("");
-        }
-      } else if (numGuias < prev.length) {
-        newCodigos.splice(numGuias);
-      }
+      const newCodigos =
+        newGuiasValue === ""
+          ? []
+          : Array(Number(newGuiasValue))
+              .fill("")
+              .map((_, i) => prev[i] || "");
+      console.log("New codigos:", newCodigos);
       return newCodigos;
+    });
+
+    setPesos((prev) => {
+      const newPesos =
+        newGuiasValue === ""
+          ? []
+          : Array(Number(newGuiasValue))
+              .fill("")
+              .map((_, i) => prev[i] || "");
+      console.log("New pesos:", newPesos);
+      return newPesos;
     });
   };
 
@@ -77,9 +90,19 @@ const DatosG4 = ({
       setCodigos((prev) => {
         const newCodigos = [...prev];
         newCodigos[index] = value;
+        console.log("Updated codigos:", newCodigos);
         return newCodigos;
       });
     }
+  };
+
+  const handleGuideWeightChange = (index, value) => {
+    const numericValue = value.replace(/[^0-9]/g, "");
+    setPesos((prev) => {
+      const newPesos = [...prev];
+      newPesos[index] = numericValue;
+      return newPesos;
+    });
   };
 
   const handlePrecintosChange = (e) => {
@@ -135,10 +158,10 @@ const DatosG4 = ({
           </div>
           <NumGuias
             num={numGuias}
-            cargas={cargas}
-            mapeo={mapeo}
-            cargaActual={cargaActual}
+            codigos={codigos}
+            pesos={pesos}
             onGuideNumberChange={handleGuideNumberChange}
+            onGuideWeightChange={handleGuideWeightChange}
           />
           <div className="number-input-container">
             <h2>Datos Precintos</h2>

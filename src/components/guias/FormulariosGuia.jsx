@@ -9,6 +9,7 @@ import {
   LOTE,
 } from "../../constants";
 import "../../styles/guias/formulariosGuia.css";
+import { formatNumber } from "../../utils/FormatNumber";
 
 const FormulariosGuia = ({
   proveedor,
@@ -28,14 +29,49 @@ const FormulariosGuia = ({
       else return `${cargaActual}.${index + 1}`;
     };
 
+    const choosePeso = () => {
+      if (numGuias > 1) return infoCarga?.pesos_guias[index];
+      else return infoCarga?.p_guia;
+    };
+
+    const parseLocalizedNumber = (stringNumber) => {
+      // Remove thousands separators and replace decimal comma with period
+      const normalizedNumber = stringNumber
+        .replace(/\./g, "")
+        .replace(",", ".");
+      return Number(normalizedNumber);
+    };
+
+    const choosePesoVerificado = () => {
+      if (numGuias === 1) {
+        return infoCarga.p_verificado;
+      }
+
+      if (numGuias > 1) {
+        if (index < numGuias - 1) {
+          // Not the last guide
+          return infoCarga.pesos_guias[index];
+        } else {
+          // Last guide
+          const sumPreviousWeights = infoCarga.pesos_guias
+            .slice(0, -1)
+            .reduce((sum, weight) => sum + parseLocalizedNumber(weight), 0);
+          const totalVerified = parseLocalizedNumber(infoCarga.p_verificado);
+          const remainingWeight = totalVerified - sumPreviousWeights;
+          return formatNumber(remainingWeight);
+        }
+      }
+      return 0; // Default return if none of the conditions are met
+    };
+
     return (
       "*DATOS DE LA GUIA* 🧾\n" +
       `*Carga Nº ${numeracion()}:*\n` +
       `*Empresa:* ${proveedor}\n` +
       `*Galpón:* ${GALPON}\n` +
       `*Rubro:* ${RUBRO}\n` +
-      `*Monto según Guía:* ${infoCarga?.p_guia} kg\n` +
-      `*Monto verificado:* ${infoCarga?.p_verificado} kg\n` +
+      `*Monto según Guía:* ${choosePeso()} kg\n` +
+      `*Monto verificado:* ${choosePesoVerificado()} kg\n` +
       `*Número de Guía:* ${infoCarga?.codigos_guias[index]}\n` +
       `*Marca:* ${infoCarga?.marca_rubro}\n` +
       `*Números de lotes:* ${LOTE.numero}\n` +

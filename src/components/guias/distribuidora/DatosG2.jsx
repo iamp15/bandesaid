@@ -30,13 +30,6 @@ const DatosG2 = ({ proveedor, cargaActual, setCargas, cargas }) => {
   );
 
   useEffect(() => {
-    console.log("DatosG2 component mounted");
-    return () => {
-      console.log("DatosG2 component unmounted");
-    };
-  }, []);
-
-  useEffect(() => {
     if (currentCarga) {
       setInputValue(currentCarga.destino || "");
       if (currentCarga.destino) {

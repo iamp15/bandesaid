@@ -44,7 +44,18 @@ const RevisionGuias = ({ cargas, proveedor, cargaActual }) => {
 
         <div className="section">
           <h3>Datos Guía</h3>
-          <p>Guías: {infoCarga.codigos_guias.join(", ")}</p>
+          {infoCarga.codigos_guias.length > 1 ? (
+            <div>
+              {infoCarga.codigos_guias.map((codigo, index) => (
+                <p key={index}>
+                  Guía {index + 1} - {codigo} - {infoCarga.pesos_guias[index]}{" "}
+                  kg
+                </p>
+              ))}
+            </div>
+          ) : (
+            <p>Código guía: {infoCarga.codigos_guias[0]}</p>
+          )}
           <p>Precintos: {infoCarga.precintos.join(", ")} </p>
           <button onClick={() => navigate("/datosg4")}>Editar</button>
         </div>

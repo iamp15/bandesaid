@@ -30,7 +30,8 @@ const ControlPesaje3 = ({ cargas, proveedor, cargaActual, setCargaActual }) => {
     <div className="wrap-container">
       <div className="menu">
         <h2>Formato peso verificado:</h2>
-        <BotonCopiar text1={pVerificadoText()} text2={"Peso verificado"} />
+        <p>Peso verificado: {infoCarga.p_verificado} kg</p>
+        <BotonCopiar text1={pVerificadoText()} text2={"Copiar formato"} />
         <div className="button-group">
           <Link to={"/pesaje2"}>
             <button>Atras</button>

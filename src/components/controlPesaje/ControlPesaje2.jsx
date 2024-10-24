@@ -75,6 +75,7 @@ const ControlPesaje2 = ({ cargas, setCargas, proveedor, cargaActual }) => {
             type="text"
             id="pVerificado"
             defaultValue={currentCarga?.p_verificado || ""}
+            required
           />
           <div className="button-group">
             <Link to={"/pesaje1"}>

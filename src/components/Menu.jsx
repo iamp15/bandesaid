@@ -81,6 +81,14 @@ const Menu = () => {
           </Link>
         ))}
       </div>
+      <button
+        onClick={() => {
+          localStorage.clear();
+          console.log("Memoria limpia");
+        }}
+      >
+        Limpiar memoria
+      </button>
     </div>
   );
 };

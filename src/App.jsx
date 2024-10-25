@@ -19,16 +19,16 @@ import Menu from "./components/Menu";
 
 function App() {
   const [rol, setRol] = useState(() => {
-    const savedRol = sessionStorage.getItem("rol");
+    const savedRol = localStorage.getItem("rol");
     return savedRol ? savedRol : "";
   });
   const [proveedor, setProveedor] = useState(() => {
-    const savedProveedor = sessionStorage.getItem("proveedor");
+    const savedProveedor = localStorage.getItem("proveedor");
     return savedProveedor ? savedProveedor : "";
   });
   const [cargas, setCargas] = useState(() => {
-    // Initialize cargas from sessionStorage or use default value
-    const savedCargas = sessionStorage.getItem("cargas");
+    // Initialize cargas from localStorage or use default value
+    const savedCargas = localStorage.getItem("cargas");
     return savedCargas
       ? JSON.parse(savedCargas)
       : {
@@ -39,12 +39,12 @@ function App() {
         };
   });
   const [cargaActual, setCargaActual] = useState(() => {
-    // Initialize cargaActual from sessionStorage or use default value
-    const savedCargaActual = sessionStorage.getItem("cargaActual");
+    // Initialize cargaActual from localStorage or use default value
+    const savedCargaActual = localStorage.getItem("cargaActual");
     return savedCargaActual ? parseInt(savedCargaActual) : 0;
   });
   const [guias_precintos, setGuias_precintos] = useState(() => {
-    const savedGuias_precintos = sessionStorage.getItem("guias_precintos");
+    const savedGuias_precintos = localStorage.getItem("guias_precintos");
     return savedGuias_precintos
       ? JSON.parse(savedGuias_precintos)
       : {
@@ -53,29 +53,33 @@ function App() {
         };
   });
 
-  // Save cargas to sessionStorage whenever it changes
+  // Save cargas to localStorage whenever it changes
   useEffect(() => {
-    sessionStorage.setItem("cargas", JSON.stringify(cargas));
+    localStorage.setItem("cargas", JSON.stringify(cargas));
   }, [cargas]);
 
-  // Save cargaActual to sessionStorage whenever it changes
+  // Save cargaActual to localStorage whenever it changes
   useEffect(() => {
-    sessionStorage.setItem("cargaActual", cargaActual.toString());
+    localStorage.setItem("cargaActual", cargaActual.toString());
   }, [cargaActual]);
 
   useEffect(() => {
-    sessionStorage.setItem("rol", rol);
+    localStorage.setItem("rol", rol);
   }, [rol]);
 
   useEffect(() => {
-    sessionStorage.setItem("proveedor", proveedor);
+    localStorage.setItem("proveedor", proveedor);
   }, [proveedor]);
 
   useEffect(() => {
-    sessionStorage.setItem("guias_precintos", JSON.stringify(guias_precintos));
+    localStorage.setItem("guias_precintos", JSON.stringify(guias_precintos));
   }, [guias_precintos]);
 
   console.log(cargas);
+  console.log(cargaActual);
+  console.log(proveedor);
+  console.log(rol);
+  console.log(guias_precintos);
 
   return (
     <>
@@ -90,7 +94,21 @@ function App() {
       <div className="content-wrapper">
         <Routes>
           <Route path="/" element={<Menu />} />
-          <Route path="/despachos" element={<Rol setRol={setRol} />} />
+          <Route
+            path="/despachos"
+            element={
+              <Rol
+                setRol={setRol}
+                cargas={cargas}
+                setCargas={setCargas}
+                setProveedor={setProveedor}
+                setCargaActual={setCargaActual}
+                rol={rol}
+                proveedor={proveedor}
+                cargaActual={cargaActual}
+              />
+            }
+          />
           <Route
             path="/proveedor"
             element={

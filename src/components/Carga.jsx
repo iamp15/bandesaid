@@ -10,11 +10,16 @@ const Carga = ({ cargas, setCargas, rol, proveedor, setCargaActual }) => {
     "Avícola Nam": "av",
   };
 
+  const getNextId = (cargasArray) => {
+    if (cargasArray.length === 0) return 1;
+    return Math.max(...cargasArray.map((carga) => carga.id)) + 1;
+  };
+
   const aggCarga = () => {
     const key = providerMap[proveedor];
     if (key) {
       const newCarga = {
-        id: cargas[key].length + 1,
+        id: getNextId(cargas[key]),
         proveedor: proveedor,
         fecha: formatDate(),
       };
@@ -27,7 +32,12 @@ const Carga = ({ cargas, setCargas, rol, proveedor, setCargaActual }) => {
 
   const eliminarCarga = (id) => {
     const key = providerMap[proveedor];
-    if (key) {
+    const isConfirmed = window.confirm(
+      `¿Estás seguro de que deseas borrar la carga ${
+        id + 1
+      }? Esta acción no se puede deshacer.`
+    );
+    if (key && isConfirmed) {
       setCargas((prevCargas) => ({
         ...prevCargas,
         [key]: prevCargas[key].filter((carga) => carga.id !== id),

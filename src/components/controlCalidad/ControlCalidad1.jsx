@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 
-const ControlCalidad = () => {
+const ControlCalidad1 = () => {
   return (
     <Link to={"/"}>
       <h1>ControlCalidad</h1>
@@ -8,4 +8,4 @@ const ControlCalidad = () => {
   );
 };
 
-export default ControlCalidad;
+export default ControlCalidad1;

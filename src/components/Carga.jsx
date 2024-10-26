@@ -1,6 +1,7 @@
 /* eslint-disable react/prop-types */
 import CuadroCargas from "./CuadroCargas";
 import { formatDate } from "../utils/FormatDate";
+import { useAlert } from "./alert/AlertContext";
 
 const Carga = ({ cargas, setCargas, rol, proveedor, setCargaActual }) => {
   const providerMap = {
@@ -9,6 +10,8 @@ const Carga = ({ cargas, setCargas, rol, proveedor, setCargaActual }) => {
     "Alimentos Lad": "al",
     "Avícola Nam": "av",
   };
+
+  const { askConfirmation } = useAlert();
 
   const getNextId = (cargasArray) => {
     if (cargasArray.length === 0) return 1;
@@ -32,17 +35,19 @@ const Carga = ({ cargas, setCargas, rol, proveedor, setCargaActual }) => {
 
   const eliminarCarga = (id) => {
     const key = providerMap[proveedor];
-    const isConfirmed = window.confirm(
+    askConfirmation(
       `¿Estás seguro de que deseas borrar la carga ${
         id + 1
-      }? Esta acción no se puede deshacer.`
+      }? Esta acción no se puede deshacer.`,
+      (isConfirmed) => {
+        if (key && isConfirmed) {
+          setCargas((prevCargas) => ({
+            ...prevCargas,
+            [key]: prevCargas[key].filter((carga) => carga.id !== id),
+          }));
+        }
+      }
     );
-    if (key && isConfirmed) {
-      setCargas((prevCargas) => ({
-        ...prevCargas,
-        [key]: prevCargas[key].filter((carga) => carga.id !== id),
-      }));
-    }
   };
 
   const renderCargas = () => {

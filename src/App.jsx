@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import "./App.css";
 import { Route, Routes } from "react-router-dom";
 import ControlPesaje from "./components/controlPesaje/ControlPesaje";
-import ControlCalidad from "./components/controlCalidad/ControlCalidad";
+import ControlCalidad1 from "./components/controlCalidad/ControlCalidad1";
 import Carga from "./components/Carga";
 import { Rol } from "./components/Rol";
 import DatosG1 from "./components/guias/chofer-vehiculo/DatosG1";
@@ -166,7 +166,7 @@ function App() {
               />
             }
           />
-          <Route path="/cc" element={<ControlCalidad />} />
+          <Route path="/cc1" element={<ControlCalidad1 />} />
           <Route
             path="/datosg1"
             element={

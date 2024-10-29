@@ -12,7 +12,7 @@ const DatosG3 = ({ proveedor, cargaActual, cargas, setCargas }) => {
   const guardar = useGuardar(setCargas);
   const currentCarga = cargas[PROVIDER_MAP[proveedor]]?.[cargaActual - 1] || {};
   const [chickenBrand, setChickenBrand] = useState(
-    currentCarga?.chickenBrand || MARCA[0].nombre
+    currentCarga?.marca_rubro || MARCA[0].nombre
   );
 
   const getCnd = (brandName) => {

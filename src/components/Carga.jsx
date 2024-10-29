@@ -2,6 +2,7 @@
 import CuadroCargas from "./CuadroCargas";
 import { formatDate } from "../utils/FormatDate";
 import { useAlert } from "./alert/AlertContext";
+import { Link } from "react-router-dom";
 
 const Carga = ({ cargas, setCargas, rol, proveedor, setCargaActual }) => {
   const providerMap = {
@@ -76,7 +77,21 @@ const Carga = ({ cargas, setCargas, rol, proveedor, setCargaActual }) => {
 
   return (
     <div className="wrap-container">
-      <div className="menu">{renderCargas()}</div>
+      <div className="menu">
+        {rol ? (
+          renderCargas()
+        ) : (
+          <div className="error">
+            <span>⚠️</span>
+            <p>Aun no has seleccionado un rol</p>
+            <div className="button-group">
+              <Link to="/despachos">
+                <button>Volver</button>
+              </Link>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

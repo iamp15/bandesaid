@@ -16,6 +16,9 @@ import FormulariosGuia from "./components/guias/FormulariosGuia";
 import Navbar from "./components/Navbar";
 import ControlPesaje3 from "./components/controlPesaje/ControlPesaje3";
 import Menu from "./components/Menu";
+import ControlCalidad2 from "./components/controlCalidad/ControlCalidad2";
+import ControlCalidad3 from "./components/controlCalidad/ControlCalidad3";
+import ControlCalidad4 from "./components/controlCalidad/ControlCalidad4";
 
 function App() {
   const [rol, setRol] = useState(() => {
@@ -76,10 +79,6 @@ function App() {
   }, [guias_precintos]);
 
   console.log(cargas);
-  console.log(cargaActual);
-  console.log(proveedor);
-  console.log(rol);
-  console.log(guias_precintos);
 
   return (
     <>
@@ -166,7 +165,51 @@ function App() {
               />
             }
           />
-          <Route path="/cc1" element={<ControlCalidad1 />} />
+          <Route
+            path="/cc1"
+            element={
+              <ControlCalidad1
+                cargas={cargas}
+                setCargas={setCargas}
+                proveedor={proveedor}
+                cargaActual={cargaActual}
+                setCargaActual={setCargaActual}
+              />
+            }
+          />
+          <Route
+            path="/cc2"
+            element={
+              <ControlCalidad2
+                cargas={cargas}
+                proveedor={proveedor}
+                cargaActual={cargaActual}
+              />
+            }
+          />
+          <Route
+            path="/cc3"
+            element={
+              <ControlCalidad3
+                cargas={cargas}
+                setCargas={setCargas}
+                proveedor={proveedor}
+                cargaActual={cargaActual}
+              />
+            }
+          />
+          <Route
+            path="/cc4"
+            element={
+              <ControlCalidad4
+                cargas={cargas}
+                setCargas={setCargas}
+                proveedor={proveedor}
+                cargaActual={cargaActual}
+                setCargaActual={setCargaActual}
+              />
+            }
+          />
           <Route
             path="/datosg1"
             element={

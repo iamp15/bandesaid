@@ -1,0 +1,100 @@
+/* eslint-disable react/prop-types */
+import { PROVIDER_MAP } from "../../constants";
+import { useNavigate } from "react-router-dom";
+import BotonCopiar from "../BotonCopiar";
+import { GALPON, RUBRO } from "../../constants";
+
+const ControlCalidad2 = ({ cargas, proveedor, cargaActual }) => {
+  const mapeo = PROVIDER_MAP[proveedor];
+  const infoCarga = cargas[mapeo]?.[cargaActual - 1];
+  const navigate = useNavigate();
+
+  const genFormato = () => {
+    const numeracion = () => {
+      if (cargaActual < 10) return `0${cargaActual}`;
+      else return `${cargaActual}`;
+    };
+
+    const genObservacion = () => {
+      const paletas =
+        infoCarga.paletas === "Si"
+          ? "con paletas, por lo que la proteína no estará en contacto directo con el suelo"
+          : "sin paletas, por lo que la proteína estará en contacto directo con el suelo";
+      const paredes = () => {
+        if (infoCarga.paredes === "bueno")
+          return "se encuentran limpios y en buen estado";
+        if (infoCarga.paredes === "regular")
+          return "se encuentran limpios pero en mal estado";
+        if (infoCarga.paredes === "malo")
+          return "se observan manchados y deteriorados";
+      };
+      const tk = () => {
+        if (infoCarga.tk === "Si")
+          return "El Thermo King se encuentra operativo";
+        if (infoCarga.tk === "No")
+          return "El Thermo King no se encuentra operativo";
+        if (infoCarga.tk === "No posee") return "No posee Thermo King";
+      };
+      const olor = () => {
+        if (infoCarga.olor === "fresco") return "fresco característico";
+        else return `a ${infoCarga.otroOlor}`;
+      };
+
+      return `Vehículo ${paletas}. Las paredes y el techo ${paredes()}. ${tk()}. El vehículo posee un olor ${olor()}. En planta se encuentra el representante de ${
+        infoCarga.entidad
+      }, ${
+        infoCarga.responsable
+      }, quien se hace responsable de las condiciones de la carga con destino ${
+        infoCarga.destino
+      }.`;
+    };
+
+    return (
+      "*INSPECCION DE VEHICULO* 👀\n" +
+      `*CARGA Nº ${numeracion()}:*\n` +
+      `*Proveedor:* ${infoCarga.proveedor}\n` +
+      `*Galpón:* ${GALPON}\n` +
+      `*Rubro:* ${RUBRO}\n` +
+      `*Thermo King:* ${infoCarga.tk}\n` +
+      `*Fecha:* ${infoCarga.fecha}\n` +
+      `*Motivo:* Inicio de Carga\n` +
+      `\n*Observación:* ${genObservacion()}`
+    );
+  };
+
+  return (
+    <div className="wrap-container">
+      <div className="menu">
+        <div className="section">
+          <h2>Inspección de vehículo</h2>
+          <p>Thermo King: {infoCarga.tk}</p>
+          <p>Paletas: {infoCarga.paletas}</p>
+          <p>
+            Olor:{" "}
+            {infoCarga.olor === "fresco"
+              ? "Fresco característoco"
+              : infoCarga.otroOlor}
+          </p>
+          <p>
+            Paredes y techo:{" "}
+            {infoCarga.paredes === "bueno"
+              ? "limpios y en buen estado"
+              : infoCarga.paredes === "regular"
+              ? "en mal estado pero limpias"
+              : "manchadas y en mal estado"}
+          </p>
+          <p>Entidad: {infoCarga.entidad}</p>
+          <p>Responsable: {infoCarga.responsable}</p>
+          <p>Destino: {infoCarga.destino}</p>
+        </div>
+        <BotonCopiar text1={genFormato()} text2="Copiar formato" />
+        <div className="button-group">
+          <button onClick={() => navigate("/cc1")}>Volver</button>
+          <button onClick={() => navigate("/cc3")}>Continuar</button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default ControlCalidad2;

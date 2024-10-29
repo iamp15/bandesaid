@@ -28,7 +28,7 @@ const Navbar = ({
   return (
     <div className="navbar">
       {rol ? (
-        <Link to={"/"} onClick={rolClicked}>
+        <Link to={"/despachos"} onClick={rolClicked}>
           <p>{rol}</p>
         </Link>
       ) : (

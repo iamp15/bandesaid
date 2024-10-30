@@ -78,7 +78,7 @@ const Carga = ({ cargas, setCargas, rol, proveedor, setCargaActual }) => {
   return (
     <div className="wrap-container">
       <div className="menu">
-        {rol ? (
+        {rol && proveedor ? (
           renderCargas()
         ) : (
           <div className="error">

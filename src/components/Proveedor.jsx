@@ -1,24 +1,40 @@
 /* eslint-disable react/prop-types */
 import { Link } from "react-router-dom";
 
-const Proveedor = ({ setProveedor }) => {
+const Proveedor = ({ setProveedor, rol }) => {
+  const proveedores = [
+    "Toro Rojo",
+    "Toro Gordo",
+    "Avícola Nam",
+    "Alimentos Lad",
+  ];
+
+  if (!rol) {
+    return (
+      <div className="error">
+        <span>⚠️</span>
+        <p>Aun no has seleccionado un rol</p>
+        <div className="button-group">
+          <Link to="/despachos">
+            <button>Volver</button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="wrap-container">
       <div className="menu">
         <h2>Escoge el proveedor:</h2>
         <div className="buttons-container">
-          <Link to={"/carga"}>
-            <button onClick={() => setProveedor("Toro Rojo")}>Toro Rojo</button>
-            <button onClick={() => setProveedor("Toro Gordo")}>
-              Toro Gordo
-            </button>
-            <button onClick={() => setProveedor("Avícola Nam")}>
-              Avícola Nam
-            </button>
-            <button onClick={() => setProveedor("Alimentos Lad")}>
-              Alimentos Lad
-            </button>
-          </Link>
+          {proveedores.map((proveedor) => (
+            <Link key={proveedor} to="/carga">
+              <button onClick={() => setProveedor(proveedor)}>
+                {proveedor}
+              </button>
+            </Link>
+          ))}
         </div>
       </div>
     </div>

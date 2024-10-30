@@ -14,12 +14,16 @@ const DatosG3 = ({ proveedor, cargaActual, cargas, setCargas }) => {
   const [chickenBrand, setChickenBrand] = useState(
     currentCarga?.marca_rubro || MARCA[0].nombre
   );
-
+  const [lote, setLote] = useState(currentCarga.lote || "N/A");
   const getCnd = (brandName) => {
     const brand = Object.values(MARCA).find(
       (brand) => brand.nombre === brandName
     );
     return brand ? brand.CND : null;
+  };
+
+  const handleLoteChange = (e) => {
+    setLote(e.target.value);
   };
 
   const handleSubmit = (e) => {
@@ -33,6 +37,7 @@ const DatosG3 = ({ proveedor, cargaActual, cargas, setCargas }) => {
     }
 
     const newData = {
+      lote: lote,
       p_promedio: decimalComma(e.target.pp.value),
       t_promedio: tempRedondo,
       p_guia: formatNumber(e.target.pg.value),
@@ -55,6 +60,14 @@ const DatosG3 = ({ proveedor, cargaActual, cargas, setCargas }) => {
           <SelectorMarca
             chickenBrand={chickenBrand}
             onChange={handleChickenBrandChange}
+          />
+          <label htmlFor="lote">Número de lote: </label>
+          <input
+            type="text"
+            id="lote"
+            value={lote}
+            onChange={handleLoteChange}
+            placeholder="Escribe el número de lote "
           />
           <label htmlFor="pp">Peso promedio: </label>
           <input

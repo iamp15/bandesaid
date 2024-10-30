@@ -4,6 +4,7 @@ import { PROVIDER_MAP, MARCA } from "../../constants";
 import { useNavigate } from "react-router-dom";
 import { useGuardar } from "../../hooks/useGuardar";
 import SelectorMarca from "../guias/controles/SelectorMarca";
+import "../../styles/ControlCalidad/ControlCalidad3.css";
 
 const ControlCalidad3 = ({ cargas, setCargas, proveedor, cargaActual }) => {
   const mapeo = PROVIDER_MAP[proveedor];
@@ -97,7 +98,7 @@ const ControlCalidad3 = ({ cargas, setCargas, proveedor, cargaActual }) => {
           {[...Array(Number(muestras))].map((_, index) => (
             <div key={index}>
               <h3>Muestra {index + 1}</h3>
-              <div>
+              <div className="datos-muestras">
                 <label htmlFor={`peso-${index}`}>Peso: </label>
                 <input
                   type="number"

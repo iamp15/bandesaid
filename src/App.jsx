@@ -110,13 +110,7 @@ function App() {
           />
           <Route
             path="/proveedor"
-            element={
-              <Proveedor
-                proveedor={proveedor}
-                setProveedor={setProveedor}
-                rol={rol}
-              />
-            }
+            element={<Proveedor setProveedor={setProveedor} rol={rol} />}
           />
           <Route
             path="/carga"

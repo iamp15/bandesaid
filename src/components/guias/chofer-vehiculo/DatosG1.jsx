@@ -12,8 +12,35 @@ const DatosG1 = ({
   cargas,
   setCargas,
 }) => {
-  const key = PROVIDER_MAP[proveedor];
   const guardar = useGuardar(setCargas);
+
+  if (!proveedor)
+    return (
+      <div className="error">
+        <span>���️</span>
+        <p>Aun no has seleccionado un proveedor</p>
+        <div className="button-group">
+          <Link to="/proveedor">
+            <button>Volver</button>
+          </Link>
+        </div>
+      </div>
+    );
+
+  const key = PROVIDER_MAP[proveedor];
+
+  if (!cargaActual)
+    return (
+      <div className="error">
+        <span>���️</span>
+        <p>Aun no has seleccionado una carga</p>
+        <div className="button-group">
+          <Link to="/carga">
+            <button>Volver</button>
+          </Link>
+        </div>
+      </div>
+    );
 
   const handleSubmit = (event) => {
     event.preventDefault();

@@ -15,7 +15,7 @@ const ControlCalidad1 = ({ cargas, setCargas, proveedor, cargaActual }) => {
   const [paletas, setPaletas] = useState(currentCarga?.paletas || "No");
   const [smell, setSmell] = useState(currentCarga?.olor || "fresco");
   const [otherSmell, setOtherSmell] = useState(currentCarga?.otroOlor || "");
-  const [paredes, setParedes] = useState(currentCarga?.paredes || "bueno");
+  const [paredes, setParedes] = useState(currentCarga?.paredes || "1");
   const [entidad, setEntidad] = useState(currentCarga?.entidad || "");
   const [responsable, setResponsable] = useState(
     currentCarga?.responsable || ""
@@ -136,9 +136,11 @@ const ControlCalidad1 = ({ cargas, setCargas, proveedor, cargaActual }) => {
             value={paredes}
             onChange={handleParedesChange}
           >
-            <option value="bueno">Limpias y en buen estado</option>
-            <option value="regular">En mal estado pero limpias</option>
-            <option value="malo">Manchadas y en mal estado</option>
+            <option value="1">Limpias y en buen estado</option>
+            <option value="2">En mal estado pero limpias</option>
+            <option value="3">Manchadas pero limpias</option>
+            <option value="4">Manchadas y en mal estado</option>
+            <option value="5">No tiene paredes ni techo</option>
           </select>
 
           {/* Entidad */}
@@ -149,7 +151,6 @@ const ControlCalidad1 = ({ cargas, setCargas, proveedor, cargaActual }) => {
             name="entidad"
             value={entidad}
             onChange={handleEntidadChange}
-            required
           />
 
           {/* Responsable */}
@@ -160,7 +161,6 @@ const ControlCalidad1 = ({ cargas, setCargas, proveedor, cargaActual }) => {
             name="responsable"
             value={responsable}
             onChange={handleResponsableChange}
-            required
           />
 
           {/* Destino */}
@@ -171,7 +171,6 @@ const ControlCalidad1 = ({ cargas, setCargas, proveedor, cargaActual }) => {
             name="destino"
             value={destino}
             onChange={handleDestinoChange}
-            required
           />
 
           {/* Botones */}

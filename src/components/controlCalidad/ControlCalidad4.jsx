@@ -63,7 +63,7 @@ const ControlCalidad4 = ({
       `*Galpón:* ${GALPON}\n` +
       `*Rubro:* ${RUBRO}\n` +
       `*Fecha:* ${infoCarga.fecha}\n` +
-      "\n Control de Calidad"
+      "\n✓ Control de Calidad"
     );
   };
 

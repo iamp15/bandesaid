@@ -21,12 +21,16 @@ const ControlCalidad2 = ({ cargas, proveedor, cargaActual }) => {
           ? "con paletas, por lo que la proteína no estará en contacto directo con el suelo"
           : "sin paletas, por lo que la proteína estará en contacto directo con el suelo";
       const paredes = () => {
-        if (infoCarga.paredes === "bueno")
-          return "se encuentran limpios y en buen estado";
-        if (infoCarga.paredes === "regular")
-          return "se encuentran limpios pero en mal estado";
-        if (infoCarga.paredes === "malo")
-          return "se observan manchados y deteriorados";
+        if (infoCarga.paredes === "1")
+          return "Las paredes y el techo se encuentran limpios y en buen estado";
+        if (infoCarga.paredes === "2")
+          return "Las paredes y el techo se encuentran limpios pero en mal estado";
+        if (infoCarga.paredes === "3")
+          return "Las paredes y el techo se encuentran limpios pero con algunas manchas";
+        if (infoCarga.paredes === "4")
+          return "Las paredes y el techo están manchados y deteriorados";
+        if (infoCarga.paredes === "5")
+          return "No posee paredes ni techo por tratarse de un vehículo abierto";
       };
       const tk = () => {
         if (infoCarga.tk === "Si")
@@ -40,7 +44,7 @@ const ControlCalidad2 = ({ cargas, proveedor, cargaActual }) => {
         else return `a ${infoCarga.otroOlor}`;
       };
 
-      return `Vehículo ${paletas}. Las paredes y el techo ${paredes()}. ${tk()}. El vehículo posee un olor ${olor()}. En planta se encuentra el representante de ${
+      return `Vehículo ${paletas}. ${paredes()}. ${tk()}. El vehículo posee un olor ${olor()}. En planta se encuentra el representante de ${
         infoCarga.entidad
       }, ${
         infoCarga.responsable

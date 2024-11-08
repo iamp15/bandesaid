@@ -9,6 +9,23 @@ const ControlCalidad2 = ({ cargas, proveedor, cargaActual }) => {
   const infoCarga = cargas[mapeo]?.[cargaActual - 1];
   const navigate = useNavigate();
 
+  const paredes = () => {
+    switch (infoCarga.paredes) {
+      case "1":
+        return "Las paredes y el techo se encuentran limpios y en buen estado";
+      case "2":
+        return "Las paredes y el techo se encuentran limpios pero en mal estado";
+      case "3":
+        return "Las paredes y el techo se encuentran limpios pero con algunas manchas";
+      case "4":
+        return "Las paredes y el techo están manchados y deteriorados";
+      case "5":
+        return "No posee paredes ni techo por tratarse de un vehículo abierto";
+      default:
+        return "Estado de paredes y techo no especificado";
+    }
+  };
+
   const genFormato = () => {
     const numeracion = () => {
       if (cargaActual < 10) return `0${cargaActual}`;
@@ -20,18 +37,7 @@ const ControlCalidad2 = ({ cargas, proveedor, cargaActual }) => {
         infoCarga.paletas === "Si"
           ? "con paletas, por lo que la proteína no estará en contacto directo con el suelo"
           : "sin paletas, por lo que la proteína estará en contacto directo con el suelo";
-      const paredes = () => {
-        if (infoCarga.paredes === "1")
-          return "Las paredes y el techo se encuentran limpios y en buen estado";
-        if (infoCarga.paredes === "2")
-          return "Las paredes y el techo se encuentran limpios pero en mal estado";
-        if (infoCarga.paredes === "3")
-          return "Las paredes y el techo se encuentran limpios pero con algunas manchas";
-        if (infoCarga.paredes === "4")
-          return "Las paredes y el techo están manchados y deteriorados";
-        if (infoCarga.paredes === "5")
-          return "No posee paredes ni techo por tratarse de un vehículo abierto";
-      };
+
       const tk = () => {
         if (infoCarga.tk === "Si")
           return "El Thermo King se encuentra operativo";
@@ -79,14 +85,7 @@ const ControlCalidad2 = ({ cargas, proveedor, cargaActual }) => {
               ? "Fresco característoco"
               : infoCarga.otroOlor}
           </p>
-          <p>
-            Paredes y techo:{" "}
-            {infoCarga.paredes === "bueno"
-              ? "limpios y en buen estado"
-              : infoCarga.paredes === "regular"
-              ? "en mal estado pero limpias"
-              : "manchadas y en mal estado"}
-          </p>
+          <p>Paredes y techo: {paredes()}</p>
           <p>Entidad: {infoCarga.entidad}</p>
           <p>Responsable: {infoCarga.responsable}</p>
           <p>Destino: {infoCarga.destino}</p>

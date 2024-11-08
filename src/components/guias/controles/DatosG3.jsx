@@ -84,7 +84,7 @@ const DatosG3 = ({ proveedor, cargaActual, cargas, setCargas }) => {
             placeholder="Temperatura promedio del/de los pollo(s)"
           />
           <h2>Control de Peso</h2>
-          <label htmlFor="pg">Peso según guía: </label>
+          <label htmlFor="pg">Peso total de la carga: </label>
           <input
             type="text"
             id="pg"

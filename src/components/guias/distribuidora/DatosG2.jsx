@@ -55,9 +55,7 @@ const DatosG2 = ({ proveedor, cargaActual, setCargas, cargas }) => {
     const newData = {
       transporte: capitalizeWords(document.getElementById("transporte").value),
       destino: capitalizeWords(inputValue),
-      estadoDestino: capitalizeWords(
-        document.getElementById("estadoDestino").value
-      ),
+      estadoDestino: document.getElementById("estadoDestino").value,
       codigo_espejo: selectedCompany?.codigo || "N/A",
     };
 

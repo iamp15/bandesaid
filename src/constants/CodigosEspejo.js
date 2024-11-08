@@ -8,7 +8,7 @@ export const codigos_espejo = [
   { nombre: "PDVAL CARABOBO", codigo: "897923" },
   { nombre: "PDVAL COJEDES", codigo: "899975" },
   { nombre: "PDVAL DELTA AMACURO", codigo: "897940" },
-  { nombre: "PDVAL DTTO CAPITAL", codigo: "897946" },
+  { nombre: "PDVAL DISTRITO CAPITAL", codigo: "897946" },
   { nombre: "PDVAL FALCON", codigo: "897949" },
   { nombre: "PDVAL GUARICO", codigo: "919378" },
   { nombre: "PDVAL LARA", codigo: "897957" },

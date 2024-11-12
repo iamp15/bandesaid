@@ -11,7 +11,7 @@ const Menu = () => {
       id: 1,
       title: "Despachos",
       image: despachoIcon,
-      link: "/despachos",
+      link: "/login",
     },
     {
       id: 2,

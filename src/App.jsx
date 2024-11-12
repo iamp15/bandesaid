@@ -19,6 +19,9 @@ import Menu from "./components/Menu";
 import ControlCalidad2 from "./components/controlCalidad/ControlCalidad2";
 import ControlCalidad3 from "./components/controlCalidad/ControlCalidad3";
 import ControlCalidad4 from "./components/controlCalidad/ControlCalidad4";
+import { db } from "./firebase/config";
+import { doc, setDoc, onSnapshot } from "firebase/firestore";
+import LoginPage from "./components/login/LoginPage";
 
 function App() {
   const [rol, setRol] = useState(() => {
@@ -29,17 +32,11 @@ function App() {
     const savedProveedor = localStorage.getItem("proveedor");
     return savedProveedor ? savedProveedor : "";
   });
-  const [cargas, setCargas] = useState(() => {
-    // Initialize cargas from localStorage or use default value
-    const savedCargas = localStorage.getItem("cargas");
-    return savedCargas
-      ? JSON.parse(savedCargas)
-      : {
-          tr: [],
-          tg: [],
-          al: [],
-          av: [],
-        };
+  const [cargas, setCargas] = useState({
+    tr: [],
+    tg: [],
+    al: [],
+    av: [],
   });
   const [cargaActual, setCargaActual] = useState(() => {
     // Initialize cargaActual from localStorage or use default value
@@ -56,10 +53,30 @@ function App() {
         };
   });
 
-  // Save cargas to localStorage whenever it changes
-  useEffect(() => {
-    localStorage.setItem("cargas", JSON.stringify(cargas));
-  }, [cargas]);
+  // useEffect(() => {
+  //   // Set up real-time listener
+  //   const unsubscribe = onSnapshot(doc(db, "estados", "cargas"), (doc) => {
+  //     if (doc.exists()) {
+  //       setCargas(doc.data());
+  //     } else {
+  //       // If document doesn't exist, create it with initial state
+  //       setDoc(doc(db, "estados", "cargas"), cargas);
+  //     }
+  //   });
+
+  //   // Cleanup subscription
+  //   return () => unsubscribe();
+  // }, []);
+
+  // const updateCargas = async (newCargas) => {
+  //   try {
+  //     await setDoc(doc(db, "estados", "cargas"), newCargas);
+  //     setCargas(newCargas);
+  //   } catch (error) {
+  //     console.error("Error updating cargas:", error);
+  //     // Handle error appropriately
+  //   }
+  // };
 
   // Save cargaActual to localStorage whenever it changes
   useEffect(() => {
@@ -92,7 +109,8 @@ function App() {
       />
       <div className="content-wrapper">
         <Routes>
-          <Route path="/" element={<Menu />} />
+          <Route path="/menu" element={<Menu />} />
+          <Route path="/" element={<LoginPage />} />
           <Route
             path="/despachos"
             element={

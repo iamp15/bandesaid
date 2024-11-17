@@ -22,6 +22,7 @@ import ControlCalidad4 from "./components/controlCalidad/ControlCalidad4";
 import { db } from "./firebase/config";
 import { doc, setDoc, onSnapshot } from "firebase/firestore";
 import LoginPage from "./components/login/LoginPage";
+import ProtectedRoute from "./components/login/ProtectedRoute";
 
 function App() {
   const [rol, setRol] = useState(() => {
@@ -109,7 +110,14 @@ function App() {
       />
       <div className="content-wrapper">
         <Routes>
-          <Route path="/menu" element={<Menu />} />
+          <Route
+            path="/menu"
+            element={
+              <ProtectedRoute>
+                <Menu />
+              </ProtectedRoute>
+            }
+          />
           <Route path="/" element={<LoginPage />} />
           <Route
             path="/despachos"
@@ -128,166 +136,199 @@ function App() {
           />
           <Route
             path="/proveedor"
-            element={<Proveedor setProveedor={setProveedor} rol={rol} />}
+            element={
+              <ProtectedRoute>
+                <Proveedor setProveedor={setProveedor} rol={rol} />
+              </ProtectedRoute>
+            }
           />
           <Route
             path="/carga"
             element={
-              <Carga
-                cargas={cargas}
-                setCargas={setCargas}
-                rol={rol}
-                proveedor={proveedor}
-                cargaActual={cargaActual}
-                setCargaActual={setCargaActual}
-              />
+              <ProtectedRoute>
+                <Carga
+                  cargas={cargas}
+                  setCargas={setCargas}
+                  rol={rol}
+                  proveedor={proveedor}
+                  cargaActual={cargaActual}
+                  setCargaActual={setCargaActual}
+                />
+              </ProtectedRoute>
             }
           />
           <Route
             path="/pesaje1"
             element={
-              <ControlPesaje
-                cargas={cargas}
-                setCargas={setCargas}
-                proveedor={proveedor}
-                cargaActual={cargaActual}
-                setCargaActual={setCargaActual}
-              />
+              <ProtectedRoute>
+                <ControlPesaje
+                  cargas={cargas}
+                  setCargas={setCargas}
+                  proveedor={proveedor}
+                  cargaActual={cargaActual}
+                  setCargaActual={setCargaActual}
+                />
+              </ProtectedRoute>
             }
           />
           <Route
             path="/pesaje2"
             element={
-              <ControlPesaje2
-                cargas={cargas}
-                setCargas={setCargas}
-                proveedor={proveedor}
-                cargaActual={cargaActual}
-              />
+              <ProtectedRoute>
+                <ControlPesaje2
+                  cargas={cargas}
+                  setCargas={setCargas}
+                  proveedor={proveedor}
+                  cargaActual={cargaActual}
+                />
+              </ProtectedRoute>
             }
           />
           <Route
             path="/pesaje3"
             element={
-              <ControlPesaje3
-                cargas={cargas}
-                proveedor={proveedor}
-                cargaActual={cargaActual}
-                setCargaActual={setCargaActual}
-              />
+              <ProtectedRoute>
+                <ControlPesaje3
+                  cargas={cargas}
+                  setCargas={setCargas}
+                  proveedor={proveedor}
+                  cargaActual={cargaActual}
+                  setCargaActual={setCargaActual}
+                />
+              </ProtectedRoute>
             }
           />
           <Route
             path="/cc1"
             element={
-              <ControlCalidad1
-                cargas={cargas}
-                setCargas={setCargas}
-                proveedor={proveedor}
-                cargaActual={cargaActual}
-                setCargaActual={setCargaActual}
-              />
+              <ProtectedRoute>
+                <ControlCalidad1
+                  cargas={cargas}
+                  setCargas={setCargas}
+                  proveedor={proveedor}
+                  cargaActual={cargaActual}
+                  setCargaActual={setCargaActual}
+                />
+              </ProtectedRoute>
             }
           />
           <Route
             path="/cc2"
             element={
-              <ControlCalidad2
-                cargas={cargas}
-                proveedor={proveedor}
-                cargaActual={cargaActual}
-              />
+              <ProtectedRoute>
+                <ControlCalidad2
+                  cargas={cargas}
+                  proveedor={proveedor}
+                  cargaActual={cargaActual}
+                />
+              </ProtectedRoute>
             }
           />
           <Route
             path="/cc3"
             element={
-              <ControlCalidad3
-                cargas={cargas}
-                setCargas={setCargas}
-                proveedor={proveedor}
-                cargaActual={cargaActual}
-              />
+              <ProtectedRoute>
+                <ControlCalidad3
+                  cargas={cargas}
+                  setCargas={setCargas}
+                  proveedor={proveedor}
+                  cargaActual={cargaActual}
+                />
+              </ProtectedRoute>
             }
           />
           <Route
             path="/cc4"
             element={
-              <ControlCalidad4
-                cargas={cargas}
-                setCargas={setCargas}
-                proveedor={proveedor}
-                cargaActual={cargaActual}
-                setCargaActual={setCargaActual}
-              />
+              <ProtectedRoute>
+                <ControlCalidad4
+                  cargas={cargas}
+                  setCargas={setCargas}
+                  proveedor={proveedor}
+                  cargaActual={cargaActual}
+                  setCargaActual={setCargaActual}
+                />
+              </ProtectedRoute>
             }
           />
           <Route
             path="/datosg1"
             element={
-              <DatosG1
-                cargaActual={cargaActual}
-                setCargaActual={setCargaActual}
-                proveedor={proveedor}
-                cargas={cargas}
-                setCargas={setCargas}
-              />
+              <ProtectedRoute>
+                <DatosG1
+                  cargaActual={cargaActual}
+                  setCargaActual={setCargaActual}
+                  proveedor={proveedor}
+                  cargas={cargas}
+                  setCargas={setCargas}
+                />
+              </ProtectedRoute>
             }
           />
           <Route
             path="/datosg2"
             element={
-              <DatosG2
-                cargaActual={cargaActual}
-                proveedor={proveedor}
-                cargas={cargas}
-                setCargas={setCargas}
-              />
+              <ProtectedRoute>
+                <DatosG2
+                  cargaActual={cargaActual}
+                  proveedor={proveedor}
+                  cargas={cargas}
+                  setCargas={setCargas}
+                />
+              </ProtectedRoute>
             }
           />
           <Route
             path="/datosg3"
             element={
-              <DatosG3
-                cargaActual={cargaActual}
-                proveedor={proveedor}
-                cargas={cargas}
-                setCargas={setCargas}
-              />
+              <ProtectedRoute>
+                <DatosG3
+                  cargaActual={cargaActual}
+                  proveedor={proveedor}
+                  cargas={cargas}
+                  setCargas={setCargas}
+                />
+              </ProtectedRoute>
             }
           />
           <Route
             path="/datosg4"
             element={
-              <DatosG4
-                cargaActual={cargaActual}
-                proveedor={proveedor}
-                cargas={cargas}
-                setCargas={setCargas}
-                guias_precintos={guias_precintos}
-                setGuias_precintos={setGuias_precintos}
-              />
+              <ProtectedRoute>
+                <DatosG4
+                  cargaActual={cargaActual}
+                  proveedor={proveedor}
+                  cargas={cargas}
+                  setCargas={setCargas}
+                  guias_precintos={guias_precintos}
+                  setGuias_precintos={setGuias_precintos}
+                />
+              </ProtectedRoute>
             }
           />
           <Route
             path="/revisionguias"
             element={
-              <RevisionGuias
-                cargas={cargas}
-                proveedor={proveedor}
-                cargaActual={cargaActual}
-              />
+              <ProtectedRoute>
+                <RevisionGuias
+                  cargas={cargas}
+                  proveedor={proveedor}
+                  cargaActual={cargaActual}
+                />
+              </ProtectedRoute>
             }
           />
           <Route
             path="/formulariosguia"
             element={
-              <FormulariosGuia
-                cargaActual={cargaActual}
-                setCargaActual={setCargaActual}
-                proveedor={proveedor}
-                cargas={cargas}
-              />
+              <ProtectedRoute>
+                <FormulariosGuia
+                  cargaActual={cargaActual}
+                  setCargaActual={setCargaActual}
+                  proveedor={proveedor}
+                  cargas={cargas}
+                />
+              </ProtectedRoute>
             }
           />
           <Route path="*" element={<h1>Not Found</h1>} />

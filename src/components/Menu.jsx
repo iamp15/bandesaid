@@ -4,8 +4,11 @@ import despachoIcon from "../media/iconos/despachos.png";
 import inventarioIcon from "../media/iconos/baul-inventario.png";
 import formatoIcon from "../media/iconos/formato.png";
 import configIcon from "../media/iconos/config.png";
+import { useAuth } from "./login/AuthContext";
 
 const Menu = () => {
+  const { currentUser } = useAuth();
+
   const menuItems = [
     {
       id: 1,
@@ -70,7 +73,11 @@ const Menu = () => {
   return (
     <div className="menu-wrapper">
       <div className="menu-header">
-        <p className="menu-date">{getCurrentDate()}</p>
+        <p className="menu-date">
+          {currentUser
+            ? `Bienvenid@, ${currentUser.name} ${currentUser.lastname}.`
+            : "Cargando..."}
+        </p>
         <p className="menu-description">Seleccione una opción para comenzar:</p>
       </div>
       <div className="menu-container">

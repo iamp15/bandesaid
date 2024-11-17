@@ -1,5 +1,6 @@
 /* eslint-disable react/prop-types */
 import { Link } from "react-router-dom";
+import { useAuth } from "./login/AuthContext";
 import "./../styles/Navbar.css";
 
 const Navbar = ({
@@ -10,6 +11,8 @@ const Navbar = ({
   cargaActual,
   setCargaActual,
 }) => {
+  const { currentUser, userData, logout } = useAuth();
+
   const rolClicked = () => {
     setRol(null);
     setProveedor(null);
@@ -44,6 +47,20 @@ const Navbar = ({
           <p>Carga #{cargaActual}</p>
         </Link>
       ) : null}
+
+      <div className="navbar-end">
+        {currentUser ? (
+          <div className="user-info">
+            {/* Show user email if userData is not yet loaded */}
+            <span className="username">
+              {userData ? userData.name : currentUser.name}
+              <span onClick={() => logout()}> [Logout]</span>
+            </span>
+          </div>
+        ) : (
+          <span>Guest</span>
+        )}
+      </div>
     </div>
   );
 };

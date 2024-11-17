@@ -3,29 +3,22 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../../firebase/config";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "./AuthContext";
+import { storageUtils } from "../../utils/LoginPersistance";
 
 export default function LoginPage() {
-  console.log("LoginPage rendering"); //
   const [idNumber, setIdNumber] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
-  const { currentUser, userData } = useAuth();
+  const { currentUser } = useAuth();
 
   useEffect(() => {
-    console.log("Component mounted");
-    if (auth) {
-      setIsLoading(false);
+    // Check if user is already logged in
+    const savedUser = storageUtils.getUser();
+    if (savedUser) {
+      navigate("/menu");
     }
-    return () => {
-      console.log("Component unmounted");
-    };
-  }, []);
-
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
+  }, [navigate]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -34,13 +27,22 @@ export default function LoginPage() {
     try {
       // Firebase requires email format, so we convert ID to email format
       const email = `${idNumber}@yourdomain.com`;
-      await signInWithEmailAndPassword(auth, email, password);
+      const result = await signInWithEmailAndPassword(auth, email, password);
+
+      // Store user data in localStorage
+      const userToStore = {
+        id: result.user.uid,
+        email: result.user.email,
+        ...currentUser, // spread any additional user data
+      };
+
+      storageUtils.setUser(userToStore);
+      const token = await result.user.getIdToken();
+      storageUtils.setAuthToken(token);
 
       // Login successful
       console.log("Login successful");
-      console.log("User Data:", userData);
-      console.log("name:", userData.name);
-      //navigate("/menu");
+      navigate("/menu");
     } catch (error) {
       setError("Invalid credentials. Please try again.");
       console.error("Login error:", error);

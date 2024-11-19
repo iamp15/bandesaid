@@ -23,6 +23,8 @@ import { db } from "./firebase/config";
 import { doc, setDoc, onSnapshot } from "firebase/firestore";
 import LoginPage from "./components/login/LoginPage";
 import ProtectedRoute from "./components/login/ProtectedRoute";
+import { useAuth } from "./components/login/AuthContext";
+import { formatDate2 } from "./utils/FormatDate";
 
 function App() {
   const [rol, setRol] = useState(() => {
@@ -54,30 +56,57 @@ function App() {
         };
   });
 
-  // useEffect(() => {
-  //   // Set up real-time listener
-  //   const unsubscribe = onSnapshot(doc(db, "estados", "cargas"), (doc) => {
-  //     if (doc.exists()) {
-  //       setCargas(doc.data());
-  //     } else {
-  //       // If document doesn't exist, create it with initial state
-  //       setDoc(doc(db, "estados", "cargas"), cargas);
-  //     }
-  //   });
+  const { currentUser, logout } = useAuth();
 
-  //   // Cleanup subscription
-  //   return () => unsubscribe();
-  // }, []);
+  const handleLogout = () => {
+    // Create a function to reset all states
+    const resetAllStates = () => {
+      setRol("");
+      setProveedor("");
+      setCargaActual(0);
+    };
 
-  // const updateCargas = async (newCargas) => {
-  //   try {
-  //     await setDoc(doc(db, "estados", "cargas"), newCargas);
-  //     setCargas(newCargas);
-  //   } catch (error) {
-  //     console.error("Error updating cargas:", error);
-  //     // Handle error appropriately
-  //   }
-  // };
+    // Pass the reset function to logout
+    logout(resetAllStates);
+  };
+
+  const today = formatDate2();
+  const docRef = doc(db, "cargas", today);
+
+  useEffect(() => {
+    if (!currentUser) return; // Don't set up listener if not authenticated
+
+    // Set up real-time listener
+    const unsubscribe = onSnapshot(docRef, (snapshot) => {
+      if (snapshot.exists()) {
+        console.log("Document exists, updating state");
+        setCargas(snapshot.data());
+      } else {
+        // If document doesn't exist, create it with initial state
+        console.log("Document does not exist, creating with initial state");
+        setDoc(docRef, cargas);
+      }
+    });
+
+    // Cleanup subscription
+    return () => unsubscribe();
+  }, [currentUser]);
+
+  const updateCargas = async (newCargas) => {
+    if (!currentUser) return; // Don't attempt update if not authenticated
+
+    // If newCargas is a function, execute it to get the new state
+    const updatedCargas =
+      typeof newCargas === "function" ? newCargas(cargas) : newCargas;
+
+    try {
+      await setDoc(doc(db, "cargas", today), updatedCargas);
+      setCargas(updatedCargas);
+    } catch (error) {
+      console.error("Error updating cargas:", error);
+      // Handle error appropriately
+    }
+  };
 
   // Save cargaActual to localStorage whenever it changes
   useEffect(() => {
@@ -107,6 +136,7 @@ function App() {
         setProveedor={setProveedor}
         cargaActual={cargaActual}
         setCargaActual={setCargaActual}
+        onLogout={handleLogout}
       />
       <div className="content-wrapper">
         <Routes>
@@ -125,7 +155,7 @@ function App() {
               <Rol
                 setRol={setRol}
                 cargas={cargas}
-                setCargas={setCargas}
+                setCargas={updateCargas}
                 setProveedor={setProveedor}
                 setCargaActual={setCargaActual}
                 rol={rol}
@@ -148,7 +178,7 @@ function App() {
               <ProtectedRoute>
                 <Carga
                   cargas={cargas}
-                  setCargas={setCargas}
+                  setCargas={updateCargas}
                   rol={rol}
                   proveedor={proveedor}
                   cargaActual={cargaActual}
@@ -163,7 +193,7 @@ function App() {
               <ProtectedRoute>
                 <ControlPesaje
                   cargas={cargas}
-                  setCargas={setCargas}
+                  setCargas={updateCargas}
                   proveedor={proveedor}
                   cargaActual={cargaActual}
                   setCargaActual={setCargaActual}
@@ -177,7 +207,7 @@ function App() {
               <ProtectedRoute>
                 <ControlPesaje2
                   cargas={cargas}
-                  setCargas={setCargas}
+                  setCargas={updateCargas}
                   proveedor={proveedor}
                   cargaActual={cargaActual}
                 />
@@ -190,7 +220,7 @@ function App() {
               <ProtectedRoute>
                 <ControlPesaje3
                   cargas={cargas}
-                  setCargas={setCargas}
+                  setCargas={updateCargas}
                   proveedor={proveedor}
                   cargaActual={cargaActual}
                   setCargaActual={setCargaActual}
@@ -204,7 +234,7 @@ function App() {
               <ProtectedRoute>
                 <ControlCalidad1
                   cargas={cargas}
-                  setCargas={setCargas}
+                  setCargas={updateCargas}
                   proveedor={proveedor}
                   cargaActual={cargaActual}
                   setCargaActual={setCargaActual}
@@ -230,7 +260,7 @@ function App() {
               <ProtectedRoute>
                 <ControlCalidad3
                   cargas={cargas}
-                  setCargas={setCargas}
+                  setCargas={updateCargas}
                   proveedor={proveedor}
                   cargaActual={cargaActual}
                 />
@@ -243,7 +273,7 @@ function App() {
               <ProtectedRoute>
                 <ControlCalidad4
                   cargas={cargas}
-                  setCargas={setCargas}
+                  setCargas={updateCargas}
                   proveedor={proveedor}
                   cargaActual={cargaActual}
                   setCargaActual={setCargaActual}
@@ -260,7 +290,7 @@ function App() {
                   setCargaActual={setCargaActual}
                   proveedor={proveedor}
                   cargas={cargas}
-                  setCargas={setCargas}
+                  setCargas={updateCargas}
                 />
               </ProtectedRoute>
             }
@@ -273,7 +303,7 @@ function App() {
                   cargaActual={cargaActual}
                   proveedor={proveedor}
                   cargas={cargas}
-                  setCargas={setCargas}
+                  setCargas={updateCargas}
                 />
               </ProtectedRoute>
             }
@@ -286,7 +316,7 @@ function App() {
                   cargaActual={cargaActual}
                   proveedor={proveedor}
                   cargas={cargas}
-                  setCargas={setCargas}
+                  setCargas={updateCargas}
                 />
               </ProtectedRoute>
             }
@@ -299,7 +329,7 @@ function App() {
                   cargaActual={cargaActual}
                   proveedor={proveedor}
                   cargas={cargas}
-                  setCargas={setCargas}
+                  setCargas={updateCargas}
                   guias_precintos={guias_precintos}
                   setGuias_precintos={setGuias_precintos}
                 />

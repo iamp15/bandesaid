@@ -10,15 +10,18 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
-  const { currentUser } = useAuth();
+  const { currentUser, loading } = useAuth();
 
   useEffect(() => {
-    // Check if user is already logged in
-    const savedUser = storageUtils.getUser();
-    if (savedUser) {
-      navigate("/menu");
+    if (!loading && currentUser) {
+      navigate("/menu", { replace: true });
     }
-  }, [navigate]);
+  }, [navigate, currentUser, loading]);
+
+  // If still loading, show loading state
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
   const handleLogin = async (e) => {
     e.preventDefault();

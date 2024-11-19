@@ -1,7 +1,9 @@
 export const decimalComma = (number) => {
+  if (number === null || number === undefined) {
+    return null;
+  }
   // Convert to string and replace any existing dot with a comma
   let formatted = number.toString().replace(".", ",");
-
   // If there's no comma, add ',00' at the end
   if (!formatted.includes(",")) {
     formatted += ",00";
@@ -12,11 +14,13 @@ export const decimalComma = (number) => {
       formatted += "0";
     }
   }
-
   return formatted;
 };
 
 export const decimalPeriod = (number) => {
+  if (number === null || number === undefined) {
+    return null;
+  }
   // Convert to string and ensure it uses a period as decimal separator
   let formatted = parseFloat(number).toFixed(2);
 

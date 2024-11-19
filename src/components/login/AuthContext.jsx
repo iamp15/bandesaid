@@ -74,16 +74,28 @@ export function AuthProvider({ children }) {
     return unsubscribe;
   }, []);
 
-  const logout = () => {
-    auth.signOut();
-    storageUtils.clearAuth();
-    setCurrentUser(null);
-    navigate("/");
+  const logout = async (resetStates) => {
+    try {
+      await auth.signOut();
+      storageUtils.clearAuth();
+      setCurrentUser(null);
+      setUserData(null);
+
+      // Reset all states passed as parameter
+      if (resetStates) {
+        resetStates();
+      }
+
+      navigate("/");
+    } catch (error) {
+      console.error("Error during logout:", error);
+    }
   };
 
   const value = {
     currentUser,
     logout,
+    loading,
   };
 
   return (

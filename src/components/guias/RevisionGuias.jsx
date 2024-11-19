@@ -2,12 +2,29 @@
 import { useNavigate } from "react-router-dom";
 import { PROVIDER_MAP } from "../../constants";
 import { RUBRO } from "../../constants";
+import { useState, useEffect } from "react";
 import "../../styles/guias/revisionGuias.css";
 
 const RevisionGuias = ({ cargas, proveedor, cargaActual }) => {
   const mapeo = PROVIDER_MAP[proveedor];
   const infoCarga = cargas[mapeo]?.[cargaActual - 1];
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    // Check if we have all required data
+    if (infoCarga?.codigos_guias && infoCarga?.precintos && infoCarga?.pesos) {
+      setIsLoading(false);
+    }
+  }, [infoCarga]);
+
+  if (isLoading) {
+    return (
+      <div className="wrap-container">
+        <div>Cargando información...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="wrap-container">

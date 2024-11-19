@@ -7,14 +7,19 @@ import configIcon from "../media/iconos/config.png";
 import { useAuth } from "./login/AuthContext";
 
 const Menu = () => {
-  const { currentUser } = useAuth();
+  const { currentUser, loading } = useAuth();
+
+  // If loading, show loading state
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
   const menuItems = [
     {
       id: 1,
       title: "Despachos",
       image: despachoIcon,
-      link: "/login",
+      link: "/despachos",
     },
     {
       id: 2,
@@ -35,40 +40,6 @@ const Menu = () => {
       link: "",
     },
   ];
-
-  const getCurrentDate = () => {
-    const days = [
-      "Domingo",
-      "Lunes",
-      "Martes",
-      "Miércoles",
-      "Jueves",
-      "Viernes",
-      "Sábado",
-    ];
-    const months = [
-      "enero",
-      "febrero",
-      "marzo",
-      "abril",
-      "mayo",
-      "junio",
-      "julio",
-      "agosto",
-      "septiembre",
-      "octubre",
-      "noviembre",
-      "diciembre",
-    ];
-
-    const now = new Date();
-    const dayOfWeek = days[now.getDay()];
-    const dayOfMonth = now.getDate();
-    const month = months[now.getMonth()];
-    const year = now.getFullYear();
-
-    return `${dayOfWeek}, ${dayOfMonth} de ${month} de ${year}`;
-  };
 
   return (
     <div className="menu-wrapper">

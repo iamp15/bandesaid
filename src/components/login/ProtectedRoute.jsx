@@ -3,7 +3,11 @@ import { Navigate } from "react-router-dom";
 import { useAuth } from "./AuthContext";
 
 const ProtectedRoute = ({ children }) => {
-  const { currentUser } = useAuth();
+  const { currentUser, loading } = useAuth();
+
+  if (loading) {
+    return <div>Loading...</div>; // Or your custom loading component
+  }
 
   if (!currentUser) {
     // Redirect to login page if user is not authenticated

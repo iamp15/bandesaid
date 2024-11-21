@@ -1,8 +1,8 @@
 /* eslint-disable react/prop-types */
 import { Link } from "react-router-dom";
 import BotonCopiar from "../BotonCopiar";
-import { PROVIDER_MAP } from "../../constants";
-import { GALPON, RUBRO } from "../../constants";
+import { PROVIDER_MAP } from "../../constants/constants";
+import { GALPON, RUBRO } from "../../constants/constants";
 
 const ControlPesaje3 = ({ cargas, proveedor, cargaActual, setCargaActual }) => {
   const mapeo = PROVIDER_MAP[proveedor];

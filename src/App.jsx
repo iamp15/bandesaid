@@ -28,11 +28,11 @@ import { formatDate2 } from "./utils/FormatDate";
 
 function App() {
   const [rol, setRol] = useState(() => {
-    const savedRol = localStorage.getItem("rol");
+    const savedRol = sessionStorage.getItem("rol");
     return savedRol ? savedRol : "";
   });
   const [proveedor, setProveedor] = useState(() => {
-    const savedProveedor = localStorage.getItem("proveedor");
+    const savedProveedor = sessionStorage.getItem("proveedor");
     return savedProveedor ? savedProveedor : "";
   });
   const [cargas, setCargas] = useState({
@@ -42,12 +42,12 @@ function App() {
     av: [],
   });
   const [cargaActual, setCargaActual] = useState(() => {
-    // Initialize cargaActual from localStorage or use default value
-    const savedCargaActual = localStorage.getItem("cargaActual");
+    // Initialize cargaActual from sessionStorage or use default value
+    const savedCargaActual = sessionStorage.getItem("cargaActual");
     return savedCargaActual ? parseInt(savedCargaActual) : 0;
   });
   const [guias_precintos, setGuias_precintos] = useState(() => {
-    const savedGuias_precintos = localStorage.getItem("guias_precintos");
+    const savedGuias_precintos = sessionStorage.getItem("guias_precintos");
     return savedGuias_precintos
       ? JSON.parse(savedGuias_precintos)
       : {
@@ -108,21 +108,21 @@ function App() {
     }
   };
 
-  // Save cargaActual to localStorage whenever it changes
+  // Save cargaActual to sessionStorage whenever it changes
   useEffect(() => {
-    localStorage.setItem("cargaActual", cargaActual.toString());
+    sessionStorage.setItem("cargaActual", cargaActual.toString());
   }, [cargaActual]);
 
   useEffect(() => {
-    localStorage.setItem("rol", rol);
+    sessionStorage.setItem("rol", rol);
   }, [rol]);
 
   useEffect(() => {
-    localStorage.setItem("proveedor", proveedor);
+    sessionStorage.setItem("proveedor", proveedor);
   }, [proveedor]);
 
   useEffect(() => {
-    localStorage.setItem("guias_precintos", JSON.stringify(guias_precintos));
+    sessionStorage.setItem("guias_precintos", JSON.stringify(guias_precintos));
   }, [guias_precintos]);
 
   console.log(cargas);

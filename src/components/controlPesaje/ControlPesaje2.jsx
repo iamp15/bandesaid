@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 import BotonCopiar from "../BotonCopiar";
 import { useGuardar } from "../../hooks/useGuardar";
-import { PROVIDER_MAP, GALPON, RUBRO } from "../../constants";
+import { PROVIDER_MAP, GALPON, RUBRO } from "../../constants/constants";
 import { formatNumber } from "../../utils/FormatNumber";
 import { Link } from "react-router-dom";
 import "../../styles/pesaje/ControlPesaje2.css";

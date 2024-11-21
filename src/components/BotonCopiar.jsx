@@ -16,7 +16,7 @@ const BotonCopiar = ({ text1, text2 }) => {
         <button type="button">{text2}</button>
       </CopyToClipboard>
       {showNotification && (
-        <div className="notification">¡Formulario copiado!</div>
+        <div className="notification">¡Formato copiado!</div>
       )}
     </div>
   );

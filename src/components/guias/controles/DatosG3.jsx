@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 import { Link } from "react-router-dom";
 import { useGuardar } from "../../../hooks/useGuardar";
-import { PROVIDER_MAP, MARCA } from "../../../constants";
+import { PROVIDER_MAP, MARCA } from "../../../constants/constants";
 import { useState } from "react";
 import SelectorMarca from "./SelectorMarca";
 import { decimalComma, decimalPeriod } from "../../../utils/FormatDecimal";
@@ -74,14 +74,14 @@ const DatosG3 = ({ proveedor, cargaActual, cargas, setCargas }) => {
             type="text"
             id="pp"
             defaultValue={currentCarga?.p_promedio || ""}
-            placeholder="Peso promedio del/de los pollo(s)"
+            placeholder="Peso promedio del rubro"
           />
           <label htmlFor="tp">Temperatura promedio: </label>
           <input
             type="text"
             id="tp"
             defaultValue={currentCarga?.t_promedio || ""}
-            placeholder="Temperatura promedio del/de los pollo(s)"
+            placeholder="Temperatura promedio del rubro"
           />
           <h2>Control de Peso</h2>
           <label htmlFor="pg">Peso total de la carga: </label>

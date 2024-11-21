@@ -1,6 +1,6 @@
 import { useState } from "react";
 /* eslint-disable react/prop-types */
-import { PROVIDER_MAP, MARCA } from "../../constants";
+import { PROVIDER_MAP, MARCA } from "../../constants/constants";
 import { useNavigate } from "react-router-dom";
 import { useGuardar } from "../../hooks/useGuardar";
 import SelectorMarca from "../guias/controles/SelectorMarca";

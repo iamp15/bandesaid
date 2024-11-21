@@ -7,7 +7,7 @@ import {
   RUBRO,
   PERMISO_SANITARIO,
   LOTE,
-} from "../../constants";
+} from "../../constants/constants";
 import "../../styles/guias/formulariosGuia.css";
 import { formatNumber } from "../../utils/FormatNumber";
 
@@ -188,7 +188,7 @@ const FormulariosGuia = ({
               navigate("/proveedor");
             }}
           >
-            Finalizar despacho
+            Inicio
           </button>
         </div>
       </div>

@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { PROVIDER_MAP } from "../../constants";
+import { PROVIDER_MAP } from "../../constants/constants";
 import { useGuardar } from "../../hooks/useGuardar";
 
 const ControlPesaje = ({

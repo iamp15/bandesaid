@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 import { Link } from "react-router-dom";
 import { useState } from "react";
-import { PROVIDER_MAP } from "../../constants";
+import { PROVIDER_MAP } from "../../constants/constants";
 import { useGuardar } from "../../hooks/useGuardar";
 import { capitalizeWords } from "../../utils/Capitalizer";
 

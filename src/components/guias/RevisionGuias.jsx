@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 import { useNavigate } from "react-router-dom";
-import { PROVIDER_MAP } from "../../constants";
-import { RUBRO } from "../../constants";
+import { PROVIDER_MAP } from "../../constants/constants";
+import { RUBRO } from "../../constants/constants";
 import { useState, useEffect } from "react";
 import "../../styles/guias/revisionGuias.css";
 
@@ -13,7 +13,7 @@ const RevisionGuias = ({ cargas, proveedor, cargaActual }) => {
 
   useEffect(() => {
     // Check if we have all required data
-    if (infoCarga?.codigos_guias && infoCarga?.precintos && infoCarga?.pesos) {
+    if (infoCarga?.codigos_guias && infoCarga?.precintos) {
       setIsLoading(false);
     }
   }, [infoCarga]);

@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import NumGuias from "./NumGuias";
 import NumPrecintos from "./NumPrecintos";
 import { useGuardar } from "../../../hooks/useGuardar";
-import { PROVIDER_MAP } from "../../../constants";
+import { PROVIDER_MAP } from "../../../constants/constants";
 import { isValidNumber } from "../../../utils/CharLimit";
 import { formatNumber } from "../../../utils/FormatNumber";
 import "../../../styles/guias/DatosG4.css";

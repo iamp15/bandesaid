@@ -1,11 +1,12 @@
 /* eslint-disable react/prop-types */
 import { Link } from "react-router-dom";
 import { useGuardar } from "../../../hooks/useGuardar";
-import { PROVIDER_MAP } from "../../../constants";
+import { PROVIDER_MAP } from "../../../constants/constants";
 import { useState, useEffect } from "react";
 import { capitalizeWords } from "../../../utils/Capitalizer";
 import "../../../styles/guias/DatosG2.css";
 import { codigos_espejo as companyNames } from "../../../constants/CodigosEspejo";
+import { sinCodigo } from "../../../constants/Sincodigo";
 
 const DatosG2 = ({ proveedor, cargaActual, setCargas, cargas }) => {
   const guardar = useGuardar(setCargas);
@@ -33,12 +34,33 @@ const DatosG2 = ({ proveedor, cargaActual, setCargas, cargas }) => {
     if (currentCarga) {
       setInputValue(currentCarga.destino || "");
       if (currentCarga.destino) {
-        const matchingCompany = companyNames.find(
+        const matchingCompanyMain = companyNames.find(
           (company) => company.nombre === currentCarga.destino
-        ) || {
-          nombre: currentCarga.destino,
-          codigo: currentCarga.codigo_espejo,
-        };
+        );
+
+        // Then check in SinCodigo list
+        const matchingCompanySinCodigo = sinCodigo.find(
+          (company) => company.nombre === currentCarga.destino
+        );
+
+        let matchingCompany;
+        if (matchingCompanySinCodigo) {
+          // If found in sinCodigo, set codigo to "N/A"
+          matchingCompany = {
+            nombre: matchingCompanySinCodigo.nombre,
+            codigo: "N/A",
+          };
+        } else if (matchingCompanyMain) {
+          // If found in companyNames, use that company
+          matchingCompany = matchingCompanyMain;
+        } else {
+          // Default fallback
+          matchingCompany = {
+            nombre: currentCarga.destino,
+            codigo: currentCarga.codigo_espejo,
+          };
+        }
+
         setSelectedCompany(matchingCompany);
       } else {
         setSelectedCompany(null);
@@ -54,7 +76,7 @@ const DatosG2 = ({ proveedor, cargaActual, setCargas, cargas }) => {
 
     const newData = {
       transporte: capitalizeWords(document.getElementById("transporte").value),
-      destino: capitalizeWords(inputValue),
+      destino: inputValue.toUpperCase(),
       estadoDestino: document.getElementById("estadoDestino").value,
       codigo_espejo: selectedCompany?.codigo || "N/A",
     };
@@ -69,11 +91,21 @@ const DatosG2 = ({ proveedor, cargaActual, setCargas, cargas }) => {
     const filtered = companyNames.filter((company) =>
       searchWords.every((word) => company.nombre.toLowerCase().includes(word))
     );
-    setSuggestions(filtered);
 
-    // Only set selectedCompany to null if the input doesn't match any company
+    // Filter sinCodigo list using the same logic
+    const filteredSinCodigo = sinCodigo.filter((company) =>
+      searchWords.every((word) => company.nombre.toLowerCase().includes(word))
+    );
+
+    // Combine both filtered lists
+    setSuggestions([...filtered, ...filteredSinCodigo]);
+
+    // Only set selectedCompany to null if the input doesn't match any company from either list
     if (
       !filtered.some(
+        (company) => company.nombre.toLowerCase() === value.toLowerCase()
+      ) &&
+      !filteredSinCodigo.some(
         (company) => company.nombre.toLowerCase() === value.toLowerCase()
       )
     ) {
@@ -137,7 +169,10 @@ const DatosG2 = ({ proveedor, cargaActual, setCargas, cargas }) => {
           {/****** Codigo espejo *****/}
           {selectedCompany && (
             <p className="selected-company-code">
-              Código espejo: {selectedCompany.codigo || "N/A"}
+              Código espejo:{" "}
+              {Number(selectedCompany.codigo) < 100
+                ? "N/A"
+                : selectedCompany.codigo}
             </p>
           )}
 

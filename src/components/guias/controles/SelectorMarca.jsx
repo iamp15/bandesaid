@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { MARCA } from "../../../constants";
+import { MARCA } from "../../../constants/constants";
 import "../../../styles/guias/SelectorMarca.css";
 
 const SelectorMarca = ({ chickenBrand, onChange }) => {

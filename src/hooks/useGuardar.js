@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { PROVIDER_MAP } from "../constants";
+import { PROVIDER_MAP } from "../constants/constants";
 
 export const useGuardar = (setCargas) => {
   const navigate = useNavigate();

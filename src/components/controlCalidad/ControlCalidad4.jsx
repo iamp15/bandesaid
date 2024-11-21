@@ -6,7 +6,7 @@ import {
   GALPON,
   PERMISO_SANITARIO,
   MARCA,
-} from "../../constants";
+} from "../../constants/constants";
 import { useEffect } from "react";
 import { useGuardar } from "../../hooks/useGuardar";
 import { decimalComma, decimalPeriod } from "../../utils/FormatDecimal";

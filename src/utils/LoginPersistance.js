@@ -1,27 +1,33 @@
 export const storageUtils = {
   setUser: (userData) => {
-    localStorage.setItem("user", JSON.stringify(userData));
+    sessionStorage.setItem("user", JSON.stringify(userData));
   },
 
   getUser: () => {
-    const user = localStorage.getItem("user");
+    const user = sessionStorage.getItem("user");
+
     return user ? JSON.parse(user) : null;
   },
 
   removeUser: () => {
-    localStorage.removeItem("user");
+    sessionStorage.removeItem("user");
   },
 
   setAuthToken: (token) => {
-    localStorage.setItem("authToken", token);
+    sessionStorage.setItem("authToken", token);
   },
 
   getAuthToken: () => {
-    return localStorage.getItem("authToken");
+    return sessionStorage.getItem("authToken");
   },
 
   clearAuth: () => {
-    localStorage.removeItem("user");
-    localStorage.removeItem("authToken");
+    sessionStorage.removeItem("user");
+    sessionStorage.removeItem("authToken");
+  },
+
+  clearStorage: () => {
+    console.log("Clearing storage");
+    sessionStorage.clear();
   },
 };

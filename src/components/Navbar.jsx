@@ -12,7 +12,7 @@ const Navbar = ({
   setCargaActual,
   onLogout,
 }) => {
-  const { currentUser, userData } = useAuth();
+  const { currentUser, logout } = useAuth();
 
   const rolClicked = () => {
     setRol(null);
@@ -56,8 +56,8 @@ const Navbar = ({
           <div className="user-info">
             {/* Show user email if userData is not yet loaded */}
             <span className="username">
-              {userData ? userData.name : currentUser.name}
-              <span onClick={() => onLogout()}> [Logout]</span>
+              {currentUser.name}
+              <span onClick={() => logout()}> [Logout]</span>
             </span>
           </div>
         ) : (

@@ -5,13 +5,14 @@ import inventarioIcon from "../media/iconos/baul-inventario.png";
 import formatoIcon from "../media/iconos/formato.png";
 import configIcon from "../media/iconos/config.png";
 import { useAuth } from "./login/AuthContext";
+import LoadingSpinner from "./LoadingSpinner";
 
 const Menu = () => {
   const { currentUser, loading } = useAuth();
 
   // If loading, show loading state
   if (loading) {
-    return <div>Loading...</div>;
+    return <LoadingSpinner />;
   }
 
   const menuItems = [

@@ -37,9 +37,7 @@ const Carga = ({ cargas, setCargas, rol, proveedor, setCargaActual }) => {
   const eliminarCarga = (id) => {
     const key = providerMap[proveedor];
     askConfirmation(
-      `¿Estás seguro de que deseas borrar la carga ${
-        id + 1
-      }? Esta acción no se puede deshacer.`,
+      `¿Estás seguro de que deseas borrar la carga ${id}? Esta acción no se puede deshacer.`,
       (isConfirmed) => {
         if (key && isConfirmed) {
           setCargas((prevCargas) => ({

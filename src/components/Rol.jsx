@@ -21,7 +21,7 @@ export const Rol = ({ setRol }) => {
           </Link>
         </div>
         <div className="button-group">
-          <Link to={"/"}>
+          <Link to={"/menu"}>
             <button>Volver a inicio</button>
           </Link>
         </div>

@@ -25,6 +25,8 @@ import LoginPage from "./components/login/LoginPage";
 import ProtectedRoute from "./components/login/ProtectedRoute";
 import { useAuth } from "./components/login/AuthContext";
 import { formatDate2 } from "./utils/FormatDate";
+import { storageUtils } from "./utils/LoginPersistance";
+import LoadingSpinner from "./components/LoadingSpinner";
 
 function App() {
   const [rol, setRol] = useState(() => {
@@ -56,19 +58,7 @@ function App() {
         };
   });
 
-  const { currentUser, logout } = useAuth();
-
-  const handleLogout = () => {
-    // Create a function to reset all states
-    const resetAllStates = () => {
-      setRol("");
-      setProveedor("");
-      setCargaActual(0);
-    };
-
-    // Pass the reset function to logout
-    logout(resetAllStates);
-  };
+  const { currentUser, loading } = useAuth();
 
   const today = formatDate2();
   const docRef = doc(db, "cargas", today);
@@ -127,6 +117,10 @@ function App() {
 
   console.log(cargas);
 
+  if (loading) {
+    return <LoadingSpinner />;
+  }
+
   return (
     <>
       <Navbar
@@ -136,7 +130,6 @@ function App() {
         setProveedor={setProveedor}
         cargaActual={cargaActual}
         setCargaActual={setCargaActual}
-        onLogout={handleLogout}
       />
       <div className="content-wrapper">
         <Routes>

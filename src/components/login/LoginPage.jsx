@@ -1,54 +1,26 @@
-import { useState, useEffect } from "react";
-import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../../firebase/config";
-import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 import { useAuth } from "./AuthContext";
-import { storageUtils } from "../../utils/LoginPersistance";
+import { useAlert } from "../alert/AlertContext";
 
 export default function LoginPage() {
   const [idNumber, setIdNumber] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const navigate = useNavigate();
-  const { currentUser, loading } = useAuth();
-
-  useEffect(() => {
-    if (!loading && currentUser) {
-      navigate("/menu", { replace: true });
-    }
-  }, [navigate, currentUser, loading]);
-
-  // If still loading, show loading state
-  if (loading) {
-    return <div>Loading...</div>;
-  }
+  const { login } = useAuth();
+  const { addAlert } = useAlert();
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    setError("");
 
     try {
       // Firebase requires email format, so we convert ID to email format
       const email = `${idNumber}@yourdomain.com`;
-      const result = await signInWithEmailAndPassword(auth, email, password);
-
-      // Store user data in localStorage
-      const userToStore = {
-        id: result.user.uid,
-        email: result.user.email,
-        ...currentUser, // spread any additional user data
-      };
-
-      storageUtils.setUser(userToStore);
-      const token = await result.user.getIdToken();
-      storageUtils.setAuthToken(token);
-
-      // Login successful
-      console.log("Login successful");
-      navigate("/menu");
-    } catch (error) {
-      setError("Invalid credentials. Please try again.");
-      console.error("Login error:", error);
+      await login(email, password);
+    } catch {
+      addAlert(
+        "Error al iniciar sesión. Verifica tus credenciales.",
+        "error",
+        4000
+      );
     }
   };
 
@@ -57,8 +29,6 @@ export default function LoginPage() {
       <div className="menu">
         <h2>Login</h2>
         <form onSubmit={handleLogin}>
-          {error && <div className="error-message">{error}</div>}
-
           <div className="form-group">
             <label htmlFor="idNumber">Cédula:</label>
             <input

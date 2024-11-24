@@ -37,7 +37,7 @@
 .user-info {
   display: flex;
   align-items: center;
-  padding: 8px 16px;
+  padding: 8px 1px;
   color: white;
   font-size: 0.9rem;
   border-radius: 4px;

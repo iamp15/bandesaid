@@ -3,6 +3,9 @@ import CuadroCargas from "./CuadroCargas";
 import { formatDate } from "../utils/FormatDate";
 import { useAlert } from "./alert/AlertContext";
 import { Link } from "react-router-dom";
+import { db } from "../firebase/config";
+import { collection, addDoc } from "firebase/firestore";
+import { useAuth } from "./login/AuthContext";
 
 const Carga = ({ cargas, setCargas, rol, proveedor, setCargaActual }) => {
   const providerMap = {
@@ -13,6 +16,7 @@ const Carga = ({ cargas, setCargas, rol, proveedor, setCargaActual }) => {
   };
 
   const { askConfirmation } = useAlert();
+  const { currentUser } = useAuth(); // Get current user
 
   const getNextId = (cargasArray) => {
     if (cargasArray.length === 0) return 1;
@@ -26,6 +30,7 @@ const Carga = ({ cargas, setCargas, rol, proveedor, setCargaActual }) => {
         id: getNextId(cargas[key]),
         proveedor: proveedor,
         fecha: formatDate(),
+        tk: "Si",
       };
       setCargas((prevCargas) => ({
         ...prevCargas,
@@ -38,12 +43,36 @@ const Carga = ({ cargas, setCargas, rol, proveedor, setCargaActual }) => {
     const key = providerMap[proveedor];
     askConfirmation(
       `¿Estás seguro de que deseas borrar la carga ${id}? Esta acción no se puede deshacer.`,
-      (isConfirmed) => {
+      async (isConfirmed) => {
         if (key && isConfirmed) {
-          setCargas((prevCargas) => ({
-            ...prevCargas,
-            [key]: prevCargas[key].filter((carga) => carga.id !== id),
-          }));
+          try {
+            // Find the carga that's being deleted
+            const cargaToDelete = cargas[key].find((carga) => carga.id === id);
+
+            // Log the deletion in Firestore
+            await addDoc(collection(db, "deletedCargas"), {
+              cargaId: id,
+              proveedor: proveedor,
+              deletedBy: {
+                email: currentUser.name,
+                uid: currentUser.uid,
+              },
+              deletedAt: new Date().toISOString(),
+              cargaData: cargaToDelete, // Store all carga data for reference
+              userRole: rol,
+            });
+
+            // Remove the carga from state
+            setCargas((prevCargas) => ({
+              ...prevCargas,
+              [key]: prevCargas[key].filter((carga) => carga.id !== id),
+            }));
+
+            console.log(`Carga ${id} deleted and logged successfully`);
+          } catch (error) {
+            console.error("Error logging carga deletion:", error);
+            // You might want to show an error message to the user here
+          }
         }
       }
     );

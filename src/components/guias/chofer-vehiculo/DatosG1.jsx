@@ -4,6 +4,9 @@ import { PROVIDER_MAP } from "../../../constants/constants";
 import { useGuardar } from "../../../hooks/useGuardar";
 import { capitalizeWords } from "../../../utils/Capitalizer";
 import "../../../styles/guias/DatosG1.css";
+import { useAuth } from "../../login/AuthContext";
+import EditableField from "../../EditableField";
+import { useNavigate } from "react-router-dom";
 
 const DatosG1 = ({
   setCargaActual,
@@ -13,6 +16,8 @@ const DatosG1 = ({
   setCargas,
 }) => {
   const guardar = useGuardar(setCargas);
+  const { currentUser } = useAuth();
+  const navigate = useNavigate();
 
   if (!proveedor)
     return (
@@ -42,86 +47,137 @@ const DatosG1 = ({
       </div>
     );
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    const formatCedula = (cedula) => {
-      // Remove any existing non-digit characters
-      const cleanedCedula = cedula.replace(/\D/g, "");
-
-      // Add dots to the cleaned cedula
-      const parts = [];
-      for (let i = cleanedCedula.length; i > 0; i -= 3) {
-        parts.unshift(cleanedCedula.slice(Math.max(0, i - 3), i));
-      }
-
-      return parts.join(".");
-    };
-
-    const newData = {
-      chofer: capitalizeWords(event.target.nombre.value),
-      cedula: formatCedula(event.target.cedula.value),
-      marcaVehiculo: capitalizeWords(event.target.marca.value),
-      placa: event.target.placa.value.toUpperCase(),
-      tk: event.target.tk.value,
-    };
-
-    guardar(proveedor, cargaActual, "/datosG2", newData);
-  };
-
   // Get the current carga based on cargaActual and proveedor
   const currentCarga = cargas[key]?.[cargaActual - 1] || {};
+
+  const handleFieldSave = (fieldName, newValue) => {
+    const newData = {
+      [fieldName]: newValue,
+      editHistory: {
+        ...currentCarga?.editHistory,
+        [fieldName]: {
+          value: newValue,
+          editedBy: currentUser.name,
+          editedAt: new Date().toISOString(),
+        },
+      },
+    };
+    guardar(proveedor, cargaActual, "", newData);
+  };
+
+  const tkChange = (e) => {
+    const newData = {
+      tk: e.target.value,
+      editHistory: {
+        ...currentCarga?.editHistory,
+        tk: {
+          value: e.target.value,
+          editedBy: currentUser.name,
+          editedAt: new Date().toISOString(),
+        },
+      },
+    };
+    guardar(proveedor, cargaActual, "", newData);
+  };
 
   return (
     <div className="wrap-container">
       <div className="menu">
-        <form onSubmit={handleSubmit}>
+        <form>
           {/****** Chofer ******/}
           <h2>Chofer:</h2>
-          <label htmlFor="nombre">Nombre: </label>
-          <input
-            type="text"
-            id="nombre"
-            defaultValue={currentCarga?.chofer || ""}
+          <EditableField
+            fieldName="chofer"
+            label="Nombre"
+            value={currentCarga?.chofer}
             placeholder="Ingrese el nombre del chofer"
+            onSave={handleFieldSave}
+            currentUser={currentUser}
+            editHistory={currentCarga?.editHistory}
+            formatValue={capitalizeWords}
           />
-          <label htmlFor="placa">Cédula: </label>
-          <input
-            type="text"
-            id="cedula"
-            defaultValue={currentCarga?.cedula || ""}
+
+          <EditableField
+            fieldName="cedula"
+            label="Cédula"
+            value={currentCarga?.cedula}
             placeholder="Ingrese la cédula del chofer"
+            onSave={handleFieldSave}
+            currentUser={currentUser}
+            editHistory={currentCarga?.editHistory}
+            formatValue={(cedula) => {
+              // Remove any existing non-digit characters
+              const cleanedCedula = cedula.replace(/\D/g, "");
+
+              // Add dots to the cleaned cedula
+              const parts = [];
+              for (let i = cleanedCedula.length; i > 0; i -= 3) {
+                parts.unshift(cleanedCedula.slice(Math.max(0, i - 3), i));
+              }
+
+              return parts.join(".");
+            }}
           />
 
           {/****** Vehículo ******/}
           <h2>Vehículo:</h2>
-          <label htmlFor="marca">Marca: </label>
-          <input
-            type="text"
-            id="marca"
-            defaultValue={currentCarga?.marcaVehiculo || ""}
-            placeholder="Ej.: Jac"
+          <EditableField
+            fieldName="marcaVehiculo"
+            label="marcaVehiculo"
+            value={currentCarga?.marcaVehiculo}
+            placeholder="Ingrese la marca del vehículo"
+            onSave={handleFieldSave}
+            currentUser={currentUser}
+            editHistory={currentCarga?.editHistory}
+            formatValue={capitalizeWords}
           />
-          <label htmlFor="placa">Placa: </label>
-          <input
-            type="text"
-            id="placa"
-            defaultValue={currentCarga?.placa || ""}
-            placeholder="Ej.: ABC123"
+
+          <EditableField
+            fieldName="placa"
+            label="Placa"
+            value={currentCarga?.placa}
+            placeholder="Ingrese la placa del vehículo"
+            onSave={handleFieldSave}
+            currentUser={currentUser}
+            editHistory={currentCarga?.editHistory}
+            formatValue={(placa) => placa.toUpperCase()}
           />
 
           {/****** Therno King ******/}
-          <label htmlFor="tk">Therno King: </label>
-          <select name="tk" id="tk" defaultValue={currentCarga?.tk || "si"}>
+          <label htmlFor="tk" className="label-bold">
+            Therno King:{" "}
+          </label>
+          <select
+            name="tk"
+            id="tk"
+            defaultValue={currentCarga?.tk || "si"}
+            onChange={tkChange}
+          >
             <option value="Si">Sí</option>
             <option value="No">No</option>
           </select>
+          {currentCarga.editHistory?.tk && (
+            <p className="autor">
+              Editado por: {currentCarga.editHistory.tk.editedBy}
+              {" a las "}
+              {new Date(
+                currentCarga.editHistory.tk.editedAt
+              ).toLocaleTimeString("es-ES", {
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: true, // This ensures 24-hour format
+              })}
+            </p>
+          )}
 
           {/****** Botones ******/}
           <div className="button-group">
             <Link to={"/carga"}>
               <button onClick={() => setCargaActual(0)}>Atras</button>
             </Link>
-            <button type="submit">Continuar</button>
+            <button type="button" onClick={() => navigate("/datosg2")}>
+              Continuar
+            </button>
           </div>
         </form>
       </div>

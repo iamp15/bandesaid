@@ -25,7 +25,6 @@ import LoginPage from "./components/login/LoginPage";
 import ProtectedRoute from "./components/login/ProtectedRoute";
 import { useAuth } from "./components/login/AuthContext";
 import { formatDate2 } from "./utils/FormatDate";
-import { storageUtils } from "./utils/LoginPersistance";
 import LoadingSpinner from "./components/LoadingSpinner";
 
 function App() {

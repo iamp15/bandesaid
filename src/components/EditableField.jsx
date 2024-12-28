@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import "../styles/EditableField.css";
 
@@ -8,26 +8,44 @@ const EditableField = ({
   value,
   placeholder,
   onSave,
+  onChange,
+  suggestions,
+  showSuggestions,
+  setShowSuggestions,
   editHistory,
+  autoComplete,
+  onEdit,
+  setOnEdit,
   formatValue = (val) => val, // Optional formatter function
 }) => {
-  const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState("");
+
+  // Added useEffect to set editValue when isEditing becomes true
+  useEffect(() => {
+    if (onEdit) {
+      setEditValue(value);
+    }
+  }, [onEdit, value]);
 
   // Check if field is locked before starting edit
   const handleEdit = () => {
-    setIsEditing(true);
-    setEditValue(formatValue(value));
+    console.log("alguien esta editando:", onEdit);
+    if (onEdit) {
+      alert("Guarda los cambios antes de editar otro campo");
+      return;
+    }
+    setOnEdit(fieldName);
+    setEditValue(value);
   };
 
   const handleSave = () => {
     onSave(fieldName, formatValue(editValue));
-    setIsEditing(false);
+    setOnEdit(null);
   };
 
   const cancelEditing = () => {
     setEditValue(value);
-    setIsEditing(false);
+    setOnEdit(null);
   };
 
   // Format the display value, not in the render
@@ -37,15 +55,41 @@ const EditableField = ({
     <div className="editable-field">
       <label htmlFor={fieldName}>
         <p className="label-bold">{label}:</p>
-        {isEditing ? (
+        {onEdit === fieldName ? (
           <>
             <input
               type="text"
               id={fieldName}
               value={editValue}
-              onChange={(e) => setEditValue(e.target.value)}
+              onChange={(e) => {
+                setEditValue(e.target.value);
+                if (onChange) onChange(e); // Call onChange if provided
+              }}
               placeholder={placeholder}
+              onFocus={() => {
+                if (!showSuggestions) setShowSuggestions(true);
+              }}
+              onBlur={() => {
+                if (showSuggestions)
+                  setTimeout(() => setShowSuggestions(false), 200);
+              }}
+              autoComplete={autoComplete}
             />
+            {showSuggestions && suggestions.length > 0 && (
+              <ul className="suggestions-list">
+                {suggestions.map((company) => (
+                  <li
+                    key={company.codigo}
+                    onMouseDown={() => {
+                      setEditValue(company.nombre);
+                      setShowSuggestions(false);
+                    }}
+                  >
+                    {company.nombre}
+                  </li>
+                ))}
+              </ul>
+            )}
             <div className="button-group">
               <button type="button" onClick={cancelEditing}>
                 Cancelar
@@ -94,9 +138,16 @@ EditableField.propTypes = {
   value: PropTypes.string,
   placeholder: PropTypes.string,
   onSave: PropTypes.func.isRequired,
+  onChange: PropTypes.func,
   currentUser: PropTypes.object.isRequired,
   editHistory: PropTypes.object,
+  suggestions: PropTypes.array, // Added suggestions to propTypes
+  showSuggestions: PropTypes.bool, // Added showSuggestions to propTypes
+  setShowSuggestions: PropTypes.func.isRequired,
   formatValue: PropTypes.func,
+  autoComplete: PropTypes.string,
+  setOnEdit: PropTypes.func.isRequired,
+  onEdit: PropTypes.string,
 };
 
 export default EditableField;

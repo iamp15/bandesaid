@@ -7,6 +7,8 @@ import "../../../styles/guias/DatosG1.css";
 import { useAuth } from "../../login/AuthContext";
 import EditableField from "../../EditableField";
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import LoadingSpinner from "../../LoadingSpinner";
 
 const DatosG1 = ({
   setCargaActual,
@@ -16,8 +18,14 @@ const DatosG1 = ({
   setCargas,
 }) => {
   const guardar = useGuardar(setCargas);
-  const { currentUser } = useAuth();
+  const { currentUser, loading } = useAuth();
   const navigate = useNavigate();
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [onEdit, setOnEdit] = useState(null);
+
+  if (loading) {
+    return <LoadingSpinner />;
+  }
 
   if (!proveedor)
     return (
@@ -80,6 +88,12 @@ const DatosG1 = ({
     guardar(proveedor, cargaActual, "", newData);
   };
 
+  const handleContinue = () => {
+    if (onEdit !== null)
+      alert("Por favor, guarda los cambios antes de continuar");
+    else navigate("/datosg2");
+  };
+
   return (
     <div className="wrap-container">
       <div className="menu">
@@ -95,6 +109,9 @@ const DatosG1 = ({
             currentUser={currentUser}
             editHistory={currentCarga?.editHistory}
             formatValue={capitalizeWords}
+            setShowSuggestions={setShowSuggestions}
+            setOnEdit={setOnEdit}
+            onEdit={onEdit}
           />
 
           <EditableField
@@ -105,6 +122,9 @@ const DatosG1 = ({
             onSave={handleFieldSave}
             currentUser={currentUser}
             editHistory={currentCarga?.editHistory}
+            setShowSuggestions={setShowSuggestions}
+            setOnEdit={setOnEdit}
+            onEdit={onEdit}
             formatValue={(cedula) => {
               // Remove any existing non-digit characters
               const cleanedCedula = cedula.replace(/\D/g, "");
@@ -123,13 +143,16 @@ const DatosG1 = ({
           <h2>Vehículo:</h2>
           <EditableField
             fieldName="marcaVehiculo"
-            label="marcaVehiculo"
+            label="Marca"
             value={currentCarga?.marcaVehiculo}
             placeholder="Ingrese la marca del vehículo"
             onSave={handleFieldSave}
             currentUser={currentUser}
             editHistory={currentCarga?.editHistory}
             formatValue={capitalizeWords}
+            setShowSuggestions={setShowSuggestions}
+            setOnEdit={setOnEdit}
+            onEdit={onEdit}
           />
 
           <EditableField
@@ -141,6 +164,9 @@ const DatosG1 = ({
             currentUser={currentUser}
             editHistory={currentCarga?.editHistory}
             formatValue={(placa) => placa.toUpperCase()}
+            setShowSuggestions={setShowSuggestions}
+            setOnEdit={setOnEdit}
+            onEdit={onEdit}
           />
 
           {/****** Therno King ******/}
@@ -175,7 +201,7 @@ const DatosG1 = ({
             <Link to={"/carga"}>
               <button onClick={() => setCargaActual(0)}>Atras</button>
             </Link>
-            <button type="button" onClick={() => navigate("/datosg2")}>
+            <button type="button" onClick={handleContinue}>
               Continuar
             </button>
           </div>

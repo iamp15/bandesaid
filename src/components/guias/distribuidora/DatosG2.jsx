@@ -7,6 +7,9 @@ import { capitalizeWords } from "../../../utils/Capitalizer";
 import "../../../styles/guias/DatosG2.css";
 import { codigos_espejo as companyNames } from "../../../constants/CodigosEspejo";
 import { sinCodigo } from "../../../constants/Sincodigo";
+import EditableField from "../../EditableField";
+import { useAuth } from "../../login/AuthContext";
+import LoadingSpinner from "../../LoadingSpinner";
 
 const DatosG2 = ({ proveedor, cargaActual, setCargas, cargas }) => {
   const guardar = useGuardar(setCargas);
@@ -29,6 +32,8 @@ const DatosG2 = ({ proveedor, cargaActual, setCargas, cargas }) => {
   const [inputValue, setInputValue] = useState(
     () => currentCarga?.destino || ""
   );
+  const { currentUser, loading } = useAuth();
+  const [onEdit, setOnEdit] = useState(null);
 
   useEffect(() => {
     if (currentCarga) {
@@ -71,13 +76,18 @@ const DatosG2 = ({ proveedor, cargaActual, setCargas, cargas }) => {
     }
   }, [currentCarga]);
 
+  if (loading) {
+    return <LoadingSpinner />;
+  }
+
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (onEdit !== null) {
+      alert("Por favor, guarda los cambios antes de continuar");
+      return;
+    }
 
     const newData = {
-      transporte: capitalizeWords(document.getElementById("transporte").value),
-      destino: inputValue.toUpperCase(),
-      estadoDestino: document.getElementById("estadoDestino").value,
       codigo_espejo: selectedCompany?.codigo || "N/A",
     };
 
@@ -113,6 +123,21 @@ const DatosG2 = ({ proveedor, cargaActual, setCargas, cargas }) => {
     }
   };
 
+  const handleFieldSave = (fieldName, newValue) => {
+    const newData = {
+      [fieldName]: newValue,
+      editHistory: {
+        ...currentCarga?.editHistory,
+        [fieldName]: {
+          value: newValue,
+          editedBy: currentUser.name,
+          editedAt: new Date().toISOString(),
+        },
+      },
+    };
+    guardar(proveedor, cargaActual, "", newData);
+  };
+
   return (
     <div className="wrap-container">
       <div className="menu">
@@ -120,49 +145,42 @@ const DatosG2 = ({ proveedor, cargaActual, setCargas, cargas }) => {
           <h2>Comercializadora: </h2>
 
           {/****** Nombre empresa transporte *****/}
-          <label htmlFor="transporte">Nombre de empresa que transporta: </label>
-          <input
-            type="text"
-            id="transporte"
-            defaultValue={currentCarga?.transporte || ""}
+          <EditableField
+            fieldName="transporte"
+            label="Nombre de empresa que transporta"
+            value={currentCarga?.transporte}
             placeholder="Ej.: Mercal"
+            onSave={handleFieldSave}
+            currentUser={currentUser}
+            editHistory={currentCarga?.editHistory}
+            formatValue={capitalizeWords}
+            setShowSuggestions={setShowSuggestions}
+            setOnEdit={setOnEdit}
+            onEdit={onEdit}
           />
 
           {/****** Entidad destino *****/}
           <div className="empresa-input-container">
-            <label htmlFor="destino">Entidad destino: </label>
             <div className="dropdown-container">
-              <input
-                type="text"
-                id="destino"
-                className="empresa-input"
-                value={inputValue}
+              <EditableField
+                fieldName="destino"
+                label="Entidad destino"
+                value={currentCarga?.destino}
+                onSave={handleFieldSave}
+                editHistory={currentCarga?.editHistory}
                 onChange={(e) => {
                   setInputValue(e.target.value);
                   handleEmpresaInput(e);
                   setShowSuggestions(true);
                 }}
-                onFocus={() => setShowSuggestions(true)}
-                onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+                suggestions={suggestions} // Pass suggestions
+                showSuggestions={showSuggestions} // Pass showSuggestions
+                setShowSuggestions={setShowSuggestions} // Pass setShowSuggestions
                 placeholder="Escribe el nombre de la empresa"
+                autoComplete={"off"}
+                setOnEdit={setOnEdit}
+                onEdit={onEdit}
               />
-              {showSuggestions && suggestions.length > 0 && (
-                <ul className="suggestions-list">
-                  {suggestions.map((company) => (
-                    <li
-                      key={company.codigo}
-                      onMouseDown={() => {
-                        setInputValue(company.nombre);
-                        setSelectedCompany(company);
-                        setShowSuggestions(false);
-                      }}
-                      className="suggestion-item"
-                    >
-                      {company.nombre}
-                    </li>
-                  ))}
-                </ul>
-              )}
             </div>
           </div>
 
@@ -177,14 +195,17 @@ const DatosG2 = ({ proveedor, cargaActual, setCargas, cargas }) => {
           )}
 
           {/****** Estado destino *****/}
-          <label htmlFor="estadoDestino">Estado destino: </label>
-          <input
-            type="text"
-            id="estadoDestino"
-            defaultValue={
-              currentCarga?.estadoDestino || currentCarga?.codigo_espejo || ""
-            }
-            placeholder="Ej.: Distrito Capital"
+          <EditableField
+            fieldName="estadoDestino"
+            label="Estado destino"
+            value={currentCarga?.estadoDestino}
+            onSave={handleFieldSave}
+            currentUser={currentUser}
+            editHistory={currentCarga?.editHistory}
+            formatValue={capitalizeWords}
+            setShowSuggestions={setShowSuggestions}
+            setOnEdit={setOnEdit}
+            onEdit={onEdit}
           />
 
           {/****** Botones *****/}

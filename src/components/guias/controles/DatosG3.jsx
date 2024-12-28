@@ -7,6 +7,8 @@ import SelectorMarca from "./SelectorMarca";
 import { decimalComma, decimalPeriod } from "../../../utils/FormatDecimal";
 import { formatNumber } from "../../../utils/FormatNumber";
 import "../../../styles/guias/DatosG3.css";
+import { useAuth } from "../../login/AuthContext";
+import LoadingSpinner from "../../LoadingSpinner";
 
 const DatosG3 = ({ proveedor, cargaActual, cargas, setCargas }) => {
   const guardar = useGuardar(setCargas);
@@ -15,6 +17,12 @@ const DatosG3 = ({ proveedor, cargaActual, cargas, setCargas }) => {
     currentCarga?.marca_rubro || MARCA[0].nombre
   );
   const [lote, setLote] = useState(currentCarga.lote || "N/A");
+  const { currentUser, loading } = useAuth();
+
+  if (loading) {
+    return <LoadingSpinner />;
+  }
+
   const getCnd = (brandName) => {
     const brand = Object.values(MARCA).find(
       (brand) => brand.nombre === brandName
@@ -50,6 +58,19 @@ const DatosG3 = ({ proveedor, cargaActual, cargas, setCargas }) => {
 
   const handleChickenBrandChange = (e) => {
     setChickenBrand(e.target.value);
+    const newData = {
+      marca_rubro: e.target.value,
+      cnd: getCnd(e.target.value),
+      editHistory: {
+        ...currentCarga?.editHistory,
+        marca_rubro: {
+          value: e.target.value,
+          editedBy: currentUser.name,
+          editedAt: new Date().toISOString(),
+        },
+      },
+    };
+    guardar(proveedor, cargaActual, "", newData);
   };
 
   return (

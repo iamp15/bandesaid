@@ -16,6 +16,7 @@ const EditableField = ({
   autoComplete,
   onEdit,
   setOnEdit,
+  unit,
   formatValue = (val) => val, // Optional formatter function
 }) => {
   const [editValue, setEditValue] = useState("");
@@ -48,8 +49,16 @@ const EditableField = ({
     setOnEdit(null);
   };
 
+  const setUnit = () => {
+    if (unit) {
+      return " " + unit;
+    } else {
+      return "";
+    }
+  };
+
   // Format the display value, not in the render
-  const displayValue = value ? formatValue(value) : "No registrado";
+  const displayValue = value ? formatValue(value) + setUnit() : "No registrado";
 
   return (
     <div className="editable-field">
@@ -148,6 +157,7 @@ EditableField.propTypes = {
   autoComplete: PropTypes.string,
   setOnEdit: PropTypes.func.isRequired,
   onEdit: PropTypes.string,
+  unit: PropTypes.string,
 };
 
 export default EditableField;

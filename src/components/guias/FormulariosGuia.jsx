@@ -31,7 +31,7 @@ const FormulariosGuia = ({
 
     const choosePeso = () => {
       if (numGuias > 1) return infoCarga?.pesos_guias[index];
-      else return infoCarga?.p_guia;
+      else return infoCarga?.p_total;
     };
 
     const parseLocalizedNumber = (stringNumber) => {

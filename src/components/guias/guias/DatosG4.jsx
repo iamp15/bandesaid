@@ -149,7 +149,6 @@ const DatosG4 = ({
       pesos_guias: pesos.map((peso) => (peso ? formatNumber(peso) : "")),
       precintos: precintos.length > 0 ? precintos : ["S/P"],
     };
-    console.log("guardando guias");
     guardar(proveedor, cargaActual, "", newData);
   };
 
@@ -210,6 +209,14 @@ const DatosG4 = ({
             onPrecintoNumberChange={handlePrecintoNumberChange}
             precintos={precintos}
           />
+
+          {numPrecintos > 0 && (
+            <div className="button-group">
+              <button type="button" onClick={saveGuias}>
+                Guardar
+              </button>
+            </div>
+          )}
 
           <div className="button-group">
             <Link to={"/datosg3"}>

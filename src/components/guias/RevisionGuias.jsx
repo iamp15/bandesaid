@@ -54,7 +54,7 @@ const RevisionGuias = ({ cargas, proveedor, cargaActual }) => {
           <p>Marca: {infoCarga.marca_rubro}</p>
           <p>Peso promedio: {infoCarga.p_promedio} kg</p>
           <p>Temperatura promedio: {infoCarga.t_promedio} ºC</p>
-          <p>Peso según guía: {infoCarga.p_guia} kg</p>
+          <p>Peso total de la carga: {infoCarga.p_total} kg</p>
           <p>Peso verificado: {infoCarga.p_verificado} kg</p>
           <button onClick={() => navigate("/datosg3")}>Editar</button>
         </div>

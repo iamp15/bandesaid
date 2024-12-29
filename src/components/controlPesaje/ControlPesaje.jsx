@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { PROVIDER_MAP } from "../../constants/constants";
 import { useGuardar } from "../../hooks/useGuardar";
+import { useAuth } from "../login/AuthContext";
 
 const ControlPesaje = ({
   cargas,
@@ -17,6 +18,7 @@ const ControlPesaje = ({
   const [thermoKingStatus, setThermoKingStatus] = useState(
     currentCarga?.tk || "Si"
   );
+  const { currentUser } = useAuth();
 
   const handleThermoKingChange = (event) => {
     const newStatus = event.target.value;
@@ -25,7 +27,17 @@ const ControlPesaje = ({
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    const newData = { tk: thermoKingStatus };
+    const newData = {
+      tk: thermoKingStatus,
+      editHistory: {
+        ...currentCarga?.editHistory,
+        tk: {
+          value: thermoKingStatus,
+          editedBy: currentUser.name,
+          editedAt: new Date().toISOString(),
+        },
+      },
+    };
     guardar(proveedor, cargaActual, "/pesaje2", newData);
   };
 
@@ -44,6 +56,20 @@ const ControlPesaje = ({
             <option value="Si">Sí</option>
             <option value="No">No</option>
           </select>
+
+          {currentCarga.editHistory?.tk && (
+            <p className="autor">
+              Editado por: {currentCarga.editHistory.tk.editedBy}
+              {" a las "}
+              {new Date(
+                currentCarga.editHistory.tk.editedAt
+              ).toLocaleTimeString("es-ES", {
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: true, // This ensures 24-hour format
+              })}
+            </p>
+          )}
 
           {/****** Botones ******/}
           <div className="button-group">

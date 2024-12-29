@@ -4,19 +4,28 @@ import { useGuardar } from "../../hooks/useGuardar";
 import { PROVIDER_MAP, GALPON, RUBRO } from "../../constants/constants";
 import { formatNumber } from "../../utils/FormatNumber";
 import { Link } from "react-router-dom";
+import EditableField from "../EditableField";
+import { useAuth } from "../login/AuthContext";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "../../styles/pesaje/ControlPesaje2.css";
 
 const ControlPesaje2 = ({ cargas, setCargas, proveedor, cargaActual }) => {
   const key = PROVIDER_MAP[proveedor];
   const currentCarga = cargas[key]?.[cargaActual - 1] || {};
   const guardar = useGuardar(setCargas);
+  const { currentUser } = useAuth();
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [onEdit, setOnEdit] = useState(null);
+  const navigate = useNavigate();
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const newValue = e.target.pVerificado.value;
-    const peso = formatNumber(newValue);
-    const updatedCarga = { p_verificado: peso };
-    guardar(proveedor, cargaActual, "/pesaje3", updatedCarga);
+    if (onEdit) {
+      alert("Por favor, guarda los cambios antes de continuar");
+      return;
+    }
+    navigate("/pesaje3");
   };
 
   const inicioCargaText = () => {
@@ -56,6 +65,21 @@ const ControlPesaje2 = ({ cargas, setCargas, proveedor, cargaActual }) => {
     );
   };
 
+  const handleFieldSave = (fieldName, newValue) => {
+    const newData = {
+      [fieldName]: newValue,
+      editHistory: {
+        ...currentCarga?.editHistory,
+        [fieldName]: {
+          value: newValue,
+          editedBy: currentUser.name,
+          editedAt: new Date().toISOString(),
+        },
+      },
+    };
+    guardar(proveedor, cargaActual, "", newData);
+  };
+
   return (
     <div className="wrap-container">
       <div className="menu">
@@ -70,13 +94,35 @@ const ControlPesaje2 = ({ cargas, setCargas, proveedor, cargaActual }) => {
           </div>
 
           <h2>Pesaje:</h2>
-          <label htmlFor="pVerificado">Peso verificado:</label>
-          <input
-            type="text"
-            id="pVerificado"
-            defaultValue={currentCarga?.p_verificado || ""}
-            required
+
+          <EditableField
+            fieldName="p_total"
+            label="Peso total de la carga"
+            value={currentCarga?.p_total}
+            placeholder={"Ej: 10000"}
+            onSave={handleFieldSave}
+            currentUser={currentUser}
+            editHistory={currentCarga?.editHistory}
+            formatValue={formatNumber}
+            setShowSuggestions={setShowSuggestions}
+            setOnEdit={setOnEdit}
+            onEdit={onEdit}
           />
+
+          <EditableField
+            fieldName="p_verificado"
+            label="Peso verificado"
+            value={currentCarga?.p_verificado}
+            placeholder={"Ej: 10000,42"}
+            onSave={handleFieldSave}
+            currentUser={currentUser}
+            editHistory={currentCarga?.editHistory}
+            formatValue={formatNumber}
+            setShowSuggestions={setShowSuggestions}
+            setOnEdit={setOnEdit}
+            onEdit
+          />
+
           <div className="button-group">
             <Link to={"/pesaje1"}>
               <button>Atras</button>

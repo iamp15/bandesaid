@@ -7,7 +7,9 @@ import { useGuardar } from "../../../hooks/useGuardar";
 import { PROVIDER_MAP } from "../../../constants/constants";
 import { isValidNumber } from "../../../utils/CharLimit";
 import { formatNumber } from "../../../utils/FormatNumber";
+import { useAuth } from "../../login/AuthContext";
 import "../../../styles/guias/DatosG4.css";
+import LoadingSpinner from "../../LoadingSpinner";
 
 const DatosG4 = ({
   proveedor,
@@ -21,11 +23,13 @@ const DatosG4 = ({
   const [pesos, setPesos] = useState([]);
   const [precintos, setPrecintos] = useState([]);
   const guardar = useGuardar(setCargas);
-  const mapeo = PROVIDER_MAP[proveedor];
+  const mapeo = PROVIDER_MAP[proveedor] || "";
   const numGuias =
     guias_precintos.guias === "" ? "" : Number(guias_precintos.guias);
   const numPrecintos =
     guias_precintos.precintos === "" ? "" : Number(guias_precintos.precintos);
+
+  const { loading } = useAuth();
 
   useEffect(() => {
     const initialCodigos =
@@ -40,8 +44,11 @@ const DatosG4 = ({
       guias: initialCodigos.length || "",
       precintos: initialPrecintos.length || "",
     }));
-    console.log("Initial pesos:", initialPesos);
   }, [cargas, cargaActual, mapeo, setGuias_precintos]);
+
+  if (loading) {
+    return <LoadingSpinner />;
+  }
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -51,7 +58,6 @@ const DatosG4 = ({
       precintos: precintos.length > 0 ? precintos : ["S/P"],
     };
 
-    console.log("Submitting data:", newData);
     guardar(proveedor, cargaActual, "/revisionguias", newData);
   };
 
@@ -69,7 +75,7 @@ const DatosG4 = ({
           : Array(Number(newGuiasValue))
               .fill("")
               .map((_, i) => prev[i] || "");
-      console.log("New codigos:", newCodigos);
+
       return newCodigos;
     });
 
@@ -80,7 +86,7 @@ const DatosG4 = ({
           : Array(Number(newGuiasValue))
               .fill("")
               .map((_, i) => prev[i] || "");
-      console.log("New pesos:", newPesos);
+
       return newPesos;
     });
   };
@@ -90,7 +96,6 @@ const DatosG4 = ({
       setCodigos((prev) => {
         const newCodigos = [...prev];
         newCodigos[index] = value;
-        console.log("Updated codigos:", newCodigos);
         return newCodigos;
       });
     }
@@ -138,6 +143,16 @@ const DatosG4 = ({
     });
   };
 
+  const saveGuias = () => {
+    const newData = {
+      codigos_guias: codigos,
+      pesos_guias: pesos.map((peso) => (peso ? formatNumber(peso) : "")),
+      precintos: precintos.length > 0 ? precintos : ["S/P"],
+    };
+    console.log("guardando guias");
+    guardar(proveedor, cargaActual, "", newData);
+  };
+
   return (
     <div className="wrap-container">
       <div className="menu">
@@ -163,6 +178,15 @@ const DatosG4 = ({
             onGuideNumberChange={handleGuideNumberChange}
             onGuideWeightChange={handleGuideWeightChange}
           />
+
+          {numGuias > 0 && (
+            <div className="button-group">
+              <button type="button" onClick={saveGuias}>
+                Guardar
+              </button>
+            </div>
+          )}
+
           <div className="number-input-container">
             <h2>Datos Precintos</h2>
             <label htmlFor="n_precintos">Cantidad de precintos: </label>
@@ -184,7 +208,9 @@ const DatosG4 = ({
             mapeo={mapeo}
             cargaActual={cargaActual}
             onPrecintoNumberChange={handlePrecintoNumberChange}
+            precintos={precintos}
           />
+
           <div className="button-group">
             <Link to={"/datosg3"}>
               <button type="button">Atras</button>

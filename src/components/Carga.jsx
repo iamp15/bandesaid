@@ -32,6 +32,7 @@ const Carga = ({ cargas, setCargas, rol, proveedor, setCargaActual }) => {
         fecha: formatDate(),
         tk: "Si",
         marca_rubro: "San José",
+        lote: "N/A",
       };
       setCargas((prevCargas) => ({
         ...prevCargas,

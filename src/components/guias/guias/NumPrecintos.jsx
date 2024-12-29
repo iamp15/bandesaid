@@ -1,14 +1,6 @@
 /* eslint-disable react/prop-types */
 
-const NumPrecintos = ({
-  num,
-  cargas,
-  mapeo,
-  cargaActual,
-  onPrecintoNumberChange,
-}) => {
-  const currentPrecintos = cargas[mapeo][cargaActual - 1].precintos || [];
-
+const NumPrecintos = ({ num, onPrecintoNumberChange, precintos }) => {
   return (
     <div>
       {[...Array(Number(num))].map((_, index) => (
@@ -20,7 +12,7 @@ const NumPrecintos = ({
             type="text"
             id={`precinto-${index}`}
             onChange={(e) => onPrecintoNumberChange(index, e.target.value)}
-            defaultValue={currentPrecintos[index]}
+            defaultValue={precintos[index]}
             maxLength={8}
             required
           />

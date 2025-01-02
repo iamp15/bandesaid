@@ -30,6 +30,8 @@ const DatosG4 = ({
     guias_precintos.precintos === "" ? "" : Number(guias_precintos.precintos);
 
   const { loading } = useAuth();
+  const currentCarga = cargas[mapeo]?.[cargaActual - 1] || {};
+  const [showNotification, setShowNotification] = useState(null);
 
   useEffect(() => {
     const initialCodigos =
@@ -52,6 +54,11 @@ const DatosG4 = ({
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    if (!checkPesos()) {
+      return;
+    }
+
     const newData = {
       codigos_guias: codigos,
       pesos_guias: pesos.map((peso) => (peso ? formatNumber(peso) : "")),
@@ -144,12 +151,55 @@ const DatosG4 = ({
   };
 
   const saveGuias = () => {
+    if (numGuias > 1 && !checkPesos()) {
+      return;
+    }
+
     const newData = {
       codigos_guias: codigos,
       pesos_guias: pesos.map((peso) => (peso ? formatNumber(peso) : "")),
       precintos: precintos.length > 0 ? precintos : ["S/P"],
     };
     guardar(proveedor, cargaActual, "", newData);
+    setShowNotification("button1");
+    setTimeout(() => setShowNotification(false), 2000); // Hide after 2 seconds
+  };
+
+  const savePrecintos = () => {
+    const newData = {
+      precintos: precintos.length > 0 ? precintos : ["S/P"],
+    };
+    guardar(proveedor, cargaActual, "", newData);
+    setShowNotification("button2");
+    setTimeout(() => setShowNotification(false), 2000); // Hide after 2 seconds
+  };
+
+  const parsePeso = (pesoStr) => {
+    const parts = pesoStr.split(",");
+    if (parts.length > 1) {
+      const integerPart = parts.slice(0, -1).join("").replace(/\./g, "");
+      const decimalPart = parts[parts.length - 1];
+      const finalValue = parseFloat(`${integerPart}.${decimalPart}`);
+      console.log(finalValue);
+      return finalValue;
+    }
+    const finalValue = parseFloat(pesoStr.replace(/\./g, "").replace(",", "."));
+    return finalValue;
+  };
+
+  const checkPesos = () => {
+    const sumPesos = pesos.reduce((acc, peso) => acc + parsePeso(peso), 0) || 0;
+    const peso = parsePeso(currentCarga.p_total) || 0;
+
+    if (sumPesos !== peso) {
+      console.log(sumPesos, peso);
+      alert(
+        `Por favor verifique los pesos de las guías, la suma debiría ser igual a ${peso}.`
+      );
+      return false;
+    }
+    console.log(sumPesos, peso);
+    return true;
   };
 
   return (
@@ -180,6 +230,9 @@ const DatosG4 = ({
 
           {numGuias > 0 && (
             <div className="button-group">
+              {showNotification === "button1" && (
+                <div className="notificacion">¡Información guardada!</div>
+              )}
               <button type="button" onClick={saveGuias}>
                 Guardar
               </button>
@@ -212,7 +265,10 @@ const DatosG4 = ({
 
           {numPrecintos > 0 && (
             <div className="button-group">
-              <button type="button" onClick={saveGuias}>
+              {showNotification === "button2" && (
+                <div className="notificacion">¡Información guardada!</div>
+              )}
+              <button type="button" onClick={savePrecintos}>
                 Guardar
               </button>
             </div>

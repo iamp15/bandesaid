@@ -4,7 +4,12 @@ import { useNavigate } from "react-router-dom";
 import BotonCopiar from "../BotonCopiar";
 import { GALPON, RUBRO } from "../../constants/constants";
 
-const ControlCalidad2 = ({ cargas, proveedor, cargaActual }) => {
+const ControlCalidad2 = ({
+  cargas,
+  proveedor,
+  cargaActual,
+  setCargaActual,
+}) => {
   const mapeo = PROVIDER_MAP[proveedor];
   const infoCarga = cargas[mapeo]?.[cargaActual - 1];
   const navigate = useNavigate();
@@ -54,9 +59,7 @@ const ControlCalidad2 = ({ cargas, proveedor, cargaActual }) => {
         infoCarga.entidad
       }, ${
         infoCarga.responsable
-      }, quien se hace responsable de las condiciones de la carga con destino ${
-        infoCarga.destino
-      }.`;
+      }, quien se hace responsable de las condiciones de la carga.`;
     };
 
     return (
@@ -72,28 +75,44 @@ const ControlCalidad2 = ({ cargas, proveedor, cargaActual }) => {
     );
   };
 
+  const handleInicio = () => {
+    setCargaActual(0);
+    navigate("/carga");
+  };
+
   return (
     <div className="wrap-container">
       <div className="menu">
         <div className="section">
           <h2>Inspección de vehículo</h2>
-          <p>Thermo King: {infoCarga.tk}</p>
-          <p>Paletas: {infoCarga.paletas}</p>
+          <p>
+            Thermo King: <span className="value">{infoCarga.tk}</span>
+          </p>
+          <p>
+            Paletas: <span className="value">{infoCarga.paletas}</span>
+          </p>
           <p>
             Olor:{" "}
-            {infoCarga.olor === "fresco"
-              ? "Fresco característoco"
-              : infoCarga.otroOlor}
+            <span className="value">
+              {infoCarga.olor === "fresco"
+                ? "Fresco característoco"
+                : infoCarga.otroOlor}
+            </span>
           </p>
-          <p>Paredes y techo: {paredes()}</p>
-          <p>Entidad: {infoCarga.entidad}</p>
-          <p>Responsable: {infoCarga.responsable}</p>
-          <p>Destino: {infoCarga.destino}</p>
+          <p>
+            Paredes y techo: <span className="value">{paredes()}</span>
+          </p>
+          <p>
+            Entidad: <span className="value">{infoCarga.entidad}</span>
+          </p>
+          <p>
+            Responsable: <span className="value">{infoCarga.responsable}</span>
+          </p>
         </div>
         <BotonCopiar text1={genFormato()} text2="Copiar formato" />
         <div className="button-group">
           <button onClick={() => navigate("/cc1")}>Volver</button>
-          <button onClick={() => navigate("/cc3")}>Continuar</button>
+          <button onClick={handleInicio}>Inicio</button>
         </div>
       </div>
     </div>

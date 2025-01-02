@@ -26,19 +26,19 @@ const Menu = () => {
       id: 2,
       title: "Inventario",
       image: inventarioIcon,
-      link: "",
+      link: "/underconstruction",
     },
     {
       id: 3,
       title: "Otros formatos",
       image: formatoIcon,
-      link: "",
+      link: "/underconstruction",
     },
     {
       id: 4,
       title: "Configuración",
       image: configIcon,
-      link: "",
+      link: "/underconstruction",
     },
   ];
 

@@ -185,7 +185,7 @@ const FormulariosGuia = ({
           <button
             onClick={() => {
               setCargaActual(0);
-              navigate("/proveedor");
+              navigate("/carga");
             }}
           >
             Inicio

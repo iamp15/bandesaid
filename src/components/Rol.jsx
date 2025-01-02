@@ -9,6 +9,9 @@ export const Rol = ({ setRol }) => {
         <h2>Escoge tu rol:</h2>
         <div className="buttons-container">
           <Link to={"/proveedor"}>
+            <button onClick={() => setRol("Inspección de Vehículos")}>
+              Inspección de Vehículos
+            </button>
             <button onClick={() => setRol("Control Pesaje")}>
               Control de Pesaje
             </button>

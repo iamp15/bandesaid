@@ -4,6 +4,11 @@ import { useState } from "react";
 import { PROVIDER_MAP } from "../../constants/constants";
 import { useGuardar } from "../../hooks/useGuardar";
 import { capitalizeWords } from "../../utils/Capitalizer";
+import { useAuth } from "../login/AuthContext";
+import EditableField from "../EditableField";
+import { useAlert } from "../alert/AlertContext";
+import { useNavigate } from "react-router-dom";
+import "../../styles/controlCalidad/ControlCalidad1.css";
 
 const ControlCalidad1 = ({ cargas, setCargas, proveedor, cargaActual }) => {
   const key = PROVIDER_MAP[proveedor];
@@ -16,61 +21,79 @@ const ControlCalidad1 = ({ cargas, setCargas, proveedor, cargaActual }) => {
   const [smell, setSmell] = useState(currentCarga?.olor || "fresco");
   const [otherSmell, setOtherSmell] = useState(currentCarga?.otroOlor || "");
   const [paredes, setParedes] = useState(currentCarga?.paredes || "1");
-  const [entidad, setEntidad] = useState(currentCarga?.entidad || "");
-  const [responsable, setResponsable] = useState(
-    currentCarga?.responsable || ""
-  );
-  const [destino, setDestino] = useState(currentCarga?.destino || "");
+  const { currentUser } = useAuth();
+  const [onEdit, setOnEdit] = useState(null);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const { addAlert } = useAlert();
+  const navigate = useNavigate();
+
+  const saveData = (fieldName, newValue) => {
+    const newData = {
+      [fieldName]: newValue,
+      editHistory: {
+        ...currentCarga?.editHistory,
+        [fieldName]: {
+          value: newValue,
+          editedBy: currentUser.name,
+          editedAt: new Date().toISOString(),
+        },
+      },
+    };
+    guardar(proveedor, cargaActual, "", newData);
+  };
+
+  const formatEditHistory = (editHistory, fieldName) => {
+    if (!editHistory?.[fieldName]) return null;
+
+    return (
+      <p className="autor">
+        Editado por: {editHistory[fieldName].editedBy}
+        {" a las "}
+        {new Date(editHistory[fieldName].editedAt).toLocaleTimeString("es-ES", {
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: true, // This ensures 24-hour format
+        })}
+      </p>
+    );
+  };
 
   const handleThermoKingChange = (event) => {
     const newStatus = event.target.value;
     setThermoKingStatus(newStatus);
+    saveData("tk", newStatus);
   };
 
   const handlePalestasChange = (event) => {
-    setPaletas(event.target.value);
+    const newStatus = event.target.value;
+    setPaletas(newStatus);
+    saveData("paletas", newStatus);
   };
 
   const handleSmellChange = (event) => {
-    setSmell(event.target.value);
-    console.log(event.target.value);
+    const newSmell = event.target.value;
+    setSmell(newSmell);
+    saveData("olor", newSmell);
   };
 
   const handleOtherSmellChange = (event) => {
-    setOtherSmell(event.target.value);
+    const newStatus = event.target.value;
+    setOtherSmell(newStatus);
+    saveData("otroOlor", newStatus);
   };
 
   const handleParedesChange = (event) => {
-    setParedes(event.target.value);
-    console.log(event.target.value);
-  };
-
-  const handleEntidadChange = (event) => {
-    setEntidad(event.target.value);
-  };
-
-  const handleResponsableChange = (event) => {
-    setResponsable(event.target.value);
-  };
-
-  const handleDestinoChange = (event) => {
-    setDestino(event.target.value);
+    const newStatus = event.target.value;
+    setParedes(newStatus);
+    saveData("paredes", newStatus);
   };
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    const newData = {
-      tk: thermoKingStatus,
-      paletas: paletas,
-      olor: smell,
-      otroOlor: otherSmell,
-      paredes: paredes,
-      entidad: capitalizeWords(entidad),
-      responsable: capitalizeWords(responsable),
-      destino: capitalizeWords(destino),
-    };
-    console.log(newData);
-    guardar(proveedor, cargaActual, "/cc2", newData);
+    if (onEdit !== null) {
+      addAlert("Aún tienes un campo por editar", "error");
+      return;
+    } else navigate("/cc2");
   };
 
   return (
@@ -78,8 +101,11 @@ const ControlCalidad1 = ({ cargas, setCargas, proveedor, cargaActual }) => {
       <div className="menu">
         <form onSubmit={handleSubmit}>
           <h2>Inspección de vehículo</h2>
+
           {/* Thermo King */}
-          <label htmlFor="tk">Therno King: </label>
+          <label htmlFor="tk" className="label-bold">
+            Therno King:{" "}
+          </label>
           <select
             name="tk"
             id="tk"
@@ -90,9 +116,12 @@ const ControlCalidad1 = ({ cargas, setCargas, proveedor, cargaActual }) => {
             <option value="No">No</option>
             <option value="No posee">No posee</option>
           </select>
+          {formatEditHistory(currentCarga.editHistory, "tk")}
 
           {/* Paletas */}
-          <label htmlFor="paletas">Paletas: </label>
+          <label htmlFor="paletas" className="label-bold">
+            Paletas:{" "}
+          </label>
           <select
             name="paletas"
             id="paletas"
@@ -102,9 +131,12 @@ const ControlCalidad1 = ({ cargas, setCargas, proveedor, cargaActual }) => {
             <option value="Si">Sí</option>
             <option value="No">No</option>
           </select>
+          {formatEditHistory(currentCarga.editHistory, "paletas")}
 
           {/* Olor */}
-          <label htmlFor="smell">Olor: </label>
+          <label htmlFor="smell" className="label-bold">
+            Olor:{" "}
+          </label>
           <select
             name="smell"
             id="smell"
@@ -127,9 +159,12 @@ const ControlCalidad1 = ({ cargas, setCargas, proveedor, cargaActual }) => {
               />
             </div>
           )}
+          {formatEditHistory(currentCarga.editHistory, "olor")}
 
           {/* Paredes y Techo */}
-          <label htmlFor="paredes">Paredes y techo: </label>
+          <label htmlFor="paredes" className="label-bold">
+            Paredes y techo:{" "}
+          </label>
           <select
             name="paredes"
             id="paredes"
@@ -142,35 +177,36 @@ const ControlCalidad1 = ({ cargas, setCargas, proveedor, cargaActual }) => {
             <option value="4">Manchadas y en mal estado</option>
             <option value="5">No tiene paredes ni techo</option>
           </select>
+          {formatEditHistory(currentCarga.editHistory, "paredes")}
 
           {/* Entidad */}
-          <label htmlFor="entidad">Entidad: </label>
-          <input
-            type="text"
-            id="entidad"
-            name="entidad"
-            value={entidad}
-            onChange={handleEntidadChange}
+          <EditableField
+            fieldName="entidad"
+            label="Entidad"
+            value={currentCarga?.entidad}
+            placeholder="Ingrese la entidad"
+            onSave={saveData}
+            currentUser={currentUser}
+            editHistory={currentCarga?.editHistory}
+            formatValue={capitalizeWords}
+            setShowSuggestions={setShowSuggestions}
+            setOnEdit={setOnEdit}
+            onEdit={onEdit}
           />
 
           {/* Responsable */}
-          <label htmlFor="responsable">Responsable: </label>
-          <input
-            type="text"
-            id="responsable"
-            name="responsable"
-            value={responsable}
-            onChange={handleResponsableChange}
-          />
-
-          {/* Destino */}
-          <label htmlFor="destino">Destino: </label>
-          <input
-            type="text"
-            id="destino"
-            name="destino"
-            value={destino}
-            onChange={handleDestinoChange}
+          <EditableField
+            fieldName="responsable"
+            label="Responsable"
+            value={currentCarga?.responsable}
+            placeholder="Ingrese el responsable"
+            onSave={saveData}
+            currentUser={currentUser}
+            editHistory={currentCarga?.editHistory}
+            formatValue={capitalizeWords}
+            setShowSuggestions={setShowSuggestions}
+            setOnEdit={setOnEdit}
+            onEdit={onEdit}
           />
 
           {/* Botones */}

@@ -26,6 +26,7 @@ import ProtectedRoute from "./components/login/ProtectedRoute";
 import { useAuth } from "./components/login/AuthContext";
 import { formatDate2 } from "./utils/FormatDate";
 import LoadingSpinner from "./components/LoadingSpinner";
+import UnderConstruction from "./components/UnderConstruction";
 
 function App() {
   const [rol, setRol] = useState(() => {
@@ -242,6 +243,7 @@ function App() {
                   cargas={cargas}
                   proveedor={proveedor}
                   cargaActual={cargaActual}
+                  setCargaActual={setCargaActual}
                 />
               </ProtectedRoute>
             }
@@ -353,6 +355,7 @@ function App() {
               </ProtectedRoute>
             }
           />
+          <Route path="/underconstruction" element={<UnderConstruction />} />
           <Route path="*" element={<h1>Not Found</h1>} />
         </Routes>
         <footer>Creado por ©iamp15 2024. Todos los derechos reservados.</footer>

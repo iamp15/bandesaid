@@ -120,7 +120,7 @@ const ControlPesaje2 = ({ cargas, setCargas, proveedor, cargaActual }) => {
             formatValue={formatNumber}
             setShowSuggestions={setShowSuggestions}
             setOnEdit={setOnEdit}
-            onEdit
+            onEdit={onEdit}
           />
 
           <div className="button-group">

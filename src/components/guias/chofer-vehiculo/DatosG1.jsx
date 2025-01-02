@@ -89,9 +89,10 @@ const DatosG1 = ({
   };
 
   const handleContinue = () => {
-    if (onEdit !== null)
+    if (onEdit !== null) {
       alert("Por favor, guarda los cambios antes de continuar");
-    else navigate("/datosg2");
+      return;
+    } else navigate("/datosg2");
   };
 
   return (

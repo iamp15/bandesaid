@@ -32,30 +32,65 @@ const RevisionGuias = ({ cargas, proveedor, cargaActual }) => {
         <h2>Verificación de Datos</h2>
         <div className="section">
           <h3>Chofer y Vehículo</h3>
-          <p>Nombre: {infoCarga.chofer} </p>
-          <p>Cédula: {infoCarga.cedula} </p>
-          <p>Marca vehículo: {infoCarga.marcaVehiculo} </p>
-          <p>Placa: {infoCarga.placa} </p>
+          <p>
+            Nombre: <span className="value">{infoCarga.chofer}</span>{" "}
+          </p>
+          <p>
+            Cédula: <span className="value">{infoCarga.cedula}</span>{" "}
+          </p>
+          <p>
+            Marca vehículo:{" "}
+            <span className="value">{infoCarga.marcaVehiculo}</span>{" "}
+          </p>
+          <p>
+            Placa: <span className="value">{infoCarga.placa}</span>{" "}
+          </p>
           <button onClick={() => navigate("/datosg1")}>Editar</button>
         </div>
 
         <div className="section">
           <h3>Comercializadora</h3>
-          <p>Entidad destino: {infoCarga.destino} </p>
-          <p>Código espejo: {infoCarga.codigo_espejo} </p>
-          <p>Estado destino: {infoCarga.estadoDestino} </p>
-          <p>Transporte: {infoCarga.transporte}</p>
+          <p>
+            Entidad destino: <span className="value">{infoCarga.destino}</span>
+          </p>
+          <p>
+            Código espejo:{" "}
+            <span className="value">{infoCarga.codigo_espejo}</span>
+          </p>
+          <p>
+            Estado destino:{" "}
+            <span className="value">{infoCarga.estadoDestino}</span>
+          </p>
+          <p>
+            Transporte: <span className="value">{infoCarga.transporte}</span>
+          </p>
           <button onClick={() => navigate("/datosg2")}>Editar</button>
         </div>
 
         <div className="section">
           <h3>Control de Calidad y Pesaje</h3>
-          <p>Rubro: {RUBRO}</p>
-          <p>Marca: {infoCarga.marca_rubro}</p>
-          <p>Peso promedio: {infoCarga.p_promedio} kg</p>
-          <p>Temperatura promedio: {infoCarga.t_promedio} ºC</p>
-          <p>Peso total de la carga: {infoCarga.p_total} kg</p>
-          <p>Peso verificado: {infoCarga.p_verificado} kg</p>
+          <p>
+            Rubro: <span className="value">{RUBRO}</span>
+          </p>
+          <p>
+            Marca: <span className="value">{infoCarga.marca_rubro}</span>
+          </p>
+          <p>
+            Peso promedio:{" "}
+            <span className="value">{infoCarga.p_promedio} kg</span>
+          </p>
+          <p>
+            Temperatura promedio:{" "}
+            <span className="value">{infoCarga.t_promedio} ºC</span>
+          </p>
+          <p>
+            Peso total de la carga:{" "}
+            <span className="value">{infoCarga.p_total} kg</span>
+          </p>
+          <p>
+            Peso verificado:{" "}
+            <span className="value">{infoCarga.p_verificado} kg</span>
+          </p>
           <button onClick={() => navigate("/datosg3")}>Editar</button>
         </div>
 
@@ -65,15 +100,23 @@ const RevisionGuias = ({ cargas, proveedor, cargaActual }) => {
             <div>
               {infoCarga.codigos_guias.map((codigo, index) => (
                 <p key={index}>
-                  Guía {index + 1} - {codigo} - {infoCarga.pesos_guias[index]}{" "}
-                  kg
+                  Guía {index + 1} -{" "}
+                  <span className="value">
+                    {codigo} - {infoCarga.pesos_guias[index]} kg
+                  </span>
                 </p>
               ))}
             </div>
           ) : (
-            <p>Código guía: {infoCarga.codigos_guias[0]}</p>
+            <p>
+              Código guía:{" "}
+              <span className="value">{infoCarga.codigos_guias[0]}</span>
+            </p>
           )}
-          <p>Precintos: {infoCarga.precintos.join(", ")} </p>
+          <p>
+            Precintos:{" "}
+            <span className="value">{infoCarga.precintos.join(", ")}</span>
+          </p>
           <button onClick={() => navigate("/datosg4")}>Editar</button>
         </div>
 

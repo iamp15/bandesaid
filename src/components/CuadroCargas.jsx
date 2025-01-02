@@ -5,8 +5,9 @@ import { useEffect, useRef } from "react";
 
 const CuadroCargas = ({ cargas, rol, setCargaActual, eliminarCarga }) => {
   const ruta = () => {
+    if (rol === "Inspección de Vehículos") return "/cc1";
     if (rol === "Control Pesaje") return "/pesaje1";
-    if (rol === "Control de Calidad") return "/cc1";
+    if (rol === "Control de Calidad") return "/cc3";
     else return "/datosg1";
   };
 

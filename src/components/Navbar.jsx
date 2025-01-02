@@ -10,7 +10,6 @@ const Navbar = ({
   setProveedor,
   cargaActual,
   setCargaActual,
-  onLogout,
 }) => {
   const { currentUser, logout } = useAuth();
 
@@ -29,12 +28,26 @@ const Navbar = ({
     setCargaActual(0);
   };
 
+  const showRol = () => {
+    if (rol === "Inspección de Vehículos") {
+      return "I. Vehículos";
+    }
+    if (rol === "Control Pesaje") {
+      return "C. Pesaje";
+    }
+    if (rol === "Control de Calidad") {
+      return "C. de Calidad";
+    } else {
+      return "Guías";
+    }
+  };
+
   return (
     <div className="navbar">
       <div className="navbar-left">
         {rol ? (
           <Link to={"/despachos"} onClick={rolClicked}>
-            <p>{rol}</p>
+            <p>{showRol()}</p>
           </Link>
         ) : (
           <span>Bienvenido al sistema Bandes Aid</span>

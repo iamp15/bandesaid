@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import "../styles/EditableField.css";
+import { useAlert } from "./alert/AlertContext";
 
 const EditableField = ({
   fieldName,
@@ -20,6 +21,7 @@ const EditableField = ({
   formatValue = (val) => val, // Optional formatter function
 }) => {
   const [editValue, setEditValue] = useState("");
+  const { addAlert } = useAlert();
 
   // Added useEffect to set editValue when isEditing becomes true
   useEffect(() => {
@@ -30,9 +32,8 @@ const EditableField = ({
 
   // Check if field is locked before starting edit
   const handleEdit = () => {
-    console.log("alguien esta editando:", onEdit);
     if (onEdit) {
-      alert("Guarda los cambios antes de editar otro campo");
+      addAlert("Otro campo está siendo editado.", "error");
       return;
     }
     setOnEdit(fieldName);

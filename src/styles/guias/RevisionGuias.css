@@ -16,17 +16,17 @@ h3 {
   margin-left: 0;
 }
 
-.section:last-child {
-  border-bottom: none;
+.section p {
+  margin-bottom: 10px;
 }
 
 .label {
-  font-weight: bold;
   color: #555;
 }
 
 .value {
   color: #333;
+  font-weight: bold;
 }
 
 .button-group {

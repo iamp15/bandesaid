@@ -55,7 +55,7 @@ const DatosG4 = ({
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    if (!checkPesos()) {
+    if (numGuias > 1 && !checkPesos()) {
       return;
     }
 

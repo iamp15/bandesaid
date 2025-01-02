@@ -23,8 +23,8 @@
 
 .navbar a:not(:last-child) {
   border-right: 1px solid #fff; /* Light separator */
-  padding-right: 15px;
-  margin-right: 15px;
+  padding-right: 10px;
+  margin-right: 10px;
 }
 
 .navbar p {
@@ -47,6 +47,8 @@
 .user-info .username {
   margin-right: 8px;
   font-weight: 500;
+  border-left: 1px solid #fff; /* Light separator */
+  padding-left: 10px;
 }
 
 .navbar p:hover {

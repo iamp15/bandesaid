@@ -10,6 +10,8 @@ import {
 } from "../../constants/constants";
 import "../../styles/guias/formulariosGuia.css";
 import { formatNumber } from "../../utils/FormatNumber";
+import { useState, useEffect } from "react";
+import LoadingSpinner from "../LoadingSpinner";
 
 const FormulariosGuia = ({
   proveedor,
@@ -19,8 +21,26 @@ const FormulariosGuia = ({
 }) => {
   const mapeo = PROVIDER_MAP[proveedor];
   const infoCarga = cargas[mapeo]?.[cargaActual - 1];
-  const numGuias = infoCarga.codigos_guias.length;
+  const numGuias = infoCarga?.codigos_guias.length || 1;
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    // Check if we have all required data
+    if (infoCarga?.codigos_guias && infoCarga?.precintos) {
+      setIsLoading(false);
+    }
+  }, [infoCarga]);
+
+  if (isLoading) {
+    return (
+      <div className="wrap-container">
+        <div className="menu">
+          <LoadingSpinner />
+        </div>
+      </div>
+    );
+  }
 
   const generateGuiaText1 = (index) => {
     const numeracion = () => {

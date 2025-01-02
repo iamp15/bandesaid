@@ -6,6 +6,7 @@ import { Link } from "react-router-dom";
 import { db } from "../firebase/config";
 import { collection, addDoc } from "firebase/firestore";
 import { useAuth } from "./login/AuthContext";
+import LoadingSpinner from "./LoadingSpinner";
 
 const Carga = ({ cargas, setCargas, rol, proveedor, setCargaActual }) => {
   const providerMap = {
@@ -16,7 +17,9 @@ const Carga = ({ cargas, setCargas, rol, proveedor, setCargaActual }) => {
   };
 
   const { askConfirmation } = useAlert();
-  const { currentUser } = useAuth(); // Get current user
+  const { currentUser, loading } = useAuth(); // Get current user
+
+  if (loading) return <LoadingSpinner />;
 
   const getNextId = (cargasArray) => {
     if (cargasArray.length === 0) return 1;

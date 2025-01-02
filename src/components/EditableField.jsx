@@ -68,6 +68,7 @@ const EditableField = ({
         {onEdit === fieldName ? (
           <>
             <input
+              className="edit-input"
               type="text"
               id={fieldName}
               value={editValue}

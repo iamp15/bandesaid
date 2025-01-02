@@ -34,6 +34,9 @@ const Carga = ({ cargas, setCargas, rol, proveedor, setCargaActual }) => {
         proveedor: proveedor,
         fecha: formatDate(),
         tk: "Si",
+        paletas: "No",
+        olor: "fresco",
+        paredes: "1",
         marca_rubro: "San José",
         lote: "N/A",
       };

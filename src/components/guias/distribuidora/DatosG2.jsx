@@ -29,15 +29,11 @@ const DatosG2 = ({ proveedor, cargaActual, setCargas, cargas }) => {
     return null;
   });
   const [showSuggestions, setShowSuggestions] = useState(false);
-  const [inputValue, setInputValue] = useState(
-    () => currentCarga?.destino || ""
-  );
   const { currentUser, loading } = useAuth();
   const [onEdit, setOnEdit] = useState(null);
 
   useEffect(() => {
     if (currentCarga) {
-      setInputValue(currentCarga.destino || "");
       if (currentCarga.destino) {
         const matchingCompanyMain = companyNames.find(
           (company) => company.nombre === currentCarga.destino
@@ -71,7 +67,6 @@ const DatosG2 = ({ proveedor, cargaActual, setCargas, cargas }) => {
         setSelectedCompany(null);
       }
     } else {
-      setInputValue("");
       setSelectedCompany(null);
     }
   }, [currentCarga]);
@@ -144,21 +139,6 @@ const DatosG2 = ({ proveedor, cargaActual, setCargas, cargas }) => {
         <form onSubmit={handleSubmit}>
           <h2>Comercializadora: </h2>
 
-          {/****** Nombre empresa transporte *****/}
-          <EditableField
-            fieldName="transporte"
-            label="Nombre de empresa que transporta"
-            value={currentCarga?.transporte}
-            placeholder="Ej.: Mercal"
-            onSave={handleFieldSave}
-            currentUser={currentUser}
-            editHistory={currentCarga?.editHistory}
-            formatValue={capitalizeWords}
-            setShowSuggestions={setShowSuggestions}
-            setOnEdit={setOnEdit}
-            onEdit={onEdit}
-          />
-
           {/****** Entidad destino *****/}
           <div className="empresa-input-container">
             <div className="dropdown-container">
@@ -169,7 +149,6 @@ const DatosG2 = ({ proveedor, cargaActual, setCargas, cargas }) => {
                 onSave={handleFieldSave}
                 editHistory={currentCarga?.editHistory}
                 onChange={(e) => {
-                  setInputValue(e.target.value);
                   handleEmpresaInput(e);
                   setShowSuggestions(true);
                 }}
@@ -193,6 +172,21 @@ const DatosG2 = ({ proveedor, cargaActual, setCargas, cargas }) => {
                 : selectedCompany.codigo}
             </p>
           )}
+
+          {/****** Nombre empresa transporte *****/}
+          <EditableField
+            fieldName="transporte"
+            label="Nombre de empresa que transporta"
+            value={currentCarga?.transporte}
+            placeholder="Ej.: Mercal"
+            onSave={handleFieldSave}
+            currentUser={currentUser}
+            editHistory={currentCarga?.editHistory}
+            formatValue={capitalizeWords}
+            setShowSuggestions={setShowSuggestions}
+            setOnEdit={setOnEdit}
+            onEdit={onEdit}
+          />
 
           {/****** Estado destino *****/}
           <EditableField

@@ -5,59 +5,19 @@ import {
   RUBRO,
   GALPON,
   PERMISO_SANITARIO,
-  MARCA,
 } from "../../constants/constants";
-import { useEffect } from "react";
-import { useGuardar } from "../../hooks/useGuardar";
-import { decimalComma, decimalPeriod } from "../../utils/FormatDecimal";
 import BotonCopiar from "../BotonCopiar";
+import LoadingSpinner from "../LoadingSpinner";
 
 const ControlCalidad4 = ({
   cargas,
-  setCargas,
   proveedor,
   cargaActual,
   setCargaActual,
 }) => {
-  console.log("ControlCalidad4 rendered");
   const navigate = useNavigate();
   const mapeo = PROVIDER_MAP[proveedor];
-  const infoCarga = cargas[mapeo]?.[cargaActual - 1];
-  const guardar = useGuardar(setCargas);
-
-  const promedio = (valores) => {
-    if (!valores || valores.length === 0) return 0;
-    const sum = valores.reduce((acc, temp) => acc + temp, 0);
-    return sum / valores.length;
-  };
-
-  const getCnd = (brandName) => {
-    const brand = Object.values(MARCA).find(
-      (brand) => brand.nombre === brandName
-    );
-    return brand ? brand.CND : null;
-  };
-
-  const t_promedio = infoCarga?.temperaturas
-    ? promedio(infoCarga.temperaturas)
-    : null;
-  const p_promedio = infoCarga?.pesos
-    ? promedio(infoCarga.pesos).toFixed(2)
-    : null;
-
-  useEffect(() => {
-    if (!infoCarga?.temperaturas || !infoCarga?.pesos) return;
-
-    // Check if we already have the averages calculated
-    if (infoCarga.t_promedio && infoCarga.p_promedio) return;
-
-    const newData = {
-      t_promedio: parseFloat(decimalPeriod(t_promedio)).toFixed(1),
-      p_promedio: decimalComma(p_promedio),
-      cnd: getCnd(infoCarga.marca_rubro),
-    };
-    guardar(proveedor, cargaActual, "", newData);
-  }, [infoCarga?.temperaturas, infoCarga?.pesos, proveedor, cargaActual]);
+  const infoCarga = cargas[mapeo]?.[cargaActual - 1] || {};
 
   const numeracion = () => {
     if (cargaActual < 10) {
@@ -109,19 +69,28 @@ const ControlCalidad4 = ({
   return (
     <div className="wrap-container">
       {!infoCarga ? (
-        <div>Loading...</div>
+        <LoadingSpinner />
       ) : (
         <div className="menu">
           <h2>Control de calidad</h2>
           <div className="section">
-            <p>Rubro: {RUBRO}</p>
-            <p>Marca: {infoCarga.marca_rubro}</p>
-            <p>Lote: {infoCarga.lote || "N/A"}</p>
+            <p>
+              Rubro: <span className="value">{RUBRO}</span>
+            </p>
+            <p>
+              Marca: <span className="value">{infoCarga.marca_rubro}</span>
+            </p>
+            <p>
+              Lote: <span className="value">{infoCarga.lote || "N/A"}</span>
+            </p>
             <p>
               Temperatura promedio:{" "}
-              {parseFloat(decimalPeriod(t_promedio)).toFixed(1)} ºC
+              <span className="value">{infoCarga.t_promedio} ºC</span>
             </p>
-            <p>Peso promedio: {decimalComma(p_promedio)} kg</p>
+            <p>
+              Peso promedio:{" "}
+              <span className="value">{infoCarga.p_promedio} Kg</span>
+            </p>
           </div>
           <h2>Formatos</h2>
           <BotonCopiar text1={genTextCC()} text2={"Control de calidad"} />

@@ -4,6 +4,7 @@ import { PROVIDER_MAP } from "../../constants/constants";
 import { RUBRO } from "../../constants/constants";
 import { useState, useEffect } from "react";
 import "../../styles/guias/revisionGuias.css";
+import LoadingSpinner from "../LoadingSpinner";
 
 const RevisionGuias = ({ cargas, proveedor, cargaActual }) => {
   const mapeo = PROVIDER_MAP[proveedor];
@@ -21,7 +22,9 @@ const RevisionGuias = ({ cargas, proveedor, cargaActual }) => {
   if (isLoading) {
     return (
       <div className="wrap-container">
-        <div>Cargando información...</div>
+        <div className="menu">
+          <LoadingSpinner />
+        </div>
       </div>
     );
   }

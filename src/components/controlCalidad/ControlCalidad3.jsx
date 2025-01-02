@@ -3,14 +3,18 @@ import { useState } from "react";
 import { PROVIDER_MAP, MARCA } from "../../constants/constants";
 import { useNavigate } from "react-router-dom";
 import { useGuardar } from "../../hooks/useGuardar";
+import { useAuth } from "../login/AuthContext";
+import { useAlert } from "../alert/AlertContext";
 import SelectorMarca from "../guias/controles/SelectorMarca";
+import EditableField from "../EditableField";
+import { decimalComma, decimalPeriod } from "../../utils/FormatDecimal";
 import "../../styles/ControlCalidad/ControlCalidad3.css";
 
 const ControlCalidad3 = ({ cargas, setCargas, proveedor, cargaActual }) => {
   const mapeo = PROVIDER_MAP[proveedor];
-  const infoCarga = cargas[mapeo]?.[cargaActual - 1];
+  const infoCarga = cargas[mapeo]?.[cargaActual - 1] || {};
   const navigate = useNavigate();
-  const [muestras, setMuestras] = useState(infoCarga.muestras || "");
+  const [muestras, setMuestras] = useState(infoCarga.muestras || 0);
   const [temperaturas, setTemperaturas] = useState(
     infoCarga.temperaturas || []
   );
@@ -19,7 +23,19 @@ const ControlCalidad3 = ({ cargas, setCargas, proveedor, cargaActual }) => {
   const [chickenBrand, setChickenBrand] = useState(
     infoCarga?.marca_rubro || MARCA[0].nombre
   );
-  const [lote, setLote] = useState(infoCarga.lote || "N/A");
+  const { currentUser } = useAuth();
+  const [onEdit, setOnEdit] = useState(null);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const { addAlert } = useAlert();
+
+  const promedio = (valores) => {
+    if (!valores || valores.length === 0) return 0;
+    const sum = valores.reduce((acc, temp) => acc + temp, 0);
+    return sum / valores.length;
+  };
+
+  const t_promedio = temperaturas.length ? promedio(temperaturas) : null;
+  const p_promedio = pesos.length ? promedio(pesos).toFixed(2) : null;
 
   const handleMuestrasChange = (e) => {
     const inputValue = e.target.value;
@@ -44,23 +60,60 @@ const ControlCalidad3 = ({ cargas, setCargas, proveedor, cargaActual }) => {
   };
 
   const handleChickenBrandChange = (e) => {
-    setChickenBrand(e.target.value);
-  };
-
-  const handleLoteChange = (e) => {
-    setLote(e.target.value);
+    const inputValue = e.target.value;
+    setChickenBrand(inputValue);
+    saveData("marca_rubro", inputValue);
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (onEdit !== null) {
+      addAlert(
+        "Debes terminar de editar el campo antes de continuar",
+        "warning"
+      );
+      return;
+    }
+
     const newData = {
-      marca_rubro: chickenBrand,
-      lote: lote,
       muestras: Number(muestras),
       temperaturas: temperaturas.map(Number),
       pesos: pesos.map(Number),
+      t_promedio: parseFloat(decimalPeriod(t_promedio)).toFixed(1),
+      p_promedio: decimalComma(p_promedio),
     };
     guardar(proveedor, cargaActual, "/cc4", newData);
+  };
+
+  const saveData = (fieldName, newValue) => {
+    const newData = {
+      [fieldName]: newValue,
+      editHistory: {
+        ...infoCarga?.editHistory,
+        [fieldName]: {
+          value: newValue,
+          editedBy: currentUser.name,
+          editedAt: new Date().toISOString(),
+        },
+      },
+    };
+    guardar(proveedor, cargaActual, "", newData);
+  };
+
+  const formatEditHistory = (editHistory, fieldName) => {
+    if (!editHistory?.[fieldName]) return null;
+
+    return (
+      <p className="autor">
+        Editado por: {editHistory[fieldName].editedBy}
+        {" a las "}
+        {new Date(editHistory[fieldName].editedAt).toLocaleTimeString("es-ES", {
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: true, // This ensures 24-hour format
+        })}
+      </p>
+    );
   };
 
   return (
@@ -69,20 +122,28 @@ const ControlCalidad3 = ({ cargas, setCargas, proveedor, cargaActual }) => {
         <form onSubmit={handleSubmit}>
           <h2>Control de calidad</h2>
 
+          {/* Marca */}
           <SelectorMarca
             chickenBrand={chickenBrand}
             onChange={handleChickenBrandChange}
           />
+          {formatEditHistory(infoCarga.editHistory, "marca_rubro")}
 
-          <label htmlFor="lote">Número de lote: </label>
-          <input
-            type="text"
-            id="lote"
-            value={lote}
-            onChange={handleLoteChange}
-            placeholder="Escribe el número de lote "
+          {/* Lote */}
+          <EditableField
+            fieldName="lote"
+            label="Número de lote"
+            value={infoCarga.lote}
+            placeholder="Escribe el número de lote"
+            onSave={saveData}
+            currentUser={currentUser}
+            editHistory={infoCarga.editHistory}
+            setShowSuggestions={setShowSuggestions}
+            setOnEdit={setOnEdit}
+            onEdit={onEdit}
           />
 
+          {/* Muestras */}
           <label htmlFor="muestras">Cantidad de muestras: </label>
           <input
             type="number"

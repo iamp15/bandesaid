@@ -11,7 +11,7 @@ const ControlCalidad2 = ({
   setCargaActual,
 }) => {
   const mapeo = PROVIDER_MAP[proveedor];
-  const infoCarga = cargas[mapeo]?.[cargaActual - 1];
+  const infoCarga = cargas[mapeo]?.[cargaActual - 1] || {};
   const navigate = useNavigate();
 
   const paredes = () => {

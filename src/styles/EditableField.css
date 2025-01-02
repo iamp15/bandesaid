@@ -16,6 +16,10 @@
   margin-bottom: 30px;
 }
 
+.editable-field input {
+  margin-top: 10px;
+}
+
 .button-group button {
   padding: 6px 12px;
   min-width: 80px; /* Ensures minimum width is the same for both buttons */

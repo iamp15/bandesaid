@@ -99,8 +99,9 @@ const DatosG1 = ({
     <div className="wrap-container">
       <div className="menu">
         <form>
-          {/****** Chofer ******/}
           <h2>Chofer:</h2>
+
+          {/*****nombre*****/}
           <EditableField
             fieldName="chofer"
             label="Nombre"
@@ -115,6 +116,7 @@ const DatosG1 = ({
             onEdit={onEdit}
           />
 
+          {/****** Cédula ******/}
           <EditableField
             fieldName="cedula"
             label="Cédula"
@@ -140,22 +142,9 @@ const DatosG1 = ({
             }}
           />
 
-          {/****** Vehículo ******/}
           <h2>Vehículo:</h2>
-          <EditableField
-            fieldName="marcaVehiculo"
-            label="Marca"
-            value={currentCarga?.marcaVehiculo}
-            placeholder="Ingrese la marca del vehículo"
-            onSave={handleFieldSave}
-            currentUser={currentUser}
-            editHistory={currentCarga?.editHistory}
-            formatValue={capitalizeWords}
-            setShowSuggestions={setShowSuggestions}
-            setOnEdit={setOnEdit}
-            onEdit={onEdit}
-          />
 
+          {/****** Placa ******/}
           <EditableField
             fieldName="placa"
             label="Placa"
@@ -165,6 +154,21 @@ const DatosG1 = ({
             currentUser={currentUser}
             editHistory={currentCarga?.editHistory}
             formatValue={(placa) => placa.toUpperCase()}
+            setShowSuggestions={setShowSuggestions}
+            setOnEdit={setOnEdit}
+            onEdit={onEdit}
+          />
+
+          {/****** Marca ******/}
+          <EditableField
+            fieldName="marcaVehiculo"
+            label="Marca"
+            value={currentCarga?.marcaVehiculo}
+            placeholder="Ingrese la marca del vehículo"
+            onSave={handleFieldSave}
+            currentUser={currentUser}
+            editHistory={currentCarga?.editHistory}
+            formatValue={capitalizeWords}
             setShowSuggestions={setShowSuggestions}
             setOnEdit={setOnEdit}
             onEdit={onEdit}

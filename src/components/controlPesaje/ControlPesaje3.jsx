@@ -7,7 +7,7 @@ import "../../styles/pesaje/ControlPesaje3.css";
 
 const ControlPesaje3 = ({ cargas, proveedor, cargaActual, setCargaActual }) => {
   const mapeo = PROVIDER_MAP[proveedor];
-  const infoCarga = cargas[mapeo]?.[cargaActual - 1];
+  const infoCarga = cargas[mapeo]?.[cargaActual - 1] || {};
 
   const pVerificadoText = () => {
     const numeracion = () => {

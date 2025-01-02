@@ -79,7 +79,7 @@ const ControlCalidad3 = ({ cargas, setCargas, proveedor, cargaActual }) => {
       muestras: Number(muestras),
       temperaturas: temperaturas.map(Number),
       pesos: pesos.map(Number),
-      t_promedio: parseFloat(decimalPeriod(t_promedio)).toFixed(1),
+      t_promedio: parseFloat(decimalPeriod(t_promedio)),
       p_promedio: decimalComma(p_promedio),
     };
     guardar(proveedor, cargaActual, "/cc4", newData);

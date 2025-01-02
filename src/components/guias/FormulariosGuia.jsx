@@ -94,7 +94,7 @@ const FormulariosGuia = ({
       `*Monto verificado:* ${choosePesoVerificado()} kg\n` +
       `*Número de Guía:* ${infoCarga?.codigos_guias[index]}\n` +
       `*Marca:* ${infoCarga?.marca_rubro}\n` +
-      `*Números de lotes:* ${LOTE.numero}\n` +
+      `*Números de lotes:* ${infoCarga.lote}\n` +
       `*Fecha de Elaboración:* ${LOTE.elaboracion}\n` +
       `*Fecha de Vencimiento:* ${LOTE.vencimiento}\n` +
       `*Peso promedio:* ${infoCarga.p_promedio} kg\n` +

@@ -79,6 +79,9 @@ const RevisionGuias = ({ cargas, proveedor, cargaActual }) => {
             Marca: <span className="value">{infoCarga.marca_rubro}</span>
           </p>
           <p>
+            Lote: <span className="value">{infoCarga.lote}</span>
+          </p>
+          <p>
             Peso promedio:{" "}
             <span className="value">{infoCarga.p_promedio} kg</span>
           </p>

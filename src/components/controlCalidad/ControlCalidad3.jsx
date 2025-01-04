@@ -10,7 +10,13 @@ import EditableField from "../EditableField";
 import { decimalComma, decimalPeriod } from "../../utils/FormatDecimal";
 import "../../styles/ControlCalidad/ControlCalidad3.css";
 
-const ControlCalidad3 = ({ cargas, setCargas, proveedor, cargaActual }) => {
+const ControlCalidad3 = ({
+  cargas,
+  setCargas,
+  proveedor,
+  cargaActual,
+  setCargaActual,
+}) => {
   const mapeo = PROVIDER_MAP[proveedor];
   const infoCarga = cargas[mapeo]?.[cargaActual - 1] || {};
   const navigate = useNavigate();
@@ -19,10 +25,8 @@ const ControlCalidad3 = ({ cargas, setCargas, proveedor, cargaActual }) => {
     infoCarga.temperaturas || []
   );
   const [pesos, setPesos] = useState(infoCarga.pesos || []);
+  const [chickenBrand, setChickenBrand] = useState(infoCarga.marca_rubro);
   const guardar = useGuardar(setCargas);
-  const [chickenBrand, setChickenBrand] = useState(
-    infoCarga?.marca_rubro || MARCA[0].nombre
-  );
   const { currentUser } = useAuth();
   const [onEdit, setOnEdit] = useState(null);
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -30,12 +34,17 @@ const ControlCalidad3 = ({ cargas, setCargas, proveedor, cargaActual }) => {
 
   const promedio = (valores) => {
     if (!valores || valores.length === 0) return 0;
+    if (valores.length === 1) return valores[0];
     const sum = valores.reduce((acc, temp) => acc + temp, 0);
     return sum / valores.length;
   };
 
-  const t_promedio = temperaturas.length ? promedio(temperaturas) : null;
-  const p_promedio = pesos.length ? promedio(pesos).toFixed(2) : null;
+  const getCnd = (brandName) => {
+    const brand = Object.values(MARCA).find(
+      (brand) => brand.nombre === brandName
+    );
+    return brand ? brand.CND : null;
+  };
 
   const handleMuestrasChange = (e) => {
     const inputValue = e.target.value;
@@ -49,13 +58,13 @@ const ControlCalidad3 = ({ cargas, setCargas, proveedor, cargaActual }) => {
 
   const handleTemperaturaChange = (index, value) => {
     const newTemperaturas = [...temperaturas];
-    newTemperaturas[index] = value;
+    newTemperaturas[index] = Number(value);
     setTemperaturas(newTemperaturas);
   };
 
   const handlePesoChange = (index, value) => {
     const newPesos = [...pesos];
-    newPesos[index] = value;
+    newPesos[index] = Number(value);
     setPesos(newPesos);
   };
 
@@ -74,13 +83,18 @@ const ControlCalidad3 = ({ cargas, setCargas, proveedor, cargaActual }) => {
       );
       return;
     }
-
+    const cndNumber = getCnd(chickenBrand);
+    const t_promedio = temperaturas.length ? promedio(temperaturas) : null;
+    const p_promedio = pesos.length ? promedio(pesos) : null;
+    console.log("t_promedio", t_promedio);
+    console.log("p_promedio", p_promedio);
     const newData = {
+      cnd: cndNumber,
       muestras: Number(muestras),
-      temperaturas: temperaturas.map(Number),
-      pesos: pesos.map(Number),
-      t_promedio: parseFloat(decimalPeriod(t_promedio)),
-      p_promedio: decimalComma(p_promedio),
+      temperaturas: temperaturas,
+      pesos: pesos,
+      t_promedio: parseFloat(decimalPeriod(t_promedio)).toFixed(1),
+      p_promedio: decimalComma(p_promedio.toFixed(2)),
     };
     guardar(proveedor, cargaActual, "/cc4", newData);
   };
@@ -148,7 +162,7 @@ const ControlCalidad3 = ({ cargas, setCargas, proveedor, cargaActual }) => {
           <input
             type="number"
             id="muestras"
-            min={0}
+            min={1}
             max={6}
             step={1}
             value={muestras}
@@ -167,6 +181,7 @@ const ControlCalidad3 = ({ cargas, setCargas, proveedor, cargaActual }) => {
                   value={pesos[index]}
                   onChange={(e) => handlePesoChange(index, e.target.value)}
                   placeholder="Ingrese el peso"
+                  step={0.01}
                 />
               </div>
               <div>
@@ -179,13 +194,21 @@ const ControlCalidad3 = ({ cargas, setCargas, proveedor, cargaActual }) => {
                     handleTemperaturaChange(index, e.target.value)
                   }
                   placeholder="Ingrese la temperatura"
+                  step={0.1}
                 />
               </div>
             </div>
           ))}
 
           <div className="button-group">
-            <button onClick={() => navigate("/cc2")}>Volver</button>
+            <button
+              onClick={() => {
+                setCargaActual(0);
+                navigate("/carga");
+              }}
+            >
+              Volver
+            </button>
             <button type="submit">Continuar</button>
           </div>
         </form>

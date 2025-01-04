@@ -81,15 +81,18 @@ const ControlCalidad4 = ({
               Marca: <span className="value">{infoCarga.marca_rubro}</span>
             </p>
             <p>
-              Lote: <span className="value">{infoCarga.lote || "N/A"}</span>
+              CND: <span className="value">{infoCarga.cnd}</span>
             </p>
             <p>
-              Temperatura promedio:{" "}
-              <span className="value">{infoCarga.t_promedio} ºC</span>
+              Lote: <span className="value">{infoCarga.lote || "N/A"}</span>
             </p>
             <p>
               Peso promedio:{" "}
               <span className="value">{infoCarga.p_promedio} Kg</span>
+            </p>
+            <p>
+              Temperatura promedio:{" "}
+              <span className="value">{infoCarga.t_promedio} ºC</span>
             </p>
           </div>
           <h2>Formatos</h2>

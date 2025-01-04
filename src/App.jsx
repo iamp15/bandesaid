@@ -257,6 +257,7 @@ function App() {
                   setCargas={updateCargas}
                   proveedor={proveedor}
                   cargaActual={cargaActual}
+                  setCargaActual={setCargaActual}
                 />
               </ProtectedRoute>
             }

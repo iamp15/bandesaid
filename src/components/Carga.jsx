@@ -38,6 +38,7 @@ const Carga = ({ cargas, setCargas, rol, proveedor, setCargaActual }) => {
         olor: "fresco",
         paredes: "1",
         marca_rubro: "San José",
+        cnd: "072249161",
         lote: "N/A",
       };
       setCargas((prevCargas) => ({

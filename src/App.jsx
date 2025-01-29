@@ -27,6 +27,8 @@ import { useAuth } from "./components/login/AuthContext";
 import { formatDate2 } from "./utils/FormatDate";
 import LoadingSpinner from "./components/LoadingSpinner";
 import UnderConstruction from "./components/UnderConstruction";
+import useLogger from "./hooks/useLogger";
+import { useAlert } from "./components/alert/AlertContext";
 
 function App() {
   const [rol, setRol] = useState(() => {
@@ -57,11 +59,11 @@ function App() {
           precintos: "",
         };
   });
-
   const { currentUser, loading } = useAuth();
-
   const today = formatDate2();
   const docRef = doc(db, "cargas", today);
+  const logger = useLogger();
+  const { addAlert } = useAlert();
 
   useEffect(() => {
     if (!currentUser) return; // Don't set up listener if not authenticated
@@ -69,12 +71,10 @@ function App() {
     // Set up real-time listener
     const unsubscribe = onSnapshot(docRef, (snapshot) => {
       if (snapshot.exists()) {
-        console.log("Document exists, updating state");
         setCargas(snapshot.data());
       } else {
-        // If document doesn't exist, create it with initial state
-        console.log("Document does not exist, creating with initial state");
         setDoc(docRef, cargas);
+        logger.info(`Write to Firestore: Created new cargas on ${today}`);
       }
     });
 
@@ -91,10 +91,12 @@ function App() {
 
     try {
       await setDoc(doc(db, "cargas", today), updatedCargas);
+      logger.info(`Write to Firestore: Updated cargas on ${today}`);
       setCargas(updatedCargas);
     } catch (error) {
+      logger.error(`Error updating cargas: ${error}`);
       console.error("Error updating cargas:", error);
-      // Handle error appropriately
+      addAlert("Hubo un error al guardar la información", "error");
     }
   };
 

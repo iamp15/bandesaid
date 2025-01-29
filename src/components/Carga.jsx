@@ -7,19 +7,35 @@ import { db } from "../firebase/config";
 import { collection, addDoc } from "firebase/firestore";
 import { useAuth } from "./login/AuthContext";
 import LoadingSpinner from "./LoadingSpinner";
+import useLogger from "../hooks/useLogger";
+import { useEffect, useState, useMemo } from "react";
 
 const Carga = ({ cargas, setCargas, rol, proveedor, setCargaActual }) => {
-  const providerMap = {
-    "Toro Rojo": "tr",
-    "Toro Gordo": "tg",
-    "Alimentos Lad": "al",
-    "Avícola Nam": "av",
-  };
+  const providerMap = useMemo(
+    () => ({
+      "Toro Rojo": "tr",
+      "Toro Gordo": "tg",
+      "Alimentos Lad": "al",
+      "Avícola Nam": "av",
+    }),
+    []
+  );
 
   const { askConfirmation } = useAlert();
   const { currentUser, loading } = useAuth(); // Get current user
+  const [isLoading, setIsLoading] = useState(true);
+  const logger = useLogger();
+
+  useEffect(() => {
+    if (cargas[providerMap[proveedor]]) {
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 2000); // Show spinner for 2 seconds
+    }
+  }, [cargas, proveedor, providerMap]);
 
   if (loading) return <LoadingSpinner />;
+  if (isLoading) return <LoadingSpinner />;
 
   const getNextId = (cargasArray) => {
     if (cargasArray.length === 0) return 1;
@@ -45,6 +61,7 @@ const Carga = ({ cargas, setCargas, rol, proveedor, setCargaActual }) => {
         ...prevCargas,
         [key]: [...prevCargas[key], newCarga],
       }));
+      logger.info(`Carga ${newCarga.id} created by ${currentUser.name}`);
     }
   };
 
@@ -76,10 +93,11 @@ const Carga = ({ cargas, setCargas, rol, proveedor, setCargaActual }) => {
               ...prevCargas,
               [key]: prevCargas[key].filter((carga) => carga.id !== id),
             }));
-
+            logger.info(`Carga ${id} deleted by ${currentUser.name}`);
             console.log(`Carga ${id} deleted and logged successfully`);
           } catch (error) {
             console.error("Error logging carga deletion:", error);
+            logger.error(`Error deleting carga ${id}: ${error.message}`);
             // You might want to show an error message to the user here
           }
         }
@@ -89,7 +107,7 @@ const Carga = ({ cargas, setCargas, rol, proveedor, setCargaActual }) => {
 
   const renderCargas = () => {
     const key = providerMap[proveedor];
-    const cargasForProvider = cargas[key] || [];
+    const cargasForProvider = cargas[key];
 
     return (
       <div className="carga-container">
@@ -104,9 +122,11 @@ const Carga = ({ cargas, setCargas, rol, proveedor, setCargaActual }) => {
             eliminarCarga={eliminarCarga}
           />
         )}
-        <button className="crear-carga-button" onClick={aggCarga}>
-          Crear nueva carga
-        </button>
+        {!isLoading && !loading && (
+          <button className="crear-carga-button" onClick={aggCarga}>
+            Crear nueva carga
+          </button>
+        )}
       </div>
     );
   };

@@ -6,6 +6,7 @@ import { doc, getDoc, setDoc } from "firebase/firestore";
 import { useNavigate, useLocation } from "react-router-dom";
 import LoadingSpinner from "../LoadingSpinner";
 import { storageUtils } from "../../utils/LoginPersistance";
+import useLogger from "../../hooks/useLogger";
 
 const AuthContext = createContext();
 
@@ -19,6 +20,7 @@ export function AuthProvider({ children }) {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
   const location = useLocation();
+  const logger = useLogger();
 
   useEffect(() => {
     const initializeAuth = async () => {
@@ -76,6 +78,7 @@ export function AuthProvider({ children }) {
       setLoading(true);
       setError(null);
       console.log("Starting login for:", email);
+      logger.info(`Starting login for: ${email}`);
 
       const userCredential = await signInWithEmailAndPassword(
         auth,
@@ -85,6 +88,7 @@ export function AuthProvider({ children }) {
       const user = userCredential.user;
 
       console.log("Auth successful for:", user.email);
+      logger.info(`Auth successful for: ${user.email}`);
 
       // Fetch or create user data in Firestore
       const userData = await fetchUserData(user);
@@ -111,6 +115,7 @@ export function AuthProvider({ children }) {
           ? "Invalid email format"
           : "An error occurred during login"
       );
+      logger.error(`Login error: ${error.message}`);
       throw error;
     } finally {
       setLoading(false);
@@ -124,6 +129,7 @@ export function AuthProvider({ children }) {
       storageUtils.clearStorage();
       setCurrentUser(null);
       console.log("Logout successful");
+      logger.info("Logout successful");
       console.log("redirecting to login because of logout function");
       navigate("/");
     } catch (error) {

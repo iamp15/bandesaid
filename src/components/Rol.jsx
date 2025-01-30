@@ -19,7 +19,7 @@ export const Rol = ({
   const hasAnyInfo = (cargas, rol, proveedor, cargaActual) => {
     // Check for any provider info
     const hasProviderInfo = (() => {
-      const providers = ["tr", "tg", "al", "av"];
+      const providers = ["tr", "tg", "al", "av", "an"];
 
       return providers.some((provider) => {
         const providerData = cargas[provider];
@@ -66,6 +66,7 @@ export const Rol = ({
         tg: [],
         al: [],
         av: [],
+        an: [],
       });
 
       // Clear localStorage

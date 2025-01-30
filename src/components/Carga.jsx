@@ -10,6 +10,7 @@ const Carga = ({ cargas, setCargas, rol, proveedor, setCargaActual }) => {
     "Toro Gordo": "tg",
     "Alimentos Lad": "al",
     "Avícola Nam": "av",
+    "Alimentos Nani": "an",
   };
 
   const { askConfirmation } = useAlert();

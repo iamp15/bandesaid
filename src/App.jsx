@@ -39,6 +39,7 @@ function App() {
           tg: [],
           al: [],
           av: [],
+          an: [],
         };
   });
   const [cargaActual, setCargaActual] = useState(() => {

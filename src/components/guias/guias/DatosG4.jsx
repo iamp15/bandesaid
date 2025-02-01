@@ -49,6 +49,7 @@ const DatosG4 = ({
       codigos_guias: codigos,
       pesos_guias: pesos.map((peso) => (peso ? formatNumber(peso) : "")),
       precintos: precintos.length > 0 ? precintos : ["S/P"],
+      id_despacho: e.target["id-despacho"].value,
     };
 
     console.log("Submitting data:", newData);
@@ -185,6 +186,15 @@ const DatosG4 = ({
             cargaActual={cargaActual}
             onPrecintoNumberChange={handlePrecintoNumberChange}
           />
+
+          <h2>ID Despacho</h2>
+          <input
+            type="number"
+            id="id-despacho"
+            defaultValue={cargas[mapeo]?.[cargaActual - 1]?.id_despacho}
+            placeholder="Ingrese el ID de despacho"
+          />
+
           <div className="button-group">
             <Link to={"/datosg3"}>
               <button type="button">Atras</button>

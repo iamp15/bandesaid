@@ -25,7 +25,10 @@ const ControlPesaje = ({
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    const newData = { tk: thermoKingStatus };
+    const newData = {
+      tk: thermoKingStatus,
+      id_unidad: event.target["id-unidad"].value,
+    };
     guardar(proveedor, cargaActual, "/pesaje2", newData);
   };
 
@@ -44,6 +47,15 @@ const ControlPesaje = ({
             <option value="Si">Sí</option>
             <option value="No">No</option>
           </select>
+
+          <label htmlFor="id-unidad">ID Unidad: </label>
+          <input
+            type="number"
+            id="id-unidad"
+            name="id-unidad"
+            defaultValue={currentCarga.id_unidad}
+            placeholder="Ingresa el ID de la unidad en el sistema"
+          />
 
           {/****** Botones ******/}
           <div className="button-group">

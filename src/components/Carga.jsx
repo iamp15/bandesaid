@@ -8,31 +8,23 @@ import { collection, addDoc } from "firebase/firestore";
 import { useAuth } from "./login/AuthContext";
 import LoadingSpinner from "./LoadingSpinner";
 import useLogger from "../hooks/useLogger";
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState } from "react";
+import { PROVIDER_MAP } from "../constants/constants";
 
 const Carga = ({ cargas, setCargas, rol, proveedor, setCargaActual }) => {
-  const providerMap = useMemo(
-    () => ({
-      "Toro Rojo": "tr",
-      "Toro Gordo": "tg",
-      "Alimentos Lad": "al",
-      "Avícola Nam": "av",
-    }),
-    []
-  );
-
   const { askConfirmation } = useAlert();
   const { currentUser, loading } = useAuth(); // Get current user
   const [isLoading, setIsLoading] = useState(true);
   const logger = useLogger();
+  const key = PROVIDER_MAP[proveedor];
 
   useEffect(() => {
-    if (cargas[providerMap[proveedor]]) {
+    if (cargas[key]) {
       setTimeout(() => {
         setIsLoading(false);
       }, 2000); // Show spinner for 2 seconds
     }
-  }, [cargas, proveedor, providerMap]);
+  }, [cargas, proveedor, key]);
 
   if (loading) return <LoadingSpinner />;
   if (isLoading) return <LoadingSpinner />;
@@ -43,7 +35,6 @@ const Carga = ({ cargas, setCargas, rol, proveedor, setCargaActual }) => {
   };
 
   const aggCarga = () => {
-    const key = providerMap[proveedor];
     if (key) {
       const newCarga = {
         id: getNextId(cargas[key]),
@@ -66,7 +57,6 @@ const Carga = ({ cargas, setCargas, rol, proveedor, setCargaActual }) => {
   };
 
   const eliminarCarga = (id) => {
-    const key = providerMap[proveedor];
     askConfirmation(
       `¿Estás seguro de que deseas borrar la carga ${id}? Esta acción no se puede deshacer.`,
       async (isConfirmed) => {
@@ -106,7 +96,6 @@ const Carga = ({ cargas, setCargas, rol, proveedor, setCargaActual }) => {
   };
 
   const renderCargas = () => {
-    const key = providerMap[proveedor];
     const cargasForProvider = cargas[key];
 
     return (

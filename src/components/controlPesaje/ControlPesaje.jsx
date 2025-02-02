@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { PROVIDER_MAP } from "../../constants/constants";
 import { useGuardar } from "../../hooks/useGuardar";
 import { useAuth } from "../login/AuthContext";
+import EditableField from "../EditableField";
 
 const ControlPesaje = ({
   cargas,
@@ -19,6 +20,8 @@ const ControlPesaje = ({
     currentCarga?.tk || "Si"
   );
   const { currentUser } = useAuth();
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [onEdit, setOnEdit] = useState(null);
 
   const handleThermoKingChange = (event) => {
     const newStatus = event.target.value;
@@ -27,6 +30,10 @@ const ControlPesaje = ({
 
   const handleSubmit = (event) => {
     event.preventDefault();
+    if (onEdit) {
+      alert("Por favor, guarda los cambios antes de continuar");
+      return;
+    }
     const newData = {
       tk: thermoKingStatus,
       editHistory: {
@@ -38,7 +45,23 @@ const ControlPesaje = ({
         },
       },
     };
+
     guardar(proveedor, cargaActual, "/pesaje2", newData);
+  };
+
+  const handleFieldSave = (fieldName, newValue) => {
+    const newData = {
+      [fieldName]: newValue,
+      editHistory: {
+        ...currentCarga?.editHistory,
+        [fieldName]: {
+          value: newValue,
+          editedBy: currentUser.name,
+          editedAt: new Date().toISOString(),
+        },
+      },
+    };
+    guardar(proveedor, cargaActual, "", newData);
   };
 
   return (
@@ -70,6 +93,20 @@ const ControlPesaje = ({
               })}
             </p>
           )}
+
+          {/*****ID unidad******/}
+          <EditableField
+            fieldName="id_unidad"
+            label="ID Unidad"
+            value={currentCarga.id_unidad}
+            onSave={handleFieldSave}
+            placeholder={"Ingresa el ID de la unidad"}
+            currentUser={currentUser}
+            editHistory={currentCarga.editHistory}
+            setOnEdit={setOnEdit}
+            onEdit={onEdit}
+            setShowSuggestions={setShowSuggestions}
+          />
 
           {/****** Botones ******/}
           <div className="button-group">

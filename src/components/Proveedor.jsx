@@ -7,6 +7,7 @@ const Proveedor = ({ setProveedor, rol }) => {
     "Toro Gordo",
     "Avícola Nam",
     "Alimentos Lad",
+    "Alimentos Nani",
   ];
 
   if (!rol) {

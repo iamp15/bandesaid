@@ -154,7 +154,7 @@ EditableField.propTypes = {
   editHistory: PropTypes.object,
   suggestions: PropTypes.array, // Added suggestions to propTypes
   showSuggestions: PropTypes.bool, // Added showSuggestions to propTypes
-  setShowSuggestions: PropTypes.func.isRequired,
+  setShowSuggestions: PropTypes.func,
   formatValue: PropTypes.func,
   autoComplete: PropTypes.string,
   setOnEdit: PropTypes.func.isRequired,

@@ -61,7 +61,8 @@ const ControlPesaje2 = ({ cargas, setCargas, proveedor, cargaActual }) => {
       `*Galpón:* ${GALPON}\n` +
       `*Rubro:* ${RUBRO}\n` +
       `*Fecha:* ${currentCarga.fecha}\n` +
-      "\n✓ Carga finalizada."
+      "\n✓ Carga finalizada.\n" +
+      `🆔: ${currentCarga.id_unidad}`
     );
   };
 
@@ -85,6 +86,9 @@ const ControlPesaje2 = ({ cargas, setCargas, proveedor, cargaActual }) => {
       <div className="menu">
         <form onSubmit={handleSubmit}>
           <h2>Formatos iniciales:</h2>
+
+          <p className="autor">ID unidad: {currentCarga.id_unidad}</p>
+
           <div className="copy-buttons">
             <BotonCopiar text1={inicioCargaText()} text2="Inicio de carga" />
             <BotonCopiar

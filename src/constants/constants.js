@@ -3,12 +3,14 @@ export const PROVIDER_MAP = {
   "Toro Gordo": "tg",
   "Alimentos Lad": "al",
   "Avícola Nam": "av",
+  "Alimentos Nani": "an",
 };
 export const PROVIDER_MAP_REVERSE = {
   tr: "Toro Rojo",
   tg: "Toro Gordo",
   al: "Alimentos Lad",
   av: "Avícola Nam",
+  an: "Alimentos Nani",
 };
 
 export const GALPON = "Súper Pollo Carrizal";

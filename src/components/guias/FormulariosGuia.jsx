@@ -102,7 +102,8 @@ const FormulariosGuia = ({
       `*CND o CPE:* ${infoCarga.cnd}\n` +
       `*Permiso Sanitario:* ${PERMISO_SANITARIO}\n` +
       `*Estado destino:* ${infoCarga.estadoDestino}\n` +
-      `*Entidad destino:* ${infoCarga.destino}\n`
+      `*Entidad destino:* ${infoCarga.destino}\n` +
+      `🆔: ${infoCarga.id_despacho}`
     );
   };
 

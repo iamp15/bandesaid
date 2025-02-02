@@ -123,6 +123,10 @@ const RevisionGuias = ({ cargas, proveedor, cargaActual }) => {
             Precintos:{" "}
             <span className="value">{infoCarga.precintos.join(", ")}</span>
           </p>
+          <p>
+            ID del despacho:{" "}
+            <span className="value">{infoCarga.id_despacho}</span>
+          </p>
           <button onClick={() => navigate("/datosg4")}>Editar</button>
         </div>
 

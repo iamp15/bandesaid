@@ -10,6 +10,7 @@ import { formatNumber } from "../../../utils/FormatNumber";
 import { useAuth } from "../../login/AuthContext";
 import "../../../styles/guias/DatosG4.css";
 import LoadingSpinner from "../../LoadingSpinner";
+import EditableField from "../../EditableField";
 
 const DatosG4 = ({
   proveedor,
@@ -29,9 +30,11 @@ const DatosG4 = ({
   const numPrecintos =
     guias_precintos.precintos === "" ? "" : Number(guias_precintos.precintos);
 
-  const { loading } = useAuth();
+  const { loading, currentUser } = useAuth();
   const currentCarga = cargas[mapeo]?.[cargaActual - 1] || {};
   const [showNotification, setShowNotification] = useState(null);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [onEdit, setOnEdit] = useState(null);
 
   useEffect(() => {
     const initialCodigos =
@@ -54,6 +57,11 @@ const DatosG4 = ({
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    if (onEdit) {
+      alert("Por favor, guarda los cambios antes de continuar");
+      return;
+    }
 
     if (numGuias > 1 && !checkPesos()) {
       return;
@@ -202,6 +210,23 @@ const DatosG4 = ({
     return true;
   };
 
+  const handleFieldSave = (fieldName, newValue) => {
+    const newData = {
+      [fieldName]: newValue,
+      editHistory: {
+        ...currentCarga?.editHistory,
+        [fieldName]: {
+          value: newValue,
+          editedBy: currentUser.name,
+          editedAt: new Date().toISOString(),
+        },
+      },
+    };
+    guardar(proveedor, cargaActual, "", newData);
+  };
+
+  if (showSuggestions) true;
+
   return (
     <div className="wrap-container">
       <div className="menu">
@@ -273,6 +298,20 @@ const DatosG4 = ({
               </button>
             </div>
           )}
+
+          {/*****ID unidad******/}
+          <EditableField
+            fieldName="id_despacho"
+            label="ID despacho"
+            value={currentCarga.id_despacho}
+            onSave={handleFieldSave}
+            placeholder={"Ingresa el ID del despacho"}
+            currentUser={currentUser}
+            editHistory={currentCarga.editHistory}
+            setOnEdit={setOnEdit}
+            onEdit={onEdit}
+            setShowSuggestions={setShowSuggestions}
+          />
 
           <div className="button-group">
             <Link to={"/datosg3"}>

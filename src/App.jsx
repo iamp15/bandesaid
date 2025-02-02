@@ -44,6 +44,7 @@ function App() {
     tg: [],
     al: [],
     av: [],
+    an: [],
   });
   const [cargaActual, setCargaActual] = useState(() => {
     // Initialize cargaActual from sessionStorage or use default value

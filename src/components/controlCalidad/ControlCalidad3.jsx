@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 /* eslint-disable react/prop-types */
 import { PROVIDER_MAP, MARCA } from "../../constants/constants";
 import { useNavigate } from "react-router-dom";
@@ -20,7 +20,7 @@ const ControlCalidad3 = ({
   const mapeo = PROVIDER_MAP[proveedor];
   const infoCarga = cargas[mapeo]?.[cargaActual - 1] || {};
   const navigate = useNavigate();
-  const [muestras, setMuestras] = useState(infoCarga.muestras || 0);
+  const [muestras, setMuestras] = useState(0);
   const [temperaturas, setTemperaturas] = useState(
     infoCarga.temperaturas || []
   );
@@ -31,6 +31,15 @@ const ControlCalidad3 = ({
   const [onEdit, setOnEdit] = useState(null);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const { addAlert } = useAlert();
+  const [showNotification, setShowNotification] = useState(null);
+
+  useEffect(() => {
+    if (infoCarga.muestras) {
+      setMuestras(infoCarga.muestras);
+      setTemperaturas(infoCarga.temperaturas || []);
+      setPesos(infoCarga.pesos || []);
+    }
+  }, [infoCarga]);
 
   if (!proveedor || !cargaActual) {
     navigate("/despachos");
@@ -136,6 +145,19 @@ const ControlCalidad3 = ({
     );
   };
 
+  const saveInfo = () => {
+    setShowNotification(true);
+    setTimeout(() => {
+      setShowNotification(false);
+    }, 3000);
+    const newData = {
+      muestras: Number(muestras),
+      temperaturas: temperaturas,
+      pesos: pesos,
+    };
+    guardar(proveedor, cargaActual, "", newData);
+  };
+
   return (
     <div className="wrap-container">
       <div className="menu">
@@ -203,6 +225,17 @@ const ControlCalidad3 = ({
               </div>
             </div>
           ))}
+
+          {muestras > 0 && (
+            <div className="button-group">
+              {showNotification && (
+                <div className="notificacion">¡Información guardada!</div>
+              )}
+              <button type="button" onClick={saveInfo}>
+                Guardar
+              </button>
+            </div>
+          )}
 
           <div className="button-group">
             <button

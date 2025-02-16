@@ -35,6 +35,9 @@ const Navbar = ({
     if (rol === "Control Pesaje") {
       return "C. Pesaje";
     }
+    if (rol === "Sistemas") {
+      return "Sistemas";
+    }
     if (rol === "Control de Calidad") {
       return "C. de Calidad";
     } else {

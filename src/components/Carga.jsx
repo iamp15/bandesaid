@@ -22,7 +22,7 @@ const Carga = ({ cargas, setCargas, rol, proveedor, setCargaActual }) => {
     if (cargas[key]) {
       setTimeout(() => {
         setIsLoading(false);
-      }, 2000); // Show spinner for 2 seconds
+      }, 1000); // Show spinner for 1 seconds
     }
   }, [cargas, proveedor, key]);
 

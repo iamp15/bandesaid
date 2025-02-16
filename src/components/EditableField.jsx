@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import "../styles/EditableField.css";
 import { useAlert } from "./alert/AlertContext";
+import CopyToClipboard from "react-copy-to-clipboard";
 
 const EditableField = ({
   fieldName,
@@ -22,6 +23,7 @@ const EditableField = ({
 }) => {
   const [editValue, setEditValue] = useState("");
   const { addAlert } = useAlert();
+  const [showNotification, setShowNotification] = useState(false);
 
   // Added useEffect to set editValue when isEditing becomes true
   useEffect(() => {
@@ -56,6 +58,11 @@ const EditableField = ({
     } else {
       return "";
     }
+  };
+
+  const handleCopy = () => {
+    setShowNotification(true);
+    setTimeout(() => setShowNotification(false), 2000); // Hide after 2 seconds
   };
 
   // Format the display value, not in the render
@@ -114,6 +121,16 @@ const EditableField = ({
           <>
             <div className="display-container">
               <span>{displayValue}</span>
+
+              <CopyToClipboard text={displayValue} onCopy={handleCopy}>
+                <button type="button" className="copy-button">
+                  📋
+                </button>
+              </CopyToClipboard>
+              {showNotification && (
+                <div className="notification">¡Información copiada!</div>
+              )}
+
               <button
                 type="button"
                 className="edit-button"

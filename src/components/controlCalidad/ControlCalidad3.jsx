@@ -58,13 +58,15 @@ const ControlCalidad3 = ({
 
   const handleTemperaturaChange = (index, value) => {
     const newTemperaturas = [...temperaturas];
-    newTemperaturas[index] = Number(value);
+    const formattedValue = value.replace(",", ".");
+    newTemperaturas[index] = Number(formattedValue);
     setTemperaturas(newTemperaturas);
   };
 
   const handlePesoChange = (index, value) => {
     const newPesos = [...pesos];
-    newPesos[index] = Number(value);
+    const formattedValue = value.replace(",", ".");
+    newPesos[index] = Number(formattedValue);
     setPesos(newPesos);
   };
 
@@ -176,25 +178,23 @@ const ControlCalidad3 = ({
               <div className="datos-muestras">
                 <label htmlFor={`peso-${index}`}>Peso: </label>
                 <input
-                  type="number"
+                  type="text"
                   id={`peso-${index}`}
-                  value={pesos[index]}
                   onChange={(e) => handlePesoChange(index, e.target.value)}
                   placeholder="Ingrese el peso"
-                  step={0.01}
+                  defaultValue={pesos[index]}
                 />
               </div>
               <div>
                 <label htmlFor={`temperatura-${index}`}>Temperatura: </label>
                 <input
-                  type="number"
+                  type="text"
                   id={`temperatura-${index}`}
-                  value={temperaturas[index]}
                   onChange={(e) =>
                     handleTemperaturaChange(index, e.target.value)
                   }
                   placeholder="Ingrese la temperatura"
-                  step={0.1}
+                  defaultValue={temperaturas[index]}
                 />
               </div>
             </div>

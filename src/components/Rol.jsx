@@ -21,6 +21,7 @@ export const Rol = ({ setRol }) => {
             <button onClick={() => setRol("Verificación de Guías")}>
               Verificación de Guías
             </button>
+            <button onClick={() => setRol("Sistemas")}>Sistemas</button>
           </Link>
         </div>
         <div className="button-group">

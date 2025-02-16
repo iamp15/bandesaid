@@ -173,6 +173,20 @@ const Sistemas1 = ({
             }}
           />
 
+          {/*****ID unidad******/}
+          <EditableField
+            fieldName="id_unidad"
+            label="ID Unidad"
+            value={currentCarga.id_unidad}
+            onSave={handleFieldSave}
+            placeholder={"Ingresa el ID de la unidad"}
+            currentUser={currentUser}
+            editHistory={currentCarga.editHistory}
+            setOnEdit={setOnEdit}
+            onEdit={onEdit}
+            setShowSuggestions={setShowSuggestions}
+          />
+
           {/****** Botones ******/}
           <div className="button-group">
             <Link to={"/carga"}>

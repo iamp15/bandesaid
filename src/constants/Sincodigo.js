@@ -153,7 +153,7 @@ export const sinCodigo = [
   { nombre: "INSTITUTO NACIONAL DE NUTRICION", codigo: 57 },
   { nombre: "CUARTEL GENERAL DE LA GNB", codigo: 58 },
   { nombre: "ALIMENTOS BOLIVAR", codigo: 59 },
-  { nombre: "COMERCIALIZADORA Y DISTRIBUIDORA RED", codigo: 60 },
+  { nombre: "COMERCIALIZADORA Y DISTRIBUIDORA RED VENEZUELA", codigo: 60 },
   {
     nombre: "VICIMINISTERIO DE EDUCACION PARA LA DEFENSA",
     codigo: 61,

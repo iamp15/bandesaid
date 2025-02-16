@@ -40,9 +40,17 @@ const Navbar = ({
     }
     if (rol === "Control de Calidad") {
       return "C. de Calidad";
-    } else {
+    }
+    if (rol === "Verificación de Guías") {
       return "Guías";
     }
+  };
+
+  const handleLogout = () => {
+    setRol(null);
+    setProveedor(null);
+    setCargaActual(0);
+    logout();
   };
 
   return (
@@ -73,7 +81,7 @@ const Navbar = ({
             {/* Show user email if userData is not yet loaded */}
             <span className="username">
               {currentUser.name}
-              <span onClick={() => logout()}> [Logout]</span>
+              <span onClick={handleLogout}> [Logout]</span>
             </span>
           </div>
         ) : (

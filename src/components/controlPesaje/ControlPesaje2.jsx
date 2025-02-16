@@ -91,7 +91,19 @@ const ControlPesaje2 = ({ cargas, setCargas, proveedor, cargaActual }) => {
         <form onSubmit={handleSubmit}>
           <h2>Formatos iniciales:</h2>
 
-          <p className="autor">ID unidad: {currentCarga.id_unidad}</p>
+          {/*****ID unidad******/}
+          <EditableField
+            fieldName="id_unidad"
+            label="ID Unidad"
+            value={currentCarga.id_unidad}
+            onSave={handleFieldSave}
+            placeholder={"Ingresa el ID de la unidad"}
+            currentUser={currentUser}
+            editHistory={currentCarga.editHistory}
+            setOnEdit={setOnEdit}
+            onEdit={onEdit}
+            setShowSuggestions={setShowSuggestions}
+          />
 
           <div className="copy-buttons">
             <BotonCopiar text1={inicioCargaText()} text2="Inicio de carga" />

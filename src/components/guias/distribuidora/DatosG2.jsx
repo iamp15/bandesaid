@@ -10,6 +10,7 @@ import { sinCodigo } from "../../../constants/Sincodigo";
 import EditableField from "../../EditableField";
 import { useAuth } from "../../login/AuthContext";
 import LoadingSpinner from "../../LoadingSpinner";
+import { useNavigate } from "react-router-dom";
 
 const DatosG2 = ({ proveedor, cargaActual, setCargas, cargas }) => {
   const guardar = useGuardar(setCargas);
@@ -31,6 +32,7 @@ const DatosG2 = ({ proveedor, cargaActual, setCargas, cargas }) => {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const { currentUser, loading } = useAuth();
   const [onEdit, setOnEdit] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (currentCarga) {
@@ -73,6 +75,10 @@ const DatosG2 = ({ proveedor, cargaActual, setCargas, cargas }) => {
 
   if (loading) {
     return <LoadingSpinner />;
+  }
+
+  if (!proveedor || !cargaActual) {
+    navigate("/despachos");
   }
 
   const handleSubmit = (e) => {

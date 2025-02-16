@@ -19,6 +19,10 @@ const ControlPesaje2 = ({ cargas, setCargas, proveedor, cargaActual }) => {
   const [onEdit, setOnEdit] = useState(null);
   const navigate = useNavigate();
 
+  if (!proveedor || !cargaActual) {
+    navigate("/despachos");
+  }
+
   const handleSubmit = (e) => {
     e.preventDefault();
     if (onEdit) {

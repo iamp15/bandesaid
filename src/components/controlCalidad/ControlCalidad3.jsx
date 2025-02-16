@@ -32,6 +32,10 @@ const ControlCalidad3 = ({
   const [showSuggestions, setShowSuggestions] = useState(false);
   const { addAlert } = useAlert();
 
+  if (!proveedor || !cargaActual) {
+    navigate("/despachos");
+  }
+
   const promedio = (valores) => {
     if (!valores || valores.length === 0) return 0;
     if (valores.length === 1) return valores[0];

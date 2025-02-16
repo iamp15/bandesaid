@@ -27,6 +27,10 @@ const ControlCalidad1 = ({ cargas, setCargas, proveedor, cargaActual }) => {
   const { addAlert } = useAlert();
   const navigate = useNavigate();
 
+  if (!proveedor || !cargaActual) {
+    navigate("/despachos");
+  }
+
   const saveData = (fieldName, newValue) => {
     const newData = {
       [fieldName]: newValue,

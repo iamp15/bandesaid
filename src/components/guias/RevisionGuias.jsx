@@ -29,6 +29,10 @@ const RevisionGuias = ({ cargas, proveedor, cargaActual }) => {
     );
   }
 
+  if (!proveedor || !cargaActual) {
+    navigate("/despachos");
+  }
+
   return (
     <div className="wrap-container">
       <div className="menu">

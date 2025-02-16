@@ -12,7 +12,7 @@ import { useEffect, useState } from "react";
 import { PROVIDER_MAP } from "../constants/constants";
 
 const Carga = ({ cargas, setCargas, rol, proveedor, setCargaActual }) => {
-  const { askConfirmation } = useAlert();
+  const { askConfirmation, addAlert } = useAlert();
   const { currentUser, loading } = useAuth(); // Get current user
   const [isLoading, setIsLoading] = useState(true);
   const logger = useLogger();
@@ -29,12 +29,24 @@ const Carga = ({ cargas, setCargas, rol, proveedor, setCargaActual }) => {
   if (loading) return <LoadingSpinner />;
   if (isLoading) return <LoadingSpinner />;
 
+  const checkOnlineStatus = () => {
+    return navigator.onLine;
+  };
+
   const getNextId = (cargasArray) => {
     if (cargasArray.length === 0) return 1;
     return Math.max(...cargasArray.map((carga) => carga.id)) + 1;
   };
 
   const aggCarga = () => {
+    if (!checkOnlineStatus()) {
+      addAlert(
+        "No hay conexión a internet. No se puede guardar la información.",
+        "error"
+      );
+      return;
+    }
+
     if (key) {
       const newCarga = {
         id: getNextId(cargas[key]),
@@ -60,6 +72,14 @@ const Carga = ({ cargas, setCargas, rol, proveedor, setCargaActual }) => {
     askConfirmation(
       `¿Estás seguro de que deseas borrar la carga ${id}? Esta acción no se puede deshacer.`,
       async (isConfirmed) => {
+        if (!checkOnlineStatus()) {
+          addAlert(
+            "No hay conexión a internet. No se puede guardar la información.",
+            "error"
+          );
+          return;
+        }
+
         if (key && isConfirmed) {
           try {
             // Find the carga that's being deleted

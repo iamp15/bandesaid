@@ -28,6 +28,10 @@ const DatosG3 = ({ proveedor, cargaActual, cargas, setCargas }) => {
     return <LoadingSpinner />;
   }
 
+  if (!proveedor || !cargaActual) {
+    navigate("/despachos");
+  }
+
   const getCnd = (brandName) => {
     const brand = Object.values(MARCA).find(
       (brand) => brand.nombre === brandName

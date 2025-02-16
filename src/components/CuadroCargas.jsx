@@ -8,6 +8,7 @@ const CuadroCargas = ({ cargas, rol, setCargaActual, eliminarCarga }) => {
     if (rol === "Inspección de Vehículos") return "/cc1";
     if (rol === "Control Pesaje") return "/pesaje1";
     if (rol === "Control de Calidad") return "/cc3";
+    if (rol === "Sistemas") return "/sist1";
     else return "/datosg1";
   };
 

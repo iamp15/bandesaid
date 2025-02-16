@@ -29,6 +29,8 @@ import LoadingSpinner from "./components/LoadingSpinner";
 import UnderConstruction from "./components/UnderConstruction";
 import useLogger from "./hooks/useLogger";
 import { useAlert } from "./components/alert/AlertContext";
+import Sistemas1 from "./components/sistemas/Sistemas1";
+import Sistemas2 from "./components/sistemas/Sistemas2";
 
 function App() {
   const [rol, setRol] = useState(() => {
@@ -83,22 +85,45 @@ function App() {
     return () => unsubscribe();
   }, [currentUser]);
 
+  const checkOnlineStatus = () => {
+    return navigator.onLine;
+  };
+
   const updateCargas = async (newCargas) => {
     if (!currentUser) return; // Don't attempt update if not authenticated
+
+    if (!checkOnlineStatus()) {
+      addAlert(
+        "No hay conexión a internet. No se puede guardar la información.",
+        "error"
+      );
+      return;
+    }
 
     // If newCargas is a function, execute it to get the new state
     const updatedCargas =
       typeof newCargas === "function" ? newCargas(cargas) : newCargas;
 
-    try {
-      await setDoc(doc(db, "cargas", today), updatedCargas);
-      logger.info(`Write to Firestore: Updated cargas on ${today}`);
-      setCargas(updatedCargas);
-    } catch (error) {
-      logger.error(`Error updating cargas: ${error}`);
-      console.error("Error updating cargas:", error);
-      addAlert("Hubo un error al guardar la información", "error");
-    }
+    const saveToFirestore = async (data, retries = 3) => {
+      try {
+        await setDoc(doc(db, "cargas", today), data);
+        logger.info(`Write to Firestore: Updated cargas on ${today}`);
+        console.log("Cargas updated!");
+        setCargas(data);
+      } catch (error) {
+        if (retries > 0) {
+          logger.warn(`Retrying to update cargas: ${retries} attempts left`);
+          console.error("Error updating cargas:", error);
+          setTimeout(() => saveToFirestore(data, retries - 1), 1000);
+          addAlert("Hubo un error al guardar la información", "error");
+        } else {
+          logger.error(`Error updating cargas: ${error}`);
+          console.error("Error updating cargas:", error);
+          addAlert("Hubo un error al guardar la información", "error");
+        }
+      }
+    };
+    saveToFirestore(updatedCargas);
   };
 
   // Save cargaActual to sessionStorage whenever it changes
@@ -355,6 +380,33 @@ function App() {
                   setCargaActual={setCargaActual}
                   proveedor={proveedor}
                   cargas={cargas}
+                />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/sist1"
+            element={
+              <ProtectedRoute>
+                <Sistemas1
+                  cargaActual={cargaActual}
+                  setCargaActual={setCargaActual}
+                  proveedor={proveedor}
+                  cargas={cargas}
+                  setCargas={updateCargas}
+                />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/sist2"
+            element={
+              <ProtectedRoute>
+                <Sistemas2
+                  cargaActual={cargaActual}
+                  proveedor={proveedor}
+                  cargas={cargas}
+                  setCargas={updateCargas}
                 />
               </ProtectedRoute>
             }

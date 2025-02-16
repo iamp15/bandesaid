@@ -22,6 +22,10 @@ const Sistemas2 = ({ cargaActual, proveedor, cargas, setCargas }) => {
     return <LoadingSpinner />;
   }
 
+  if (!proveedor || !cargaActual) {
+    navigate("/despachos");
+  }
+
   const handleFieldSave = (fieldName, newValue) => {
     const newData = {
       [fieldName]: newValue,

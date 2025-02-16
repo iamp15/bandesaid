@@ -19,6 +19,10 @@ const ControlCalidad4 = ({
   const mapeo = PROVIDER_MAP[proveedor];
   const infoCarga = cargas[mapeo]?.[cargaActual - 1] || {};
 
+  if (!proveedor || !cargaActual) {
+    navigate("/despachos");
+  }
+
   const numeracion = () => {
     if (cargaActual < 10) {
       return "0" + cargaActual;

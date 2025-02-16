@@ -42,6 +42,10 @@ const FormulariosGuia = ({
     );
   }
 
+  if (!proveedor || !cargaActual) {
+    navigate("/despachos");
+  }
+
   const generateGuiaText1 = (index) => {
     const numeracion = () => {
       if (numGuias === 1 && cargaActual < 10) return `0${cargaActual}`;

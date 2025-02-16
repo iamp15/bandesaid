@@ -5,6 +5,7 @@ import { PROVIDER_MAP } from "../../constants/constants";
 import { useGuardar } from "../../hooks/useGuardar";
 import { useAuth } from "../login/AuthContext";
 import EditableField from "../EditableField";
+import { useNavigate } from "react-router-dom";
 
 const ControlPesaje = ({
   cargas,
@@ -22,6 +23,11 @@ const ControlPesaje = ({
   const { currentUser } = useAuth();
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [onEdit, setOnEdit] = useState(null);
+  const navigate = useNavigate();
+
+  if (!proveedor || !cargaActual) {
+    navigate("/despachos");
+  }
 
   const handleThermoKingChange = (event) => {
     const newStatus = event.target.value;

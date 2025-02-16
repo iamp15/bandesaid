@@ -11,6 +11,7 @@ import { useAuth } from "../../login/AuthContext";
 import "../../../styles/guias/DatosG4.css";
 import LoadingSpinner from "../../LoadingSpinner";
 import EditableField from "../../EditableField";
+import { useNavigate } from "react-router-dom";
 
 const DatosG4 = ({
   proveedor,
@@ -35,6 +36,7 @@ const DatosG4 = ({
   const [showNotification, setShowNotification] = useState(null);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [onEdit, setOnEdit] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const initialCodigos =
@@ -53,6 +55,10 @@ const DatosG4 = ({
 
   if (loading) {
     return <LoadingSpinner />;
+  }
+
+  if (!proveedor || !cargaActual) {
+    navigate("/despachos");
   }
 
   const handleSubmit = (e) => {

@@ -42,18 +42,9 @@ const DatosG1 = ({
 
   const key = PROVIDER_MAP[proveedor];
 
-  if (!cargaActual)
-    return (
-      <div className="error">
-        <span>���️</span>
-        <p>Aun no has seleccionado una carga</p>
-        <div className="button-group">
-          <Link to="/carga">
-            <button>Volver</button>
-          </Link>
-        </div>
-      </div>
-    );
+  if (!proveedor || !cargaActual) {
+    navigate("/despachos");
+  }
 
   // Get the current carga based on cargaActual and proveedor
   const currentCarga = cargas[key]?.[cargaActual - 1] || {};

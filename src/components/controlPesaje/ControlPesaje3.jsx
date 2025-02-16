@@ -4,10 +4,16 @@ import BotonCopiar from "../BotonCopiar";
 import { PROVIDER_MAP } from "../../constants/constants";
 import { GALPON, RUBRO } from "../../constants/constants";
 import "../../styles/pesaje/ControlPesaje3.css";
+import { useNavigate } from "react-router-dom";
 
 const ControlPesaje3 = ({ cargas, proveedor, cargaActual, setCargaActual }) => {
   const mapeo = PROVIDER_MAP[proveedor];
   const infoCarga = cargas[mapeo]?.[cargaActual - 1] || {};
+  const navigate = useNavigate();
+
+  if (!proveedor || !cargaActual) {
+    navigate("/despachos");
+  }
 
   const pVerificadoText = () => {
     const numeracion = () => {

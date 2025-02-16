@@ -14,6 +14,10 @@ const ControlCalidad2 = ({
   const infoCarga = cargas[mapeo]?.[cargaActual - 1] || {};
   const navigate = useNavigate();
 
+  if (!proveedor || !cargaActual) {
+    navigate("/despachos");
+  }
+
   const paredes = () => {
     switch (infoCarga.paredes) {
       case "1":

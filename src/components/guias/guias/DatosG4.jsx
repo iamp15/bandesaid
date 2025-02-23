@@ -12,6 +12,8 @@ import "../../../styles/guias/DatosG4.css";
 import LoadingSpinner from "../../LoadingSpinner";
 import EditableField from "../../EditableField";
 import { useNavigate } from "react-router-dom";
+import { checkOnlineStatus } from "../../../utils/OnlineStatus";
+import { useAlert } from "../../alert/AlertContext";
 
 const DatosG4 = ({
   proveedor,
@@ -37,6 +39,7 @@ const DatosG4 = ({
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [onEdit, setOnEdit] = useState(null);
   const navigate = useNavigate();
+  const { addAlert } = useAlert();
 
   useEffect(() => {
     const initialCodigos =
@@ -63,6 +66,14 @@ const DatosG4 = ({
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    if (!checkOnlineStatus()) {
+      addAlert(
+        "No hay conexión a internet. No se puede guardar la información.",
+        "error"
+      );
+      return;
+    }
 
     if (onEdit) {
       alert("Por favor, guarda los cambios antes de continuar");
@@ -169,6 +180,14 @@ const DatosG4 = ({
       return;
     }
 
+    if (!checkOnlineStatus()) {
+      addAlert(
+        "No hay conexión a internet. No se puede guardar la información.",
+        "error"
+      );
+      return;
+    }
+
     const newData = {
       codigos_guias: codigos,
       pesos_guias: pesos.map((peso) => (peso ? formatNumber(peso) : "")),
@@ -180,6 +199,13 @@ const DatosG4 = ({
   };
 
   const savePrecintos = () => {
+    if (!checkOnlineStatus()) {
+      addAlert(
+        "No hay conexión a internet. No se puede guardar la información.",
+        "error"
+      );
+      return;
+    }
     const newData = {
       precintos: precintos.length > 0 ? precintos : ["S/P"],
     };
@@ -217,6 +243,13 @@ const DatosG4 = ({
   };
 
   const handleFieldSave = (fieldName, newValue) => {
+    if (!checkOnlineStatus()) {
+      addAlert(
+        "No hay conexión a internet. No se puede guardar la información.",
+        "error"
+      );
+      return;
+    }
     const newData = {
       [fieldName]: newValue,
       editHistory: {

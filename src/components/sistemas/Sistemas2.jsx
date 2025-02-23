@@ -8,6 +8,8 @@ import LoadingSpinner from "../LoadingSpinner";
 import EditableField from "../EditableField";
 import { decimalComma } from "../../utils/FormatDecimal";
 import { Link } from "react-router-dom";
+import { checkOnlineStatus } from "../../utils/OnlineStatus";
+import { useAlert } from "../alert/AlertContext";
 
 const Sistemas2 = ({ cargaActual, proveedor, cargas, setCargas }) => {
   const { currentUser, loading } = useAuth();
@@ -17,6 +19,7 @@ const Sistemas2 = ({ cargaActual, proveedor, cargas, setCargas }) => {
   const navigate = useNavigate();
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [onEdit, setOnEdit] = useState(null);
+  const { addAlert } = useAlert();
 
   if (loading) {
     return <LoadingSpinner />;
@@ -27,6 +30,13 @@ const Sistemas2 = ({ cargaActual, proveedor, cargas, setCargas }) => {
   }
 
   const handleFieldSave = (fieldName, newValue) => {
+    if (!checkOnlineStatus()) {
+      addAlert(
+        "No hay conexión a internet. No se puede guardar la información.",
+        "error"
+      );
+      return;
+    }
     const newData = {
       [fieldName]: newValue,
       editHistory: {

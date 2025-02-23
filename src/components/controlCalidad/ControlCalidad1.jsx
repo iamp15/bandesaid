@@ -8,6 +8,7 @@ import { useAuth } from "../login/AuthContext";
 import EditableField from "../EditableField";
 import { useAlert } from "../alert/AlertContext";
 import { useNavigate } from "react-router-dom";
+import { checkOnlineStatus } from "../../utils/OnlineStatus";
 import "../../styles/controlCalidad/ControlCalidad1.css";
 
 const ControlCalidad1 = ({ cargas, setCargas, proveedor, cargaActual }) => {
@@ -32,6 +33,14 @@ const ControlCalidad1 = ({ cargas, setCargas, proveedor, cargaActual }) => {
   }
 
   const saveData = (fieldName, newValue) => {
+    if (!checkOnlineStatus()) {
+      addAlert(
+        "No hay conexión a internet. No se puede guardar la información.",
+        "error"
+      );
+      return;
+    }
+
     const newData = {
       [fieldName]: newValue,
       editHistory: {

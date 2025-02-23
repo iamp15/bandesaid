@@ -11,6 +11,8 @@ import EditableField from "../../EditableField";
 import { useAuth } from "../../login/AuthContext";
 import LoadingSpinner from "../../LoadingSpinner";
 import { useNavigate } from "react-router-dom";
+import { checkOnlineStatus } from "../../../utils/OnlineStatus";
+import { useAlert } from "../../alert/AlertContext";
 
 const DatosG2 = ({ proveedor, cargaActual, setCargas, cargas }) => {
   const guardar = useGuardar(setCargas);
@@ -33,6 +35,7 @@ const DatosG2 = ({ proveedor, cargaActual, setCargas, cargas }) => {
   const { currentUser, loading } = useAuth();
   const [onEdit, setOnEdit] = useState(null);
   const navigate = useNavigate();
+  const { addAlert } = useAlert();
 
   useEffect(() => {
     if (currentCarga) {
@@ -85,6 +88,14 @@ const DatosG2 = ({ proveedor, cargaActual, setCargas, cargas }) => {
     e.preventDefault();
     if (onEdit !== null) {
       alert("Por favor, guarda los cambios antes de continuar");
+      return;
+    }
+
+    if (!checkOnlineStatus()) {
+      addAlert(
+        "No hay conexión a internet. No se puede guardar la información.",
+        "error"
+      );
       return;
     }
 

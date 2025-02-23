@@ -9,6 +9,8 @@ import EditableField from "../../EditableField";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import LoadingSpinner from "../../LoadingSpinner";
+import { checkOnlineStatus } from "../../../utils/OnlineStatus";
+import { useAlert } from "../../alert/AlertContext";
 
 const DatosG1 = ({
   setCargaActual,
@@ -22,6 +24,7 @@ const DatosG1 = ({
   const navigate = useNavigate();
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [onEdit, setOnEdit] = useState(null);
+  const { addAlert } = useAlert();
 
   if (loading) {
     return <LoadingSpinner />;
@@ -65,6 +68,13 @@ const DatosG1 = ({
   };
 
   const tkChange = (e) => {
+    if (!checkOnlineStatus()) {
+      addAlert(
+        "No hay conexión a internet. No se puede guardar la información.",
+        "error"
+      );
+      return;
+    }
     const newData = {
       tk: e.target.value,
       editHistory: {

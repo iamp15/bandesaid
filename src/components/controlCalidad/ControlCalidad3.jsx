@@ -8,6 +8,7 @@ import { useAlert } from "../alert/AlertContext";
 import SelectorMarca from "../guias/controles/SelectorMarca";
 import EditableField from "../EditableField";
 import { decimalComma, decimalPeriod } from "../../utils/FormatDecimal";
+import { checkOnlineStatus } from "../../utils/OnlineStatus";
 import "../../styles/ControlCalidad/ControlCalidad3.css";
 
 const ControlCalidad3 = ({
@@ -91,6 +92,15 @@ const ControlCalidad3 = ({
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    if (!checkOnlineStatus()) {
+      addAlert(
+        "No hay conexión a internet. No se puede guardar la información.",
+        "error"
+      );
+      return;
+    }
+
     if (onEdit !== null) {
       addAlert(
         "Debes terminar de editar el campo antes de continuar",
@@ -101,8 +111,14 @@ const ControlCalidad3 = ({
     const cndNumber = getCnd(chickenBrand);
     const t_promedio = temperaturas.length ? promedio(temperaturas) : null;
     const p_promedio = pesos.length ? promedio(pesos) : null;
-    console.log("t_promedio", t_promedio);
-    console.log("p_promedio", p_promedio);
+
+    if (t_promedio > 0) {
+      addAlert(
+        "La temperatura promedio debería ser negativa. Revisa los valores.",
+        "warning"
+      );
+      return;
+    }
     const newData = {
       cnd: cndNumber,
       muestras: Number(muestras),
@@ -115,6 +131,14 @@ const ControlCalidad3 = ({
   };
 
   const saveData = (fieldName, newValue) => {
+    if (!checkOnlineStatus()) {
+      addAlert(
+        "No hay conexión a internet. No se puede guardar la información.",
+        "error"
+      );
+      return;
+    }
+
     const newData = {
       [fieldName]: newValue,
       editHistory: {
@@ -146,6 +170,14 @@ const ControlCalidad3 = ({
   };
 
   const saveInfo = () => {
+    if (!checkOnlineStatus()) {
+      addAlert(
+        "No hay conexión a internet. No se puede guardar la información.",
+        "error"
+      );
+      return;
+    }
+
     setShowNotification(true);
     setTimeout(() => {
       setShowNotification(false);

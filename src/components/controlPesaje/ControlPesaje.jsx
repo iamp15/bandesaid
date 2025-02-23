@@ -5,6 +5,8 @@ import { PROVIDER_MAP } from "../../constants/constants";
 import { useGuardar } from "../../hooks/useGuardar";
 import { useAuth } from "../login/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { checkOnlineStatus } from "../../utils/OnlineStatus";
+import { useAlert } from "../alert/AlertContext";
 
 const ControlPesaje = ({
   cargas,
@@ -21,6 +23,7 @@ const ControlPesaje = ({
   );
   const { currentUser } = useAuth();
   const navigate = useNavigate();
+  const { addAlert } = useAlert();
 
   if (!proveedor || !cargaActual) {
     navigate("/despachos");
@@ -32,6 +35,13 @@ const ControlPesaje = ({
   };
 
   const handleSubmit = (event) => {
+    if (!checkOnlineStatus()) {
+      addAlert(
+        "No hay conexión a internet. No se puede guardar la información.",
+        "error"
+      );
+      return;
+    }
     event.preventDefault();
     const newData = {
       tk: thermoKingStatus,

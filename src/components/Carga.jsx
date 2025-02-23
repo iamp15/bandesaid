@@ -69,6 +69,10 @@ const Carga = ({ cargas, setCargas, rol, proveedor, setCargaActual }) => {
   };
 
   const eliminarCarga = (id) => {
+    if (currentUser.name !== "Igor") {
+      addAlert("No tienes permisos para eliminar cargas", "error");
+      return;
+    }
     askConfirmation(
       `¿Estás seguro de que deseas borrar la carga ${id}? Esta acción no se puede deshacer.`,
       async (isConfirmed) => {

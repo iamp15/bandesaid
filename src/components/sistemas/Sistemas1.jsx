@@ -8,6 +8,8 @@ import LoadingSpinner from "../LoadingSpinner";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { capitalizeWords } from "../../utils/Capitalizer";
+import { checkOnlineStatus } from "../../utils/OnlineStatus";
+import { useAlert } from "../alert/AlertContext";
 
 const Sistemas1 = ({
   cargaActual,
@@ -23,6 +25,7 @@ const Sistemas1 = ({
   const navigate = useNavigate();
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [onEdit, setOnEdit] = useState(null);
+  const { addAlert } = useAlert();
 
   if (loading) {
     return <LoadingSpinner />;
@@ -33,6 +36,13 @@ const Sistemas1 = ({
   }
 
   const handleFieldSave = (fieldName, newValue) => {
+    if (!checkOnlineStatus()) {
+      addAlert(
+        "No hay conexión a internet. No se puede guardar la información.",
+        "error"
+      );
+      return;
+    }
     const newData = {
       [fieldName]: newValue,
       editHistory: {
@@ -48,6 +58,13 @@ const Sistemas1 = ({
   };
 
   const tkChange = (e) => {
+    if (!checkOnlineStatus()) {
+      addAlert(
+        "No hay conexión a internet. No se puede guardar la información.",
+        "error"
+      );
+      return;
+    }
     const newData = {
       tk: e.target.value,
       editHistory: {

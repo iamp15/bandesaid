@@ -8,6 +8,8 @@ import EditableField from "../EditableField";
 import { useAuth } from "../login/AuthContext";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { checkOnlineStatus } from "../../utils/OnlineStatus";
+import { useAlert } from "../alert/AlertContext";
 import "../../styles/pesaje/ControlPesaje2.css";
 
 const ControlPesaje2 = ({ cargas, setCargas, proveedor, cargaActual }) => {
@@ -18,6 +20,7 @@ const ControlPesaje2 = ({ cargas, setCargas, proveedor, cargaActual }) => {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [onEdit, setOnEdit] = useState(null);
   const navigate = useNavigate();
+  const { addAlert } = useAlert();
 
   if (!proveedor || !cargaActual) {
     navigate("/despachos");
@@ -71,6 +74,13 @@ const ControlPesaje2 = ({ cargas, setCargas, proveedor, cargaActual }) => {
   };
 
   const handleFieldSave = (fieldName, newValue) => {
+    if (!checkOnlineStatus()) {
+      addAlert(
+        "No hay conexión a internet. No se puede guardar la información.",
+        "error"
+      );
+      return;
+    }
     const newData = {
       [fieldName]: newValue,
       editHistory: {

@@ -11,6 +11,8 @@ import { useAuth } from "../../login/AuthContext";
 import LoadingSpinner from "../../LoadingSpinner";
 import EditableField from "../../EditableField";
 import { useNavigate } from "react-router-dom";
+import { checkOnlineStatus } from "../../../utils/OnlineStatus";
+import { useAlert } from "../../alert/AlertContext";
 
 const DatosG3 = ({ proveedor, cargaActual, cargas, setCargas }) => {
   const guardar = useGuardar(setCargas);
@@ -23,6 +25,7 @@ const DatosG3 = ({ proveedor, cargaActual, cargas, setCargas }) => {
   const [onEdit, setOnEdit] = useState(null);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const navigate = useNavigate();
+  const { addAlert } = useAlert();
 
   if (loading) {
     return <LoadingSpinner />;
@@ -56,6 +59,13 @@ const DatosG3 = ({ proveedor, cargaActual, cargas, setCargas }) => {
   };
 
   const handleChickenBrandChange = (e) => {
+    if (!checkOnlineStatus()) {
+      addAlert(
+        "No hay conexión a internet. No se puede guardar la información.",
+        "error"
+      );
+      return;
+    }
     setChickenBrand(e.target.value);
     const newData = {
       marca_rubro: e.target.value,
@@ -73,6 +83,13 @@ const DatosG3 = ({ proveedor, cargaActual, cargas, setCargas }) => {
   };
 
   const handleFieldSave = (fieldName, newValue) => {
+    if (!checkOnlineStatus()) {
+      addAlert(
+        "No hay conexión a internet. No se puede guardar la información.",
+        "error"
+      );
+      return;
+    }
     const newData = {
       [fieldName]: newValue,
       editHistory: {

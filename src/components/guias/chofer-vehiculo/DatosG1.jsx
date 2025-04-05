@@ -53,6 +53,13 @@ const DatosG1 = ({
   const currentCarga = cargas[key]?.[cargaActual - 1] || {};
 
   const handleFieldSave = (fieldName, newValue) => {
+    if (!checkOnlineStatus()) {
+      addAlert(
+        "No hay conexión a internet. No se puede guardar la información.",
+        "error"
+      );
+      return;
+    }
     const newData = {
       [fieldName]: newValue,
       editHistory: {

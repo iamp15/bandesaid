@@ -45,6 +45,8 @@ const DatosG3 = ({ proveedor, cargaActual, cargas, setCargas }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
+    const new_p_promedio = combinedFormat(currentCarga.p_promedio);
+
     if (onEdit) {
       alert("Guarda los cambios antes de continuar");
       return;
@@ -52,6 +54,11 @@ const DatosG3 = ({ proveedor, cargaActual, cargas, setCargas }) => {
 
     if (currentCarga.t_promedio > 0) {
       alert("Alerta: la temperatura promedio debería ser negativa.");
+      return;
+    }
+
+    if (new_p_promedio < 0) {
+      alert("Alerta: el peso promedio debe ser positivo.");
       return;
     }
 
@@ -105,6 +112,9 @@ const DatosG3 = ({ proveedor, cargaActual, cargas, setCargas }) => {
   };
 
   const combinedFormat = (value) => {
+    if (value.includes(",")) {
+      value = value.replace(",", ".");
+    }
     const formattedValue = decimalPeriod(value);
     return parseFloat(formattedValue).toFixed(1);
   };

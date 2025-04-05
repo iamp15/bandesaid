@@ -176,6 +176,7 @@ const DatosG2 = ({ proveedor, cargaActual, setCargas, cargas }) => {
                 autoComplete={"off"}
                 setOnEdit={setOnEdit}
                 onEdit={onEdit}
+                currentUser={currentUser} // Pass currentUser
               />
             </div>
           </div>

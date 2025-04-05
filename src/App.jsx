@@ -31,6 +31,8 @@ import useLogger from "./hooks/useLogger";
 import { useAlert } from "./components/alert/AlertContext";
 import Sistemas1 from "./components/sistemas/Sistemas1";
 import Sistemas2 from "./components/sistemas/Sistemas2";
+import Distribucion from "./components/formatos/Distribucion";
+import SelectorFormatos from "./components/formatos/SelectorFormatos";
 
 function App() {
   const [rol, setRol] = useState(() => {
@@ -41,7 +43,9 @@ function App() {
     const savedProveedor = sessionStorage.getItem("proveedor");
     return savedProveedor ? savedProveedor : "";
   });
+  const today = formatDate2();
   const [cargas, setCargas] = useState({
+    version: "1",
     tr: [],
     tg: [],
     al: [],
@@ -63,7 +67,7 @@ function App() {
         };
   });
   const { currentUser, loading } = useAuth();
-  const today = formatDate2();
+
   const docRef = doc(db, "cargas", today);
   const logger = useLogger();
   const { addAlert } = useAlert();
@@ -74,16 +78,31 @@ function App() {
     // Set up real-time listener
     const unsubscribe = onSnapshot(docRef, (snapshot) => {
       if (snapshot.exists()) {
-        setCargas(snapshot.data());
+        const firestoreCargas = snapshot.data();
+        if (firestoreCargas.version > cargas.version) {
+          setCargas(firestoreCargas);
+          logger.info(
+            `Updated local cargas to version ${firestoreCargas.version}`
+          );
+        }
       } else {
-        setDoc(docRef, cargas);
-        logger.info(`Write to Firestore: Created new cargas on ${today}`);
+        // Only set the document if local cargas state is empty
+        if (
+          cargas.tr.length === 0 &&
+          cargas.tg.length === 0 &&
+          cargas.al.length === 0 &&
+          cargas.av.length === 0 &&
+          cargas.an.length === 0
+        ) {
+          setDoc(docRef, cargas);
+          logger.info(`Write to Firestore: Created new cargas on ${today}`);
+        }
       }
     });
 
     // Cleanup subscription
     return () => unsubscribe();
-  }, [currentUser]);
+  }, [currentUser, cargas]);
 
   const checkOnlineStatus = () => {
     return navigator.onLine;
@@ -104,6 +123,12 @@ function App() {
     const updatedCargas =
       typeof newCargas === "function" ? newCargas(cargas) : newCargas;
 
+    // Increment the version number
+    const updatedCargasWithVersion = {
+      ...updatedCargas,
+      version: parseInt(updatedCargas.version) + 1,
+    };
+
     const saveToFirestore = async (data, retries = 3) => {
       try {
         await setDoc(doc(db, "cargas", today), data);
@@ -123,7 +148,7 @@ function App() {
         }
       }
     };
-    saveToFirestore(updatedCargas);
+    saveToFirestore(updatedCargasWithVersion);
   };
 
   // Save cargaActual to sessionStorage whenever it changes
@@ -411,8 +436,10 @@ function App() {
               </ProtectedRoute>
             }
           />
+          <Route path="/distribucion" element={<Distribucion />} />
           <Route path="/underconstruction" element={<UnderConstruction />} />
           <Route path="*" element={<h1>Not Found</h1>} />
+          <Route path="/selectorformatos" element={<SelectorFormatos />} />
         </Routes>
         <footer>Creado por ©iamp15 2024. Todos los derechos reservados.</footer>
       </div>

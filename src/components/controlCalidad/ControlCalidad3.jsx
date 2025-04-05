@@ -119,6 +119,13 @@ const ControlCalidad3 = ({
       );
       return;
     }
+    if (p_promedio < 0) {
+      addAlert(
+        "El peso promedio debería ser positivo. Revisa los valores.",
+        "warning"
+      );
+      return;
+    }
     const newData = {
       cnd: cndNumber,
       muestras: Number(muestras),

@@ -32,7 +32,7 @@ const Menu = () => {
       id: 3,
       title: "Otros formatos",
       image: formatoIcon,
-      link: "/underconstruction",
+      link: "/selectorformatos",
     },
     {
       id: 4,

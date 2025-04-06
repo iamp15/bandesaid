@@ -189,7 +189,7 @@ const DatosG1 = ({
           <select
             name="tk"
             id="tk"
-            defaultValue={currentCarga?.tk || "si"}
+            value={currentCarga?.tk === "Si" ? "Si" : "No"}
             onChange={tkChange}
           >
             <option value="Si">Sí</option>

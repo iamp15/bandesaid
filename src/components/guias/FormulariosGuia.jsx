@@ -121,6 +121,11 @@ const FormulariosGuia = ({
     else return `Acta de responsabilidad ${cargaActual}.${index + 1}`;
   };
 
+  const checkTk = () => {
+    if (infoCarga.tk === "Si") return "Sí";
+    else return "No";
+  };
+
   const generateDatosVehiculo = () => {
     const numeracion = () => {
       if (cargaActual < 10) return `0${cargaActual}`;
@@ -134,7 +139,7 @@ const FormulariosGuia = ({
       `*Galpón:* ${GALPON}\n` +
       `*Rubro:* ${RUBRO}\n` +
       `*Número de Guía:* ${infoCarga?.codigos_guias.join("/")}\n` +
-      `*Thermo King operativo:* ${infoCarga.tk}\n` +
+      `*Thermo King operativo:* ${checkTk()}\n` +
       `*Transporte:* ${infoCarga.transporte}\n` +
       `*Nombre del chofer:* ${infoCarga.chofer}\n` +
       `*Cédula de identidad del chofer:* ${infoCarga.cedula}\n` +

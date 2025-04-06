@@ -3,11 +3,9 @@ import CuadroCargas from "./CuadroCargas";
 import { formatDate } from "../utils/FormatDate";
 import { useAlert } from "./alert/AlertContext";
 import { Link } from "react-router-dom";
-import { db } from "../firebase/config";
-import { collection, addDoc } from "firebase/firestore";
 import { useAuth } from "./login/AuthContext";
 import LoadingSpinner from "./LoadingSpinner";
-import useLogger from "../hooks/useLogger";
+import { saveLog } from "../utils/LogSystem";
 import { useEffect, useState } from "react";
 import { PROVIDER_MAP } from "../constants/constants";
 
@@ -15,7 +13,6 @@ const Carga = ({ cargas, setCargas, rol, proveedor, setCargaActual }) => {
   const { askConfirmation, addAlert } = useAlert();
   const { currentUser, loading } = useAuth(); // Get current user
   const [isLoading, setIsLoading] = useState(true);
-  const logger = useLogger();
   const key = PROVIDER_MAP[proveedor];
 
   useEffect(() => {
@@ -44,6 +41,10 @@ const Carga = ({ cargas, setCargas, rol, proveedor, setCargaActual }) => {
         "No hay conexión a internet. No se puede guardar la información.",
         "error"
       );
+      saveLog(
+        `No hay conexión a internet. No se puede guardar la información.`,
+        "error"
+      );
       return;
     }
 
@@ -64,7 +65,7 @@ const Carga = ({ cargas, setCargas, rol, proveedor, setCargaActual }) => {
         ...prevCargas,
         [key]: [...prevCargas[key], newCarga],
       }));
-      logger.info(`Carga ${newCarga.id} created by ${currentUser.name}`);
+      saveLog(`Carga ${newCarga.id} created by ${currentUser.name}`);
     }
   };
 
@@ -81,37 +82,25 @@ const Carga = ({ cargas, setCargas, rol, proveedor, setCargaActual }) => {
             "No hay conexión a internet. No se puede guardar la información.",
             "error"
           );
+          saveLog(
+            `No hay conexión a internet. No se puede guardar la información.`,
+            "error"
+          );
           return;
         }
 
         if (key && isConfirmed) {
           try {
-            // Find the carga that's being deleted
-            const cargaToDelete = cargas[key].find((carga) => carga.id === id);
-
-            // Log the deletion in Firestore
-            await addDoc(collection(db, "deletedCargas"), {
-              cargaId: id,
-              proveedor: proveedor,
-              deletedBy: {
-                email: currentUser.name,
-                uid: currentUser.uid,
-              },
-              deletedAt: new Date().toISOString(),
-              cargaData: cargaToDelete, // Store all carga data for reference
-              userRole: rol,
-            });
-
             // Remove the carga from state
             setCargas((prevCargas) => ({
               ...prevCargas,
               [key]: prevCargas[key].filter((carga) => carga.id !== id),
             }));
-            logger.info(`Carga ${id} deleted by ${currentUser.name}`);
+            saveLog(`Carga ${id} deleted by ${currentUser.name}`);
             console.log(`Carga ${id} deleted and logged successfully`);
           } catch (error) {
             console.error("Error logging carga deletion:", error);
-            logger.error(`Error deleting carga ${id}: ${error.message}`);
+            saveLog(`Error deleting carga ${id}: ${error.message}`, "error");
             // You might want to show an error message to the user here
           }
         }

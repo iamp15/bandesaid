@@ -38,7 +38,7 @@ const Menu = () => {
       id: 4,
       title: "Configuración",
       image: configIcon,
-      link: "/underconstruction",
+      link: "/menuConfiguracion",
     },
   ];
 

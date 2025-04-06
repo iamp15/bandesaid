@@ -19,7 +19,7 @@ const ControlPesaje = ({
   const currentCarga = cargas[key]?.[cargaActual - 1] || {};
   const guardar = useGuardar(setCargas);
   const [thermoKingStatus, setThermoKingStatus] = useState(
-    currentCarga?.tk || "Si"
+    currentCarga?.tk === "Si" ? "Si" : "No"
   );
   const { currentUser } = useAuth();
   const navigate = useNavigate();

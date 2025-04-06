@@ -27,12 +27,15 @@ import { useAuth } from "./components/login/AuthContext";
 import { formatDate2 } from "./utils/FormatDate";
 import LoadingSpinner from "./components/LoadingSpinner";
 import UnderConstruction from "./components/UnderConstruction";
-import useLogger from "./hooks/useLogger";
 import { useAlert } from "./components/alert/AlertContext";
 import Sistemas1 from "./components/sistemas/Sistemas1";
 import Sistemas2 from "./components/sistemas/Sistemas2";
 import Distribucion from "./components/formatos/Distribucion";
 import SelectorFormatos from "./components/formatos/SelectorFormatos";
+import MenuConfiguracion from "./components/configuracion/MenuConfiguracion";
+import LogViewer from "./components/configuracion/logs/LogViewer";
+import { saveLog } from "./utils/LogSystem";
+import { getCurrentTime } from "./utils/TimeUtils";
 
 function App() {
   const [rol, setRol] = useState(() => {
@@ -67,9 +70,8 @@ function App() {
         };
   });
   const { currentUser, loading } = useAuth();
-
+  const time = getCurrentTime();
   const docRef = doc(db, "cargas", today);
-  const logger = useLogger();
   const { addAlert } = useAlert();
 
   useEffect(() => {
@@ -81,9 +83,7 @@ function App() {
         const firestoreCargas = snapshot.data();
         if (firestoreCargas.version > cargas.version) {
           setCargas(firestoreCargas);
-          logger.info(
-            `Updated local cargas to version ${firestoreCargas.version}`
-          );
+          saveLog(`Updated local cargas to version ${firestoreCargas.version}`);
         }
       } else {
         // Only set the document if local cargas state is empty
@@ -95,7 +95,7 @@ function App() {
           cargas.an.length === 0
         ) {
           setDoc(docRef, cargas);
-          logger.info(`Write to Firestore: Created new cargas on ${today}`);
+          saveLog(`Write to Firestore: Created new cargas at ${time}`);
         }
       }
     });
@@ -116,6 +116,10 @@ function App() {
         "No hay conexión a internet. No se puede guardar la información.",
         "error"
       );
+      saveLog(
+        "No hay conexión a internet. No se puede guardar la información.",
+        "error"
+      );
       return;
     }
 
@@ -132,17 +136,17 @@ function App() {
     const saveToFirestore = async (data, retries = 3) => {
       try {
         await setDoc(doc(db, "cargas", today), data);
-        logger.info(`Write to Firestore: Updated cargas on ${today}`);
+        saveLog(`Write to Firestore: Updated cargas version ${data.version}`);
         console.log("Cargas updated!");
         setCargas(data);
       } catch (error) {
         if (retries > 0) {
-          logger.warn(`Retrying to update cargas: ${retries} attempts left`);
+          saveLog(`Retrying to update cargas: ${retries} attempts left`);
           console.error("Error updating cargas:", error);
           setTimeout(() => saveToFirestore(data, retries - 1), 1000);
           addAlert("Hubo un error al guardar la información", "error");
         } else {
-          logger.error(`Error updating cargas: ${error}`);
+          saveLog(`Error updating cargas: ${error}`, "error");
           console.error("Error updating cargas:", error);
           addAlert("Hubo un error al guardar la información", "error");
         }
@@ -440,6 +444,22 @@ function App() {
           <Route path="/underconstruction" element={<UnderConstruction />} />
           <Route path="*" element={<h1>Not Found</h1>} />
           <Route path="/selectorformatos" element={<SelectorFormatos />} />
+          <Route
+            path="/menuConfiguracion"
+            element={
+              <ProtectedRoute>
+                <MenuConfiguracion />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/logviewer"
+            element={
+              <ProtectedRoute>
+                <LogViewer />
+              </ProtectedRoute>
+            }
+          />
         </Routes>
         <footer>Creado por ©iamp15 2024. Todos los derechos reservados.</footer>
       </div>

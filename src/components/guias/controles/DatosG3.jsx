@@ -112,7 +112,7 @@ const DatosG3 = ({ proveedor, cargaActual, cargas, setCargas }) => {
   };
 
   const combinedFormat = (value) => {
-    if (value.includes(",")) {
+    if (value && value.includes(",")) {
       value = value.replace(",", ".");
     }
     const formattedValue = decimalPeriod(value);

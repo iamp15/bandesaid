@@ -105,6 +105,7 @@ function App() {
   }, [currentUser, cargas]);
 
   const checkOnlineStatus = () => {
+    saveLog(`Checking online status at ${time}: ${navigator.onLine}`);
     return navigator.onLine;
   };
 

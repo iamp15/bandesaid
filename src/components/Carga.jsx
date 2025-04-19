@@ -65,7 +65,9 @@ const Carga = ({ cargas, setCargas, rol, proveedor, setCargaActual }) => {
         ...prevCargas,
         [key]: [...prevCargas[key], newCarga],
       }));
-      saveLog(`Carga ${newCarga.id} created by ${currentUser.name}`);
+      saveLog(
+        `Carga ${newCarga.id} of ${proveedor} created by ${currentUser.name}`
+      );
     }
   };
 

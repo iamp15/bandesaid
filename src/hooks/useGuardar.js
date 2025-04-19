@@ -1,11 +1,9 @@
 import { useNavigate } from "react-router-dom";
 import { PROVIDER_MAP } from "../constants/constants";
-import { useAuth } from "../components/login/AuthContext";
 import { saveLog } from "../utils/LogSystem";
 
 export const useGuardar = (setCargas) => {
   const navigate = useNavigate();
-  const { currentUser } = useAuth();
 
   const guardar = (proveedor, cargaActual, nextRoute, newData) => {
     const key = PROVIDER_MAP[proveedor];
@@ -20,9 +18,9 @@ export const useGuardar = (setCargas) => {
       ([key]) => key !== "editHistory"
     );
     saveLog(
-      `Carga ${cargaActual} updated by ${
-        currentUser.name
-      } with data: ${JSON.stringify(Object.fromEntries(filteredData))}`
+      `Carga ${cargaActual} of ${proveedor} updated with data: ${JSON.stringify(
+        Object.fromEntries(filteredData)
+      )}`
     );
 
     navigate(nextRoute);

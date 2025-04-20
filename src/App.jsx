@@ -36,6 +36,7 @@ import MenuConfiguracion from "./components/configuracion/MenuConfiguracion";
 import LogViewer from "./components/configuracion/logs/LogViewer";
 import { saveLog } from "./utils/LogSystem";
 import { getCurrentTime } from "./utils/TimeUtils";
+import { PROVIDER_MAP_REVERSE } from "./constants/constants";
 
 function App() {
   const [rol, setRol] = useState(() => {
@@ -81,9 +82,60 @@ function App() {
     const unsubscribe = onSnapshot(docRef, (snapshot) => {
       if (snapshot.exists()) {
         const firestoreCargas = snapshot.data();
+
         if (firestoreCargas.version > cargas.version) {
-          setCargas(firestoreCargas);
-          saveLog(`Updated local cargas to version ${firestoreCargas.version}`);
+          const mergedCargas = { ...cargas };
+
+          // Merge local and Firestore data
+          Object.keys(firestoreCargas).forEach((key) => {
+            if (Array.isArray(firestoreCargas[key])) {
+              mergedCargas[key] = firestoreCargas[key].map((item, index) => {
+                if (mergedCargas[key][index]) {
+                  const localItem = mergedCargas[key][index];
+
+                  // Compare all fields in the nested object, excluding specific fields
+                  for (const field of Object.keys(item)) {
+                    if (
+                      field !== "editHistory" && // Exclude "editHistory"
+                      field !== "tk" && // Exclude "tk"
+                      field !== "paletas" && // Exclude "paletas"
+                      field !== "paredes" && // Exclude "paredes"
+                      field !== "olor" && // Exclude "olor"
+                      field !== "cnd" && // Exclude "cnd"
+                      field !== "muestras" && // Exclude "muestras"
+                      field !== "temperaturas" && // Exclude "temperaturas"
+                      field !== "pesos" && // Exclude "pesos"
+                      field !== "codigos_guias" && // Exclude "codigos_guias"
+                      field !== "pesos_guias" && // Exclude "pesos_guias"
+                      field !== "precintos" && // Exclude "precintos"
+                      item[field] &&
+                      localItem[field]
+                    ) {
+                      // Skip prompt if old data equals new data
+                      if (item[field] === localItem[field]) {
+                        continue;
+                      }
+
+                      const message = `Ya existe información para el campo [${field}]. ¿Deseas sustituir "${localItem[field]}" por "${item[field]}"?`;
+                      const overwrite = window.confirm(message);
+                      if (!overwrite) {
+                        return localItem; // Keep local data if user chooses not to overwrite
+                      }
+                    }
+                  }
+                  return item; // Overwrite with new data if no conflicts or user agrees
+                }
+                return item; // Add new item if no local data exists
+              });
+            } else {
+              mergedCargas[key] = firestoreCargas[key];
+            }
+          });
+
+          setCargas(mergedCargas);
+          saveLog(
+            `Merged local cargas with Firestore version ${firestoreCargas.version}`
+          );
         }
       } else {
         // Only set the document if local cargas state is empty

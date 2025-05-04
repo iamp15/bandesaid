@@ -101,6 +101,8 @@ function App() {
                       field !== "paletas" && // Exclude "paletas"
                       field !== "paredes" && // Exclude "paredes"
                       field !== "olor" && // Exclude "olor"
+                      field !== "otroOlor" && // Exclude "otroOlor"
+                      field !== "puertaLateral" && // Exclude "puertaLateral"
                       field !== "cnd" && // Exclude "cnd"
                       field !== "muestras" && // Exclude "muestras"
                       field !== "temperaturas" && // Exclude "temperaturas"

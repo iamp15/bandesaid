@@ -22,6 +22,9 @@ const ControlCalidad1 = ({ cargas, setCargas, proveedor, cargaActual }) => {
   const [smell, setSmell] = useState(currentCarga?.olor || "fresco");
   const [otherSmell, setOtherSmell] = useState(currentCarga?.otroOlor || "");
   const [paredes, setParedes] = useState(currentCarga?.paredes || "1");
+  const [puertaLateral, setPuertaLateral] = useState(
+    currentCarga?.puertaLateral || "No"
+  );
   const { currentUser } = useAuth();
   const [onEdit, setOnEdit] = useState(null);
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -99,6 +102,12 @@ const ControlCalidad1 = ({ cargas, setCargas, proveedor, cargaActual }) => {
     const newStatus = event.target.value;
     setParedes(newStatus);
     saveData("paredes", newStatus);
+  };
+
+  const handlePuertaLateralChange = (event) => {
+    const newStatus = event.target.value;
+    setPuertaLateral(newStatus);
+    saveData("puertaLateral", newStatus);
   };
 
   const handleSubmit = (event) => {
@@ -191,6 +200,20 @@ const ControlCalidad1 = ({ cargas, setCargas, proveedor, cargaActual }) => {
             <option value="5">No tiene paredes ni techo</option>
           </select>
           {formatEditHistory(currentCarga.editHistory, "paredes")}
+
+          {/* Puerta lateral */}
+          <label htmlFor="puertaLateral" className="label-bold">
+            Puerta lateral:{" "}
+          </label>
+          <select
+            name="puertaLateral"
+            id="puertaLateral"
+            value={puertaLateral}
+            onChange={handlePuertaLateralChange}
+          >
+            <option value="Si">Sí</option>
+            <option value="No">No</option>
+          </select>
 
           {/* Entidad */}
           <EditableField

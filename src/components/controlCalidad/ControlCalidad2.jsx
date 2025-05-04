@@ -58,8 +58,12 @@ const ControlCalidad2 = ({
         if (infoCarga.olor === "fresco") return "fresco característico";
         else return `a ${infoCarga.otroOlor}`;
       };
+      const puertaLateral = () => {
+        if (infoCarga.puertaLateral === "Si") return " Posee puerta lateral.";
+        else return "";
+      };
 
-      return `Vehículo ${paletas}. ${paredes()}. ${tk()}. El vehículo posee un olor ${olor()}. En planta se encuentra el representante de ${
+      return `Vehículo ${paletas}. ${paredes()}. ${tk()}.${puertaLateral()} El vehículo posee un olor ${olor()}. En planta se encuentra el representante de ${
         infoCarga.entidad
       }, ${
         infoCarga.responsable
@@ -106,6 +110,11 @@ const ControlCalidad2 = ({
           <p>
             Paredes y techo: <span className="value">{paredes()}</span>
           </p>
+          <p>
+            Puerta lateral:{" "}
+            <span className="value">{infoCarga.puertaLateral}</span>
+          </p>
+
           <p>
             Entidad: <span className="value">{infoCarga.entidad}</span>
           </p>

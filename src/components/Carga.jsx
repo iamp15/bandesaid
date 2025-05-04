@@ -57,6 +57,7 @@ const Carga = ({ cargas, setCargas, rol, proveedor, setCargaActual }) => {
         paletas: "No",
         olor: "fresco",
         paredes: "1",
+        puertaLateral: "No",
         marca_rubro: "San José",
         cnd: "072249161",
         lote: "N/A",

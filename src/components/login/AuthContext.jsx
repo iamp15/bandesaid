@@ -125,7 +125,6 @@ export function AuthProvider({ children }) {
     try {
       setLoading(true);
       await signOut(auth);
-      storageUtils.clearStorage();
       setCurrentUser(null);
       console.log("Logout successful");
       saveLog("Logout successful");

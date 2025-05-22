@@ -1,6 +1,12 @@
 import { Link } from "react-router-dom";
 
 const MenuConfiguracion = () => {
+  const limpiarMemoria = () => {
+    localStorage.clear();
+    sessionStorage.clear();
+    alert("Memoria limpiada");
+  };
+
   return (
     <div className="wrap-container">
       <div className="menu">
@@ -9,6 +15,7 @@ const MenuConfiguracion = () => {
           <Link to={"/logviewer"}>
             <button>Administrar Logs</button>
           </Link>
+          <button onClick={limpiarMemoria}>Limpiar memoria</button>
         </div>
         <div className="button-group">
           <Link to={"/menu"}>

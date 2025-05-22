@@ -124,6 +124,8 @@ export function AuthProvider({ children }) {
   const logout = async () => {
     try {
       setLoading(true);
+      localStorage.clear();
+      sessionStorage.clear();
       await signOut(auth);
       setCurrentUser(null);
       console.log("Logout successful");

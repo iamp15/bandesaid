@@ -13,8 +13,10 @@ import EditableField from "../../EditableField";
 import { useNavigate } from "react-router-dom";
 import { checkOnlineStatus } from "../../../utils/OnlineStatus";
 import { useAlert } from "../../alert/AlertContext";
+import { useEstados } from "../../../contexts/EstadosContext";
 
-const DatosG3 = ({ proveedor, cargaActual, cargas, setCargas }) => {
+const DatosG3 = () => {
+  const { cargas, setCargas, cargaActual, proveedor } = useEstados();
   const guardar = useGuardar(setCargas);
   const currentCarga = cargas[PROVIDER_MAP[proveedor]]?.[cargaActual - 1] || {};
   const [chickenBrand, setChickenBrand] = useState(

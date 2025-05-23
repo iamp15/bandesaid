@@ -11,14 +11,11 @@ import { useState } from "react";
 import LoadingSpinner from "../../LoadingSpinner";
 import { checkOnlineStatus } from "../../../utils/OnlineStatus";
 import { useAlert } from "../../alert/AlertContext";
+import { useEstados } from "../../../contexts/EstadosContext";
 
-const DatosG1 = ({
-  setCargaActual,
-  cargaActual,
-  proveedor,
-  cargas,
-  setCargas,
-}) => {
+const DatosG1 = () => {
+  const { cargas, setCargas, cargaActual, setCargaActual, proveedor } =
+    useEstados();
   const guardar = useGuardar(setCargas);
   const { currentUser, loading } = useAuth();
   const navigate = useNavigate();

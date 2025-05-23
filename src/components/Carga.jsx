@@ -8,8 +8,10 @@ import LoadingSpinner from "./LoadingSpinner";
 import { saveLog } from "../utils/LogSystem";
 import { useEffect, useState } from "react";
 import { PROVIDER_MAP } from "../constants/constants";
+import { useEstados } from "../contexts/EstadosContext";
 
-const Carga = ({ cargas, setCargas, rol, proveedor, setCargaActual }) => {
+const Carga = () => {
+  const { cargas, setCargas, rol, proveedor } = useEstados();
   const { askConfirmation, addAlert } = useAlert();
   const { currentUser, loading } = useAuth(); // Get current user
   const [isLoading, setIsLoading] = useState(true);
@@ -122,8 +124,6 @@ const Carga = ({ cargas, setCargas, rol, proveedor, setCargaActual }) => {
         ) : (
           <CuadroCargas
             cargas={cargasForProvider}
-            rol={rol}
-            setCargaActual={setCargaActual}
             eliminarCarga={eliminarCarga}
           />
         )}

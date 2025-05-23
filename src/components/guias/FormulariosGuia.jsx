@@ -12,13 +12,10 @@ import "../../styles/guias/formulariosGuia.css";
 import { formatNumber } from "../../utils/FormatNumber";
 import { useState, useEffect } from "react";
 import LoadingSpinner from "../LoadingSpinner";
+import { useEstados } from "../../contexts/EstadosContext";
 
-const FormulariosGuia = ({
-  proveedor,
-  cargaActual,
-  setCargaActual,
-  cargas,
-}) => {
+const FormulariosGuia = () => {
+  const { cargas, cargaActual, proveedor } = useEstados();
   const mapeo = PROVIDER_MAP[proveedor];
   const infoCarga = cargas[mapeo]?.[cargaActual - 1];
   const numGuias = infoCarga?.codigos_guias.length || 1;

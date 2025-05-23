@@ -8,13 +8,10 @@ import {
 } from "../../constants/constants";
 import BotonCopiar from "../BotonCopiar";
 import LoadingSpinner from "../LoadingSpinner";
+import { useEstados } from "../../contexts/EstadosContext";
 
-const ControlCalidad4 = ({
-  cargas,
-  proveedor,
-  cargaActual,
-  setCargaActual,
-}) => {
+const ControlCalidad4 = () => {
+  const { cargas, setCargaActual, cargaActual, proveedor } = useEstados();
   const navigate = useNavigate();
   const mapeo = PROVIDER_MAP[proveedor];
   const infoCarga = cargas[mapeo]?.[cargaActual - 1] || {};

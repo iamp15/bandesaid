@@ -1,7 +1,9 @@
 /* eslint-disable react/prop-types */
 import { Link } from "react-router-dom";
+import { useEstados } from "../contexts/EstadosContext";
 
-const Proveedor = ({ setProveedor, rol }) => {
+const Proveedor = () => {
+  const { rol, setProveedor } = useEstados();
   const proveedores = [
     "Toro Rojo",
     "Toro Gordo",

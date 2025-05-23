@@ -5,8 +5,10 @@ import { RUBRO } from "../../constants/constants";
 import { useState, useEffect } from "react";
 import "../../styles/guias/revisionGuias.css";
 import LoadingSpinner from "../LoadingSpinner";
+import { useEstados } from "../../contexts/EstadosContext";
 
-const RevisionGuias = ({ cargas, proveedor, cargaActual }) => {
+const RevisionGuias = () => {
+  const { cargas, cargaActual, proveedor } = useEstados();
   const mapeo = PROVIDER_MAP[proveedor];
   const infoCarga = cargas[mapeo]?.[cargaActual - 1];
   const navigate = useNavigate();

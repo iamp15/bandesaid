@@ -2,8 +2,10 @@
 import { Link } from "react-router-dom";
 import "./../styles/guias/CuadroCargas.css";
 import { useEffect, useRef } from "react";
+import { useEstados } from "../contexts/EstadosContext";
 
-const CuadroCargas = ({ cargas, rol, setCargaActual, eliminarCarga }) => {
+const CuadroCargas = ({ cargas, eliminarCarga }) => {
+  const { rol, setCargaActual } = useEstados();
   const ruta = () => {
     if (rol === "Inspección de Vehículos") return "/cc1";
     if (rol === "Control Pesaje") return "/pesaje1";

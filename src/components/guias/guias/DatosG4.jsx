@@ -14,15 +14,17 @@ import EditableField from "../../EditableField";
 import { useNavigate } from "react-router-dom";
 import { checkOnlineStatus } from "../../../utils/OnlineStatus";
 import { useAlert } from "../../alert/AlertContext";
+import { useEstados } from "../../../contexts/EstadosContext";
 
-const DatosG4 = ({
-  proveedor,
-  cargaActual,
-  cargas,
-  setCargas,
-  guias_precintos,
-  setGuias_precintos,
-}) => {
+const DatosG4 = () => {
+  const {
+    cargas,
+    setCargas,
+    cargaActual,
+    proveedor,
+    guias_precintos,
+    setGuias_precintos,
+  } = useEstados();
   const [codigos, setCodigos] = useState([]);
   const [pesos, setPesos] = useState([]);
   const [precintos, setPrecintos] = useState([]);

@@ -5,8 +5,10 @@ import { PROVIDER_MAP } from "../../constants/constants";
 import { GALPON, RUBRO } from "../../constants/constants";
 import "../../styles/pesaje/ControlPesaje3.css";
 import { useNavigate } from "react-router-dom";
+import { useEstados } from "../../contexts/EstadosContext";
 
-const ControlPesaje3 = ({ cargas, proveedor, cargaActual, setCargaActual }) => {
+const ControlPesaje3 = () => {
+  const { cargas, setCargaActual, cargaActual, proveedor } = useEstados();
   const mapeo = PROVIDER_MAP[proveedor];
   const infoCarga = cargas[mapeo]?.[cargaActual - 1] || {};
   const navigate = useNavigate();

@@ -2,16 +2,12 @@
 import { Link } from "react-router-dom";
 import { useAuth } from "./login/AuthContext";
 import "./../styles/Navbar.css";
+import { useEstados } from "../contexts/EstadosContext";
 
-const Navbar = ({
-  rol,
-  setRol,
-  proveedor,
-  setProveedor,
-  cargaActual,
-  setCargaActual,
-}) => {
+const Navbar = () => {
   const { currentUser, logout } = useAuth();
+  const { rol, setRol, proveedor, setProveedor, cargaActual, setCargaActual } =
+    useEstados();
 
   const rolClicked = () => {
     setRol(null);

@@ -13,8 +13,10 @@ import LoadingSpinner from "../../LoadingSpinner";
 import { useNavigate } from "react-router-dom";
 import { checkOnlineStatus } from "../../../utils/OnlineStatus";
 import { useAlert } from "../../alert/AlertContext";
+import { useEstados } from "../../../contexts/EstadosContext";
 
-const DatosG2 = ({ proveedor, cargaActual, setCargas, cargas }) => {
+const DatosG2 = () => {
+  const { cargas, setCargas, cargaActual, proveedor } = useEstados();
   const guardar = useGuardar(setCargas);
   const currentCarga = cargas[PROVIDER_MAP[proveedor]]?.[cargaActual - 1] || {};
   const [suggestions, setSuggestions] = useState([]);

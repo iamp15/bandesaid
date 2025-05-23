@@ -10,14 +10,11 @@ import EditableField from "../EditableField";
 import { decimalComma, decimalPeriod } from "../../utils/FormatDecimal";
 import { checkOnlineStatus } from "../../utils/OnlineStatus";
 import "../../styles/ControlCalidad/ControlCalidad3.css";
+import { useEstados } from "../../contexts/EstadosContext";
 
-const ControlCalidad3 = ({
-  cargas,
-  setCargas,
-  proveedor,
-  cargaActual,
-  setCargaActual,
-}) => {
+const ControlCalidad3 = () => {
+  const { cargas, setCargas, cargaActual, setCargaActual, proveedor } =
+    useEstados();
   const mapeo = PROVIDER_MAP[proveedor];
   const infoCarga = cargas[mapeo]?.[cargaActual - 1] || {};
   const navigate = useNavigate();

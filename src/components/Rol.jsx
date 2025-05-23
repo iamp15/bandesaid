@@ -1,8 +1,11 @@
 /* eslint-disable react/prop-types */
 import { Link } from "react-router-dom";
 import "./../styles/Rol.css";
+import { useEstados } from "../contexts/EstadosContext";
 
-export const Rol = ({ setRol }) => {
+export const Rol = () => {
+  const { setRol } = useEstados();
+
   return (
     <div className="wrap-container">
       <div className="menu">

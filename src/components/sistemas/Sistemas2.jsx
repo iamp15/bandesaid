@@ -10,8 +10,10 @@ import { decimalComma } from "../../utils/FormatDecimal";
 import { Link } from "react-router-dom";
 import { checkOnlineStatus } from "../../utils/OnlineStatus";
 import { useAlert } from "../alert/AlertContext";
+import { useEstados } from "../../contexts/EstadosContext";
 
-const Sistemas2 = ({ cargaActual, proveedor, cargas, setCargas }) => {
+const Sistemas2 = () => {
+  const { cargas, setCargas, cargaActual, proveedor } = useEstados();
   const { currentUser, loading } = useAuth();
   const key = PROVIDER_MAP[proveedor];
   const currentCarga = cargas[key]?.[cargaActual - 1] || {};

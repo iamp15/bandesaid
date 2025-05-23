@@ -11,8 +11,10 @@ import { useNavigate } from "react-router-dom";
 import { checkOnlineStatus } from "../../utils/OnlineStatus";
 import { useAlert } from "../alert/AlertContext";
 import "../../styles/pesaje/ControlPesaje2.css";
+import { useEstados } from "../../contexts/EstadosContext";
 
-const ControlPesaje2 = ({ cargas, setCargas, proveedor, cargaActual }) => {
+const ControlPesaje2 = () => {
+  const { cargas, setCargas, cargaActual, proveedor } = useEstados();
   const key = PROVIDER_MAP[proveedor];
   const currentCarga = cargas[key]?.[cargaActual - 1] || {};
   const guardar = useGuardar(setCargas);

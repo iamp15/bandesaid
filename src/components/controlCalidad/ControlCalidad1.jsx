@@ -10,8 +10,10 @@ import { useAlert } from "../alert/AlertContext";
 import { useNavigate } from "react-router-dom";
 import { checkOnlineStatus } from "../../utils/OnlineStatus";
 import "../../styles/controlCalidad/ControlCalidad1.css";
+import { useEstados } from "../../contexts/EstadosContext";
 
-const ControlCalidad1 = ({ cargas, setCargas, proveedor, cargaActual }) => {
+const ControlCalidad1 = () => {
+  const { cargas, setCargas, cargaActual, proveedor } = useEstados();
   const key = PROVIDER_MAP[proveedor];
   const currentCarga = cargas[key]?.[cargaActual - 1] || {};
   const guardar = useGuardar(setCargas);

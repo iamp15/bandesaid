@@ -10,14 +10,11 @@ import { Link } from "react-router-dom";
 import { capitalizeWords } from "../../utils/Capitalizer";
 import { checkOnlineStatus } from "../../utils/OnlineStatus";
 import { useAlert } from "../alert/AlertContext";
+import { useEstados } from "../../contexts/EstadosContext";
 
-const Sistemas1 = ({
-  cargaActual,
-  setCargaActual,
-  proveedor,
-  cargas,
-  setCargas,
-}) => {
+const Sistemas1 = () => {
+  const { cargas, setCargas, cargaActual, proveedor, setCargaActual } =
+    useEstados();
   const { currentUser, loading } = useAuth();
   const key = PROVIDER_MAP[proveedor];
   const currentCarga = cargas[key]?.[cargaActual - 1] || {};

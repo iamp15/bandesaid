@@ -16,14 +16,17 @@ const Sistemas2 = () => {
   const { cargas, setCargas, cargaActual, proveedor } = useEstados();
   const { currentUser, loading } = useAuth();
   const key = PROVIDER_MAP[proveedor];
-  const currentCarga = cargas[key]?.[cargaActual - 1] || {};
+  const currentCarga =
+    cargas && cargas[key]?.[cargaActual - 1]
+      ? cargas[key]?.[cargaActual - 1]
+      : {};
   const guardar = useGuardar(setCargas);
   const navigate = useNavigate();
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [onEdit, setOnEdit] = useState(null);
   const { addAlert } = useAlert();
 
-  if (loading) {
+  if (loading || !currentUser || !cargas) {
     return <LoadingSpinner />;
   }
 

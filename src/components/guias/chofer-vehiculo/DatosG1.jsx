@@ -7,11 +7,12 @@ import "../../../styles/guias/DatosG1.css";
 import { useAuth } from "../../login/AuthContext";
 import EditableField from "../../EditableField";
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import LoadingSpinner from "../../LoadingSpinner";
 import { checkOnlineStatus } from "../../../utils/OnlineStatus";
 import { useAlert } from "../../alert/AlertContext";
 import { useEstados } from "../../../contexts/EstadosContext";
+import { editableFieldProps } from "../../../utils/editableFieldProps";
 
 const DatosG1 = () => {
   const { cargas, setCargas, cargaActual, setCargaActual, proveedor } =
@@ -23,40 +24,35 @@ const DatosG1 = () => {
   const [onEdit, setOnEdit] = useState(null);
   const { addAlert } = useAlert();
 
-  if (loading) {
-    return <LoadingSpinner />;
-  }
+  // Navigation side effect
+  useEffect(() => {
+    if (!proveedor || !cargaActual) {
+      navigate("/despachos");
+    }
+  }, [proveedor, cargaActual, navigate]);
 
-  if (!proveedor)
-    return (
-      <div className="error">
-        <span>���️</span>
-        <p>Aun no has seleccionado un proveedor</p>
-        <div className="button-group">
-          <Link to="/proveedor">
-            <button>Volver</button>
-          </Link>
-        </div>
-      </div>
-    );
+  // Single check for loading state
+  if (loading || !cargas) return <LoadingSpinner />;
 
   const key = PROVIDER_MAP[proveedor];
-
-  if (!proveedor || !cargaActual) {
-    navigate("/despachos");
-  }
 
   // Get the current carga based on cargaActual and proveedor
   const currentCarga = cargas[key]?.[cargaActual - 1] || {};
 
-  const handleFieldSave = (fieldName, newValue) => {
+  // Helper for online status check
+  const requireOnline = () => {
     if (!checkOnlineStatus()) {
       addAlert(
         "No hay conexión a internet. No se puede guardar la información.",
         "error"
       );
-      return;
+      return false;
     }
+    return true;
+  };
+
+  const handleFieldSave = (fieldName, newValue) => {
+    if (!requireOnline()) return;
     const newData = {
       [fieldName]: newValue,
       editHistory: {
@@ -72,13 +68,7 @@ const DatosG1 = () => {
   };
 
   const tkChange = (e) => {
-    if (!checkOnlineStatus()) {
-      addAlert(
-        "No hay conexión a internet. No se puede guardar la información.",
-        "error"
-      );
-      return;
-    }
+    if (!requireOnline()) return;
     const newData = {
       tk: e.target.value,
       editHistory: {
@@ -108,75 +98,79 @@ const DatosG1 = () => {
 
           {/*****nombre*****/}
           <EditableField
-            fieldName="chofer"
-            label="Nombre"
-            value={currentCarga?.chofer}
-            placeholder="Ingrese el nombre del chofer"
-            onSave={handleFieldSave}
-            currentUser={currentUser}
-            editHistory={currentCarga?.editHistory}
-            formatValue={capitalizeWords}
-            setShowSuggestions={setShowSuggestions}
-            setOnEdit={setOnEdit}
-            onEdit={onEdit}
+            {...editableFieldProps({
+              fieldName: "chofer",
+              label: "Nombre",
+              value: currentCarga?.chofer,
+              placeholder: "Ingrese el nombre del chofer",
+              onSave: handleFieldSave,
+              currentUser,
+              editHistory: currentCarga?.editHistory,
+              setShowSuggestions,
+              setOnEdit,
+              onEdit,
+              formatValue: capitalizeWords,
+            })}
           />
 
           {/****** Cédula ******/}
           <EditableField
-            fieldName="cedula"
-            label="Cédula"
-            value={currentCarga?.cedula}
-            placeholder="Ingrese la cédula del chofer"
-            onSave={handleFieldSave}
-            currentUser={currentUser}
-            editHistory={currentCarga?.editHistory}
-            setShowSuggestions={setShowSuggestions}
-            setOnEdit={setOnEdit}
-            onEdit={onEdit}
-            formatValue={(cedula) => {
-              // Remove any existing non-digit characters
-              const cleanedCedula = cedula.replace(/\D/g, "");
-
-              // Add dots to the cleaned cedula
-              const parts = [];
-              for (let i = cleanedCedula.length; i > 0; i -= 3) {
-                parts.unshift(cleanedCedula.slice(Math.max(0, i - 3), i));
-              }
-
-              return parts.join(".");
-            }}
+            {...editableFieldProps({
+              fieldName: "cedula",
+              label: "Cédula",
+              value: currentCarga?.cedula,
+              placeholder: "Ingrese la cédula del chofer",
+              onSave: handleFieldSave,
+              currentUser,
+              editHistory: currentCarga?.editHistory,
+              setShowSuggestions,
+              setOnEdit,
+              onEdit,
+              formatValue: (cedula) => {
+                const cleanedCedula = cedula.replace(/\D/g, "");
+                const parts = [];
+                for (let i = cleanedCedula.length; i > 0; i -= 3) {
+                  parts.unshift(cleanedCedula.slice(Math.max(0, i - 3), i));
+                }
+                return parts.join(".");
+              },
+            })}
           />
 
           <h2>Vehículo:</h2>
 
           {/****** Placa ******/}
           <EditableField
-            fieldName="placa"
-            label="Placa"
-            value={currentCarga?.placa}
-            placeholder="Ingrese la placa del vehículo"
-            onSave={handleFieldSave}
-            currentUser={currentUser}
-            editHistory={currentCarga?.editHistory}
-            formatValue={(placa) => placa.toUpperCase()}
-            setShowSuggestions={setShowSuggestions}
-            setOnEdit={setOnEdit}
-            onEdit={onEdit}
+            {...editableFieldProps({
+              fieldName: "placa",
+              label: "Placa",
+              value: currentCarga?.placa,
+              placeholder: "Ingrese la placa del vehículo",
+              onSave: handleFieldSave,
+              currentUser,
+              editHistory: currentCarga?.editHistory,
+              setShowSuggestions,
+              setOnEdit,
+              onEdit,
+              formatValue: (placa) => placa.toUpperCase(),
+            })}
           />
 
           {/****** Marca ******/}
           <EditableField
-            fieldName="marcaVehiculo"
-            label="Marca"
-            value={currentCarga?.marcaVehiculo}
-            placeholder="Ingrese la marca del vehículo"
-            onSave={handleFieldSave}
-            currentUser={currentUser}
-            editHistory={currentCarga?.editHistory}
-            formatValue={capitalizeWords}
-            setShowSuggestions={setShowSuggestions}
-            setOnEdit={setOnEdit}
-            onEdit={onEdit}
+            {...editableFieldProps({
+              fieldName: "marcaVehiculo",
+              label: "Marca",
+              value: currentCarga?.marcaVehiculo,
+              placeholder: "Ingrese la marca del vehículo",
+              onSave: handleFieldSave,
+              currentUser,
+              editHistory: currentCarga?.editHistory,
+              setShowSuggestions,
+              setOnEdit,
+              onEdit,
+              formatValue: capitalizeWords,
+            })}
           />
 
           {/****** Therno King ******/}

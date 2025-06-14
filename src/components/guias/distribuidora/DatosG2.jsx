@@ -18,7 +18,10 @@ import { useEstados } from "../../../contexts/EstadosContext";
 const DatosG2 = () => {
   const { cargas, setCargas, cargaActual, proveedor } = useEstados();
   const guardar = useGuardar(setCargas);
-  const currentCarga = cargas[PROVIDER_MAP[proveedor]]?.[cargaActual - 1] || {};
+
+  const currentCarga = cargas
+    ? cargas[PROVIDER_MAP[proveedor]]?.[cargaActual - 1] || {}
+    : {};
   const [suggestions, setSuggestions] = useState([]);
   const [selectedCompany, setSelectedCompany] = useState(() => {
     if (currentCarga?.destino) {
@@ -78,7 +81,8 @@ const DatosG2 = () => {
     }
   }, [currentCarga]);
 
-  if (loading) {
+  // Guard: show loading spinner if cargas is not loaded yet
+  if (!cargas || loading) {
     return <LoadingSpinner />;
   }
 

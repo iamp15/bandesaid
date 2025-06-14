@@ -11,11 +11,15 @@ import { useNavigate } from "react-router-dom";
 import { checkOnlineStatus } from "../../utils/OnlineStatus";
 import "../../styles/controlCalidad/ControlCalidad1.css";
 import { useEstados } from "../../contexts/EstadosContext";
+import LoadingSpinner from "../LoadingSpinner";
 
 const ControlCalidad1 = () => {
   const { cargas, setCargas, cargaActual, proveedor } = useEstados();
   const key = PROVIDER_MAP[proveedor];
-  const currentCarga = cargas[key]?.[cargaActual - 1] || {};
+  const currentCarga =
+    cargas && cargas[key]?.[cargaActual - 1]
+      ? cargas[key]?.[cargaActual - 1]
+      : {};
   const guardar = useGuardar(setCargas);
   const [thermoKingStatus, setThermoKingStatus] = useState(
     currentCarga?.tk || "Si"
@@ -35,6 +39,16 @@ const ControlCalidad1 = () => {
 
   if (!proveedor || !cargaActual) {
     navigate("/despachos");
+  }
+
+  if (!currentUser || !cargas) {
+    return (
+      <div className="wrap-container">
+        <div className="menu">
+          <LoadingSpinner />
+        </div>
+      </div>
+    );
   }
 
   const saveData = (fieldName, newValue) => {

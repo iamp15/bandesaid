@@ -27,8 +27,12 @@ import Distribucion from "./components/formatos/Distribucion";
 import SelectorFormatos from "./components/formatos/SelectorFormatos";
 import MenuConfiguracion from "./components/configuracion/MenuConfiguracion";
 import LogViewer from "./components/configuracion/logs/LogViewer";
+import { useEstados } from "./contexts/EstadosContext";
+import Pruebas from "./components/configuracion/Pruebas";
 
 function App() {
+  const { cargas } = useEstados();
+  console.log(cargas);
   return (
     <>
       <Navbar />
@@ -200,6 +204,7 @@ function App() {
               </ProtectedRoute>
             }
           />
+          <Route path="/pruebas" element={<Pruebas />} />
         </Routes>
         <footer>Creado por ©iamp15 2024. Todos los derechos reservados.</footer>
       </div>

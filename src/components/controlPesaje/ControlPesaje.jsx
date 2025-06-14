@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { PROVIDER_MAP } from "../../constants/constants";
 import { useGuardar } from "../../hooks/useGuardar";
@@ -8,22 +8,40 @@ import { useNavigate } from "react-router-dom";
 import { checkOnlineStatus } from "../../utils/OnlineStatus";
 import { useAlert } from "../alert/AlertContext";
 import { useEstados } from "../../contexts/EstadosContext";
+import LoadingSpinner from "../LoadingSpinner";
 
 const ControlPesaje = () => {
   const { cargas, setCargas, cargaActual, setCargaActual, proveedor } =
     useEstados();
   const key = PROVIDER_MAP[proveedor];
-  const currentCarga = cargas[key]?.[cargaActual - 1] || {};
+  const currentCarga = cargas ? cargas[key]?.[cargaActual - 1] : {};
   const guardar = useGuardar(setCargas);
-  const [thermoKingStatus, setThermoKingStatus] = useState(
-    currentCarga?.tk === "Si" ? "Si" : "No"
-  );
   const { currentUser } = useAuth();
   const navigate = useNavigate();
   const { addAlert } = useAlert();
 
+  // Always sync thermoKingStatus with currentCarga.tk
+  const [thermoKingStatus, setThermoKingStatus] = useState(
+    currentCarga?.tk === "Si" ? "Si" : "No"
+  );
+
+  // Sync thermoKingStatus with currentCarga.tk when currentCarga changes
+  useEffect(() => {
+    setThermoKingStatus(currentCarga?.tk === "Si" ? "Si" : "No");
+  }, [currentCarga?.tk]);
+
   if (!proveedor || !cargaActual) {
     navigate("/despachos");
+  }
+
+  if (!currentUser || !cargas) {
+    return (
+      <div className="wrap-container">
+        <div className="menu">
+          <LoadingSpinner />
+        </div>
+      </div>
+    );
   }
 
   const handleThermoKingChange = (event) => {

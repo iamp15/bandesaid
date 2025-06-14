@@ -78,7 +78,7 @@ const EditableField = ({
               className="edit-input"
               type="text"
               id={fieldName}
-              value={editValue}
+              value={editValue || ""}
               onChange={(e) => {
                 setEditValue(e.target.value);
                 if (onChange) onChange(e); // Call onChange if provided

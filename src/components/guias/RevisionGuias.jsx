@@ -10,7 +10,7 @@ import { useEstados } from "../../contexts/EstadosContext";
 const RevisionGuias = () => {
   const { cargas, cargaActual, proveedor } = useEstados();
   const mapeo = PROVIDER_MAP[proveedor];
-  const infoCarga = cargas[mapeo]?.[cargaActual - 1];
+  const infoCarga = cargas ? cargas[mapeo]?.[cargaActual - 1] : [];
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
 
@@ -21,7 +21,7 @@ const RevisionGuias = () => {
     }
   }, [infoCarga]);
 
-  if (isLoading) {
+  if (isLoading || !infoCarga) {
     return (
       <div className="wrap-container">
         <div className="menu">

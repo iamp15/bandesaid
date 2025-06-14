@@ -22,7 +22,7 @@ export const useGuardar = (setCargas) => {
         Object.fromEntries(filteredData)
       )}`
     );
-
+    console.log("carga local actualizada");
     navigate(nextRoute);
   };
 

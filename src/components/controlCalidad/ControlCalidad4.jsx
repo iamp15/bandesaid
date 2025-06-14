@@ -14,10 +14,23 @@ const ControlCalidad4 = () => {
   const { cargas, setCargaActual, cargaActual, proveedor } = useEstados();
   const navigate = useNavigate();
   const mapeo = PROVIDER_MAP[proveedor];
-  const infoCarga = cargas[mapeo]?.[cargaActual - 1] || {};
+  const infoCarga =
+    cargas && cargas[mapeo]?.[cargaActual - 1]
+      ? cargas[mapeo]?.[cargaActual - 1]
+      : {};
 
   if (!proveedor || !cargaActual) {
     navigate("/despachos");
+  }
+
+  if (!infoCarga) {
+    return (
+      <div className="wrap-container">
+        <div className="menu">
+          <LoadingSpinner />
+        </div>
+      </div>
+    );
   }
 
   const numeracion = () => {

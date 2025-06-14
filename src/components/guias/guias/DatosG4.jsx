@@ -36,14 +36,20 @@ const DatosG4 = () => {
     guias_precintos.precintos === "" ? "" : Number(guias_precintos.precintos);
 
   const { loading, currentUser } = useAuth();
-  const currentCarga = cargas[mapeo]?.[cargaActual - 1] || {};
   const [showNotification, setShowNotification] = useState(null);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [onEdit, setOnEdit] = useState(null);
   const navigate = useNavigate();
   const { addAlert } = useAlert();
 
+  // Always define currentCarga, even if cargas is not loaded yet
+  const currentCarga =
+    cargas && cargas[mapeo]?.[cargaActual - 1]
+      ? cargas[mapeo][cargaActual - 1]
+      : {};
+
   useEffect(() => {
+    if (!cargas) return;
     const initialCodigos =
       cargas[mapeo]?.[cargaActual - 1]?.codigos_guias || [];
     const initialPesos = cargas[mapeo]?.[cargaActual - 1]?.pesos_guias || [];
@@ -58,7 +64,7 @@ const DatosG4 = () => {
     }));
   }, [cargas, cargaActual, mapeo, setGuias_precintos]);
 
-  if (loading) {
+  if (loading || !currentUser || !cargas) {
     return <LoadingSpinner />;
   }
 
@@ -281,15 +287,15 @@ const DatosG4 = () => {
               min={0}
               max={15}
               step={1}
-              value={numGuias}
+              value={numGuias === 0 ? "" : numGuias}
               onChange={handleGuiasChange}
               placeholder="Ingrese la cantidad de guías"
             />
           </div>
           <NumGuias
             num={numGuias}
-            codigos={codigos}
-            pesos={pesos}
+            codigos={codigos.map((c) => c ?? "")}
+            pesos={pesos.map((p) => p ?? "")}
             onGuideNumberChange={handleGuideNumberChange}
             onGuideWeightChange={handleGuideWeightChange}
           />
@@ -314,7 +320,7 @@ const DatosG4 = () => {
               min={0}
               max={15}
               step={1}
-              value={numPrecintos}
+              value={numPrecintos === 0 ? "" : numPrecintos}
               onChange={handlePrecintosChange}
               placeholder="Ingrese la cantidad de precintos"
             />
@@ -326,7 +332,7 @@ const DatosG4 = () => {
             mapeo={mapeo}
             cargaActual={cargaActual}
             onPrecintoNumberChange={handlePrecintoNumberChange}
-            precintos={precintos}
+            precintos={precintos.map((p) => p ?? "")}
           />
 
           {numPrecintos > 0 && (
@@ -344,7 +350,7 @@ const DatosG4 = () => {
           <EditableField
             fieldName="id_despacho"
             label="ID despacho"
-            value={currentCarga.id_despacho}
+            value={currentCarga.id_despacho ?? ""}
             onSave={handleFieldSave}
             placeholder={"Ingresa el ID del despacho"}
             currentUser={currentUser}

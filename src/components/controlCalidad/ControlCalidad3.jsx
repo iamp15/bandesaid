@@ -11,12 +11,16 @@ import { decimalComma, decimalPeriod } from "../../utils/FormatDecimal";
 import { checkOnlineStatus } from "../../utils/OnlineStatus";
 import "../../styles/ControlCalidad/ControlCalidad3.css";
 import { useEstados } from "../../contexts/EstadosContext";
+import LoadingSpinner from "../LoadingSpinner";
 
 const ControlCalidad3 = () => {
   const { cargas, setCargas, cargaActual, setCargaActual, proveedor } =
     useEstados();
   const mapeo = PROVIDER_MAP[proveedor];
-  const infoCarga = cargas[mapeo]?.[cargaActual - 1] || {};
+  const infoCarga =
+    cargas && cargas[mapeo][cargaActual - 1]
+      ? cargas[mapeo][cargaActual - 1]
+      : {};
   const navigate = useNavigate();
   const [muestras, setMuestras] = useState(0);
   const [temperaturas, setTemperaturas] = useState(
@@ -41,6 +45,16 @@ const ControlCalidad3 = () => {
 
   if (!proveedor || !cargaActual) {
     navigate("/despachos");
+  }
+
+  if (!currentUser || !cargas) {
+    return (
+      <div className="wrap-container">
+        <div className="menu">
+          <LoadingSpinner />
+        </div>
+      </div>
+    );
   }
 
   const promedio = (valores) => {

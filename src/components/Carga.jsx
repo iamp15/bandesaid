@@ -2,31 +2,19 @@
 import CuadroCargas from "./CuadroCargas";
 import { formatDate } from "../utils/FormatDate";
 import { useAlert } from "./alert/AlertContext";
-import { Link } from "react-router-dom";
 import { useAuth } from "./login/AuthContext";
 import LoadingSpinner from "./LoadingSpinner";
 import { saveLog } from "../utils/LogSystem";
-import { useEffect, useState } from "react";
 import { PROVIDER_MAP } from "../constants/constants";
 import { useEstados } from "../contexts/EstadosContext";
 
 const Carga = () => {
-  const { cargas, setCargas, rol, proveedor } = useEstados();
+  const { cargas, setCargas, proveedor } = useEstados();
   const { askConfirmation, addAlert } = useAlert();
   const { currentUser, loading } = useAuth(); // Get current user
-  const [isLoading, setIsLoading] = useState(true);
   const key = PROVIDER_MAP[proveedor];
 
-  useEffect(() => {
-    if (cargas[key]) {
-      setTimeout(() => {
-        setIsLoading(false);
-      }, 1000); // Show spinner for 1 seconds
-    }
-  }, [cargas, proveedor, key]);
-
   if (loading) return <LoadingSpinner />;
-  if (isLoading) return <LoadingSpinner />;
 
   const checkOnlineStatus = () => {
     return navigator.onLine;
@@ -127,7 +115,7 @@ const Carga = () => {
             eliminarCarga={eliminarCarga}
           />
         )}
-        {!isLoading && !loading && (
+        {!loading && (
           <button className="crear-carga-button" onClick={aggCarga}>
             Crear nueva carga
           </button>
@@ -138,21 +126,7 @@ const Carga = () => {
 
   return (
     <div className="wrap-container">
-      <div className="menu">
-        {rol && proveedor ? (
-          renderCargas()
-        ) : (
-          <div className="error">
-            <span>⚠️</span>
-            <p>Aun no has seleccionado un rol</p>
-            <div className="button-group">
-              <Link to="/despachos">
-                <button>Volver</button>
-              </Link>
-            </div>
-          </div>
-        )}
-      </div>
+      <div className="menu">{cargas ? renderCargas() : <LoadingSpinner />}</div>
     </div>
   );
 };

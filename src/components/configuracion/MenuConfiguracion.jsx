@@ -15,6 +15,9 @@ const MenuConfiguracion = () => {
           <Link to={"/logviewer"}>
             <button>Administrar Logs</button>
           </Link>
+          <Link to={"/pruebas"}>
+            <button>Pruebas</button>
+          </Link>
           <button onClick={limpiarMemoria}>Limpiar memoria</button>
         </div>
         <div className="button-group">

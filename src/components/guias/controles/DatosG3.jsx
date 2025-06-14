@@ -18,7 +18,12 @@ import { useEstados } from "../../../contexts/EstadosContext";
 const DatosG3 = () => {
   const { cargas, setCargas, cargaActual, proveedor } = useEstados();
   const guardar = useGuardar(setCargas);
-  const currentCarga = cargas[PROVIDER_MAP[proveedor]]?.[cargaActual - 1] || {};
+
+  // Always define currentCarga, even if cargas is not loaded yet
+  const currentCarga = cargas
+    ? cargas[PROVIDER_MAP[proveedor]]?.[cargaActual - 1]
+    : {};
+
   const [chickenBrand, setChickenBrand] = useState(
     currentCarga?.marca_rubro || MARCA[0].nombre
   );
@@ -29,7 +34,8 @@ const DatosG3 = () => {
   const navigate = useNavigate();
   const { addAlert } = useAlert();
 
-  if (loading) {
+  // Early return for loading state
+  if (loading || !currentUser || !cargas) {
     return <LoadingSpinner />;
   }
 

@@ -15,12 +15,17 @@ import LoadingSpinner from "../LoadingSpinner";
 import { useEstados } from "../../contexts/EstadosContext";
 
 const FormulariosGuia = () => {
-  const { cargas, cargaActual, proveedor } = useEstados();
+  const { cargas, cargaActual, setCargaActual, proveedor } = useEstados();
   const mapeo = PROVIDER_MAP[proveedor];
-  const infoCarga = cargas[mapeo]?.[cargaActual - 1];
-  const numGuias = infoCarga?.codigos_guias.length || 1;
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
+
+  // Always define infoCarga and numGuias, even if cargas is not loaded yet
+  const infoCarga =
+    cargas && cargas[mapeo]?.[cargaActual - 1]
+      ? cargas[mapeo][cargaActual - 1]
+      : {};
+  const numGuias = infoCarga?.codigos_guias?.length || 1;
 
   useEffect(() => {
     // Check if we have all required data
@@ -29,7 +34,8 @@ const FormulariosGuia = () => {
     }
   }, [infoCarga]);
 
-  if (isLoading) {
+  // Guard: show loading spinner if cargas is not loaded yet or still loading
+  if (!cargas || isLoading) {
     return (
       <div className="wrap-container">
         <div className="menu">

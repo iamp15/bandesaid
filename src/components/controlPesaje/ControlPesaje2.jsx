@@ -12,20 +12,31 @@ import { checkOnlineStatus } from "../../utils/OnlineStatus";
 import { useAlert } from "../alert/AlertContext";
 import "../../styles/pesaje/ControlPesaje2.css";
 import { useEstados } from "../../contexts/EstadosContext";
+import LoadingSpinner from "../LoadingSpinner";
 
 const ControlPesaje2 = () => {
   const { cargas, setCargas, cargaActual, proveedor } = useEstados();
   const key = PROVIDER_MAP[proveedor];
-  const currentCarga = cargas[key]?.[cargaActual - 1] || {};
+  const currentCarga = cargas ? cargas[key]?.[cargaActual - 1] : {};
   const guardar = useGuardar(setCargas);
   const { currentUser } = useAuth();
-  const [showSuggestions, setShowSuggestions] = useState(false);
   const [onEdit, setOnEdit] = useState(null);
   const navigate = useNavigate();
   const { addAlert } = useAlert();
+  const [showSuggestions, setShowSuggestions] = useState(false);
 
   if (!proveedor || !cargaActual) {
     navigate("/despachos");
+  }
+
+  if (!currentUser || !cargas) {
+    return (
+      <div className="wrap-container">
+        <div className="menu">
+          <LoadingSpinner />
+        </div>
+      </div>
+    );
   }
 
   const handleSubmit = (e) => {
@@ -34,6 +45,28 @@ const ControlPesaje2 = () => {
       alert("Por favor, guarda los cambios antes de continuar");
       return;
     }
+
+    // Warn if difference between p_total and p_verificado is greater than 5
+    const parseNumber = (val) => {
+      if (typeof val === "string") {
+        return Number(val.replace(/\./g, "").replace(",", "."));
+      }
+      return Number(val);
+    };
+    const pTotal = parseNumber(currentCarga?.p_total);
+    const pVerificado = parseNumber(currentCarga?.p_verificado);
+    if (
+      !isNaN(pTotal) &&
+      !isNaN(pVerificado) &&
+      Math.abs(pTotal - pVerificado) > 5
+    ) {
+      addAlert(
+        "La diferencia entre el peso total y el peso verificado es mayor a 5 kg. Por favor, revisa los valores.",
+        "warning"
+      );
+      return;
+    }
+
     navigate("/pesaje3");
   };
 
@@ -136,9 +169,9 @@ const ControlPesaje2 = () => {
             currentUser={currentUser}
             editHistory={currentCarga?.editHistory}
             formatValue={formatNumber}
-            setShowSuggestions={setShowSuggestions}
             setOnEdit={setOnEdit}
             onEdit={onEdit}
+            setShowSuggestions={setShowSuggestions}
           />
 
           <EditableField
@@ -150,9 +183,9 @@ const ControlPesaje2 = () => {
             currentUser={currentUser}
             editHistory={currentCarga?.editHistory}
             formatValue={formatNumber}
-            setShowSuggestions={setShowSuggestions}
             setOnEdit={setOnEdit}
             onEdit={onEdit}
+            setShowSuggestions={setShowSuggestions}
           />
 
           <div className="button-group">

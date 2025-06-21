@@ -30,13 +30,13 @@ const CuadroCargas = ({ cargas, eliminarCarga }) => {
           {cargas.map((carga, index) => (
             <div key={carga.id || index} className="carga-button-group">
               <Link to={ruta()}>
-                <button onClick={() => setCargaActual(carga.id || index + 1)}>
-                  Carga #{carga.id || index + 1}
+                <button onClick={() => setCargaActual(index + 1)}>
+                  Carga #{index + 1}
                 </button>
               </Link>
               <button
                 className="eliminar-button"
-                onClick={() => eliminarCarga(carga.id || index)}
+                onClick={() => eliminarCarga(carga.id)}
               >
                 x
               </button>

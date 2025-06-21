@@ -1,7 +1,6 @@
 /* eslint-disable react/prop-types */
 import { Link } from "react-router-dom";
 import { PROVIDER_MAP } from "../../../constants/constants";
-import { useGuardar } from "../../../hooks/useGuardar";
 import { capitalizeWords } from "../../../utils/Capitalizer";
 import "../../../styles/guias/DatosG1.css";
 import { useAuth } from "../../login/AuthContext";
@@ -15,14 +14,17 @@ import { useEstados } from "../../../contexts/EstadosContext";
 import { editableFieldProps } from "../../../utils/editableFieldProps";
 
 const DatosG1 = () => {
-  const { cargas, setCargas, cargaActual, setCargaActual, proveedor } =
+  const { cargas, updateCargaField, cargaActual, setCargaActual, proveedor } =
     useEstados();
-  const guardar = useGuardar(setCargas);
   const { currentUser, loading } = useAuth();
   const navigate = useNavigate();
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [onEdit, setOnEdit] = useState(null);
   const { addAlert } = useAlert();
+  const key_prov = PROVIDER_MAP[proveedor];
+  const [formData, setFormData] = useState(
+    cargas[key_prov][cargaActual - 1] || {}
+  );
 
   // Navigation side effect
   useEffect(() => {
@@ -31,13 +33,14 @@ const DatosG1 = () => {
     }
   }, [proveedor, cargaActual, navigate]);
 
+  // Keep formData in sync with cargas for real-time updates
+  useEffect(() => {
+    setFormData(cargas[key_prov][cargaActual - 1] || {});
+    console.log("Form data updated:", cargas[key_prov][cargaActual - 1]);
+  }, [cargas, key_prov, cargaActual]);
+
   // Single check for loading state
   if (loading || !cargas) return <LoadingSpinner />;
-
-  const key = PROVIDER_MAP[proveedor];
-
-  // Get the current carga based on cargaActual and proveedor
-  const currentCarga = cargas[key]?.[cargaActual - 1] || {};
 
   // Helper for online status check
   const requireOnline = () => {
@@ -51,36 +54,22 @@ const DatosG1 = () => {
     return true;
   };
 
-  const handleFieldSave = (fieldName, newValue) => {
+  const handleFieldSave = async (name, value) => {
     if (!requireOnline()) return;
-    const newData = {
-      [fieldName]: newValue,
+    const updatedData = {
+      ...formData,
+      [name]: value,
       editHistory: {
-        ...currentCarga?.editHistory,
-        [fieldName]: {
-          value: newValue,
+        ...formData.editHistory,
+        [name]: {
+          value,
           editedBy: currentUser.name,
           editedAt: new Date().toISOString(),
         },
       },
     };
-    guardar(proveedor, cargaActual, "", newData);
-  };
-
-  const tkChange = (e) => {
-    if (!requireOnline()) return;
-    const newData = {
-      tk: e.target.value,
-      editHistory: {
-        ...currentCarga?.editHistory,
-        tk: {
-          value: e.target.value,
-          editedBy: currentUser.name,
-          editedAt: new Date().toISOString(),
-        },
-      },
-    };
-    guardar(proveedor, cargaActual, "", newData);
+    setFormData(updatedData);
+    await updateCargaField(key_prov, formData.id, updatedData);
   };
 
   const handleContinue = () => {
@@ -101,11 +90,11 @@ const DatosG1 = () => {
             {...editableFieldProps({
               fieldName: "chofer",
               label: "Nombre",
-              value: currentCarga?.chofer,
+              value: formData?.chofer,
               placeholder: "Ingrese el nombre del chofer",
               onSave: handleFieldSave,
               currentUser,
-              editHistory: currentCarga?.editHistory,
+              editHistory: formData?.editHistory,
               setShowSuggestions,
               setOnEdit,
               onEdit,
@@ -118,11 +107,11 @@ const DatosG1 = () => {
             {...editableFieldProps({
               fieldName: "cedula",
               label: "Cédula",
-              value: currentCarga?.cedula,
+              value: formData?.cedula,
               placeholder: "Ingrese la cédula del chofer",
               onSave: handleFieldSave,
               currentUser,
-              editHistory: currentCarga?.editHistory,
+              editHistory: formData?.editHistory,
               setShowSuggestions,
               setOnEdit,
               onEdit,
@@ -144,11 +133,11 @@ const DatosG1 = () => {
             {...editableFieldProps({
               fieldName: "placa",
               label: "Placa",
-              value: currentCarga?.placa,
+              value: formData?.placa,
               placeholder: "Ingrese la placa del vehículo",
               onSave: handleFieldSave,
               currentUser,
-              editHistory: currentCarga?.editHistory,
+              editHistory: formData?.editHistory,
               setShowSuggestions,
               setOnEdit,
               onEdit,
@@ -161,11 +150,11 @@ const DatosG1 = () => {
             {...editableFieldProps({
               fieldName: "marcaVehiculo",
               label: "Marca",
-              value: currentCarga?.marcaVehiculo,
+              value: formData?.marcaVehiculo,
               placeholder: "Ingrese la marca del vehículo",
               onSave: handleFieldSave,
               currentUser,
-              editHistory: currentCarga?.editHistory,
+              editHistory: formData?.editHistory,
               setShowSuggestions,
               setOnEdit,
               onEdit,
@@ -180,23 +169,24 @@ const DatosG1 = () => {
           <select
             name="tk"
             id="tk"
-            value={currentCarga?.tk === "Si" ? "Si" : "No"}
-            onChange={tkChange}
+            value={formData?.tk === "Si" ? "Si" : "No"}
+            onChange={handleFieldSave}
           >
             <option value="Si">Sí</option>
             <option value="No">No</option>
           </select>
-          {currentCarga.editHistory?.tk && (
+          {formData.editHistory?.tk && (
             <p className="autor">
-              Editado por: {currentCarga.editHistory.tk.editedBy}
+              Editado por: {formData.editHistory.tk.editedBy}
               {" a las "}
-              {new Date(
-                currentCarga.editHistory.tk.editedAt
-              ).toLocaleTimeString("es-ES", {
-                hour: "2-digit",
-                minute: "2-digit",
-                hour12: true, // This ensures 24-hour format
-              })}
+              {new Date(formData.editHistory.tk.editedAt).toLocaleTimeString(
+                "es-ES",
+                {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  hour12: true, // This ensures 24-hour format
+                }
+              )}
             </p>
           )}
 

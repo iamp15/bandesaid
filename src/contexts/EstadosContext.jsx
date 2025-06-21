@@ -1,6 +1,13 @@
 import { createContext, useState, useEffect, useContext } from "react";
-// Import Firestore dependencies
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import {
+  collection,
+  getDocs,
+  addDoc,
+  updateDoc,
+  doc,
+  deleteDoc,
+  onSnapshot,
+} from "firebase/firestore";
 import { db } from "../firebase/config";
 import { formatDate2 } from "../utils/FormatDate";
 
@@ -12,40 +19,83 @@ export function useEstados() {
 
 // eslint-disable-next-line react/prop-types
 export const EstadosProvider = ({ children }) => {
-  const [cargas, setCargas] = useState(null); // Start as null to indicate loading
+  const [cargas, setCargas] = useState({
+    id: formatDate2(),
+    tr: [],
+    tg: [],
+    al: [],
+    av: [],
+    an: [],
+  });
   const todayId = formatDate2();
+  const providers = ["tr", "tg", "al", "av", "an"];
 
+  // Fetch cargas from all provider subcollections for today (real-time)
   useEffect(() => {
-    const fetchCargas = async () => {
-      const cargasDocRef = doc(db, "cargas", todayId);
-      const cargasSnap = await getDoc(cargasDocRef);
-      if (cargasSnap.exists()) {
-        setCargas(cargasSnap.data());
-      } else {
-        setCargas({
-          id: todayId,
-          tr: [],
-          tg: [],
-          al: [],
-          av: [],
-          an: [],
-        });
-      }
+    const unsubscribes = [];
+    const newCargas = { id: todayId, tr: [], tg: [], al: [], av: [], an: [] };
+    providers.forEach((prov) => {
+      const provColRef = collection(db, "cargas", todayId, prov);
+      const unsubscribe = onSnapshot(provColRef, (provSnap) => {
+        newCargas[prov] = provSnap.docs.map((d) => ({
+          id: d.id,
+          ...d.data(),
+        }));
+        setCargas({ ...newCargas });
+      });
+      unsubscribes.push(unsubscribe);
+    });
+    return () => {
+      unsubscribes.forEach((unsub) => unsub());
     };
-    fetchCargas();
   }, [todayId]);
 
-  // Sync cargas to Firestore when it changes (and is not null)
-  useEffect(() => {
-    if (cargas !== null) {
-      const updateCargas = async () => {
-        const cargasDocRef = doc(db, "cargas", todayId);
-        await setDoc(cargasDocRef, cargas);
-      };
-      updateCargas();
-      console.log("Cargas updated in Firestore");
+  // Add a new carga for a provider
+  const addCarga = async (provider, cargaData) => {
+    const provColRef = collection(db, "cargas", todayId, provider);
+    const docRef = await addDoc(provColRef, cargaData);
+    setCargas((prev) => ({
+      ...prev,
+      [provider]: [...(prev[provider] || []), { id: docRef.id, ...cargaData }],
+    }));
+  };
+
+  // Update specific fields of a carga (field-level update)
+  const updateCargaField = async (provider, cargaId, updatedFields) => {
+    console.log(
+      `Updating carga ${cargaId} for provider ${provider} with fields:`,
+      updatedFields
+    );
+    const cargaDocRef = doc(db, "cargas", todayId, provider, cargaId);
+    await updateDoc(cargaDocRef, updatedFields);
+    setCargas((prev) => ({
+      ...prev,
+      [provider]: prev[provider].map((carga) =>
+        carga.id === cargaId ? { ...carga, ...updatedFields } : carga
+      ),
+    }));
+  };
+
+  const deleteCarga = async (provider, cargaId) => {
+    try {
+      const cargaDocRef = doc(db, "cargas", todayId, provider, cargaId);
+      console.log("Deleting carga at:", cargaDocRef.path);
+      await deleteDoc(cargaDocRef);
+      setCargas((prev) => {
+        const updatedProviderCargas = Array.isArray(prev[provider])
+          ? prev[provider].filter((carga) => carga.id !== cargaId)
+          : [];
+        const newState = {
+          ...prev,
+          [provider]: updatedProviderCargas,
+        };
+        console.log("Updated cargas state after delete:", newState);
+        return newState;
+      });
+    } catch (error) {
+      console.error("Error deleting carga:", error);
     }
-  }, [cargas, todayId]);
+  };
 
   const [cargaActual, setCargaActual] = useState(() => {
     // Initialize cargaActual from sessionStorage or use default value
@@ -92,7 +142,10 @@ export const EstadosProvider = ({ children }) => {
 
   const values = {
     cargas,
-    setCargas,
+    setCargas, // Optional: you may want to restrict direct usage
+    addCarga,
+    updateCargaField,
+    deleteCarga,
     cargaActual,
     setCargaActual,
     rol,

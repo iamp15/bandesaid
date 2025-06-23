@@ -1,6 +1,4 @@
-/* eslint-disable react/prop-types */
 import { Link } from "react-router-dom";
-import { useGuardar } from "../../../hooks/useGuardar";
 import { PROVIDER_MAP } from "../../../constants/constants";
 import { useState, useEffect } from "react";
 import { capitalizeWords } from "../../../utils/Capitalizer";
@@ -16,12 +14,9 @@ import { useAlert } from "../../alert/AlertContext";
 import { useEstados } from "../../../contexts/EstadosContext";
 
 const DatosG2 = () => {
-  const { cargas, setCargas, cargaActual, proveedor } = useEstados();
-  const guardar = useGuardar(setCargas);
-
-  const currentCarga = cargas
-    ? cargas[PROVIDER_MAP[proveedor]]?.[cargaActual - 1] || {}
-    : {};
+  const { cargaActual, proveedor, updateCargaField, currentCarga } =
+    useEstados();
+  const key_prov = PROVIDER_MAP[proveedor];
   const [suggestions, setSuggestions] = useState([]);
   const [selectedCompany, setSelectedCompany] = useState(() => {
     if (currentCarga?.destino) {
@@ -82,7 +77,7 @@ const DatosG2 = () => {
   }, [currentCarga]);
 
   // Guard: show loading spinner if cargas is not loaded yet
-  if (!cargas || loading) {
+  if (!currentCarga || loading || !currentCarga.id) {
     return <LoadingSpinner />;
   }
 
@@ -109,7 +104,9 @@ const DatosG2 = () => {
       codigo_espejo: selectedCompany?.codigo || "N/A",
     };
 
-    guardar(proveedor, cargaActual, "/datosG3", newData);
+    updateCargaField(key_prov, currentCarga.id, newData).then(() =>
+      navigate("/datosg3")
+    );
   };
 
   const handleEmpresaInput = (e) => {
@@ -141,19 +138,20 @@ const DatosG2 = () => {
     }
   };
 
-  const handleFieldSave = (fieldName, newValue) => {
-    const newData = {
-      [fieldName]: newValue,
+  const handleFieldSave = (name, value) => {
+    const updatedData = {
+      ...currentCarga,
+      [name]: value,
       editHistory: {
-        ...currentCarga?.editHistory,
-        [fieldName]: {
-          value: newValue,
+        ...currentCarga.editHistory,
+        [name]: {
+          value,
           editedBy: currentUser.name,
           editedAt: new Date().toISOString(),
         },
       },
     };
-    guardar(proveedor, cargaActual, "", newData);
+    updateCargaField(key_prov, currentCarga.id, updatedData);
   };
 
   return (

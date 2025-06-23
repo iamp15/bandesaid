@@ -1,7 +1,5 @@
-/* eslint-disable react/prop-types */
 import { Link } from "react-router-dom";
 import BotonCopiar from "../BotonCopiar";
-import { PROVIDER_MAP } from "../../constants/constants";
 import { GALPON, RUBRO } from "../../constants/constants";
 import "../../styles/pesaje/ControlPesaje3.css";
 import { useNavigate } from "react-router-dom";
@@ -9,25 +7,14 @@ import { useEstados } from "../../contexts/EstadosContext";
 import LoadingSpinner from "../LoadingSpinner";
 
 const ControlPesaje3 = () => {
-  const { cargas, setCargaActual, cargaActual, proveedor } = useEstados();
-  const mapeo = PROVIDER_MAP[proveedor];
-  const infoCarga = cargas ? cargas[mapeo]?.[cargaActual - 1] : {};
-
+  const { setCargaActual, cargaActual, proveedor, currentCarga } = useEstados();
   const navigate = useNavigate();
 
   if (!proveedor || !cargaActual) {
     navigate("/despachos");
   }
 
-  if (!infoCarga || !cargas) {
-    return (
-      <div className="wrap-container">
-        <div className="menu">
-          <LoadingSpinner />
-        </div>
-      </div>
-    );
-  }
+  if (!currentCarga || !currentCarga.id) return <LoadingSpinner />;
 
   const pVerificadoText = () => {
     const numeracion = () => {
@@ -42,8 +29,8 @@ const ControlPesaje3 = () => {
       `*Proveedor:* ${proveedor}\n` +
       `*Galpón:* ${GALPON}\n` +
       `*Rubro:* ${RUBRO}\n` +
-      `*Fecha:* ${infoCarga.fecha}\n` +
-      `\n✓ Peso verificado *${infoCarga.p_verificado} kg*`
+      `*Fecha:* ${currentCarga.fecha}\n` +
+      `\n✓ Peso verificado *${currentCarga.p_verificado} kg*`
     );
   };
 
@@ -54,11 +41,11 @@ const ControlPesaje3 = () => {
         <div className="pesos">
           <p>
             Petotal de la carga:{" "}
-            <span className="negrita">{infoCarga.p_total} kg</span>
+            <span className="negrita">{currentCarga.p_total} kg</span>
           </p>
           <p>
             Peso verificado:{" "}
-            <span className="negrita">{infoCarga.p_verificado} kg</span>
+            <span className="negrita">{currentCarga.p_verificado} kg</span>
           </p>
         </div>
         <BotonCopiar text1={pVerificadoText()} text2={"Copiar formato"} />

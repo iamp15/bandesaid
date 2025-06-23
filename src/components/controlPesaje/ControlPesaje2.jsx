@@ -1,6 +1,4 @@
-/* eslint-disable react/prop-types */
 import BotonCopiar from "../BotonCopiar";
-import { useGuardar } from "../../hooks/useGuardar";
 import { PROVIDER_MAP, GALPON, RUBRO } from "../../constants/constants";
 import { formatNumber } from "../../utils/FormatNumber";
 import { Link } from "react-router-dom";
@@ -15,10 +13,9 @@ import { useEstados } from "../../contexts/EstadosContext";
 import LoadingSpinner from "../LoadingSpinner";
 
 const ControlPesaje2 = () => {
-  const { cargas, setCargas, cargaActual, proveedor } = useEstados();
+  const { cargaActual, proveedor, currentCarga, updateCargaField } =
+    useEstados();
   const key = PROVIDER_MAP[proveedor];
-  const currentCarga = cargas ? cargas[key]?.[cargaActual - 1] : {};
-  const guardar = useGuardar(setCargas);
   const { currentUser } = useAuth();
   const [onEdit, setOnEdit] = useState(null);
   const navigate = useNavigate();
@@ -29,15 +26,7 @@ const ControlPesaje2 = () => {
     navigate("/despachos");
   }
 
-  if (!currentUser || !cargas) {
-    return (
-      <div className="wrap-container">
-        <div className="menu">
-          <LoadingSpinner />
-        </div>
-      </div>
-    );
-  }
+  if (!currentCarga || !currentCarga.id) return <LoadingSpinner />;
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -117,6 +106,7 @@ const ControlPesaje2 = () => {
       return;
     }
     const newData = {
+      ...currentCarga,
       [fieldName]: newValue,
       editHistory: {
         ...currentCarga?.editHistory,
@@ -127,7 +117,7 @@ const ControlPesaje2 = () => {
         },
       },
     };
-    guardar(proveedor, cargaActual, "", newData);
+    updateCargaField(key, currentCarga.id, newData);
   };
 
   return (

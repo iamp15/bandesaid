@@ -1,5 +1,4 @@
-/* eslint-disable react/prop-types */
-import React, { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import CuadroCargas from "./CuadroCargas";
 import { formatDate } from "../utils/FormatDate";
 import { useAlert } from "./alert/AlertContext";
@@ -32,15 +31,22 @@ const Carga = () => {
   const [cargasLoading, setCargasLoading] = useState(true);
   // Show spinner for at least 2 seconds on mount
   const [initialLoading, setInitialLoading] = useState(true);
-  React.useEffect(() => {
+  useEffect(() => {
     const timer = setTimeout(() => setInitialLoading(false), 1500);
     return () => clearTimeout(timer);
   }, []);
   // Watch cargas[key] and set loading to false when it is loaded
-  React.useEffect(() => {
+  useEffect(() => {
     if (Array.isArray(cargas[key])) {
       setCargasLoading(false);
     }
+  }, [cargas, key]);
+
+  // Sort providerCargas by cargaNumber before rendering
+  const providerCargas = useMemo(() => {
+    return (cargas[key] || [])
+      .slice()
+      .sort((a, b) => (a.cargaNumber || 0) - (b.cargaNumber || 0));
   }, [cargas, key]);
 
   if (loading || cargasLoading || initialLoading) return <LoadingSpinner />;
@@ -48,8 +54,6 @@ const Carga = () => {
   const checkOnlineStatus = () => {
     return navigator.onLine;
   };
-
-  const providerCargas = cargas[key] || [];
 
   const handleAddCarga = async () => {
     if (!checkOnlineStatus()) {
@@ -64,7 +68,20 @@ const Carga = () => {
       return;
     }
 
-    await addCarga(key, newCargaData);
+    // Find the highest cargaNumber for this provider
+    const currentCargas = cargas[key] || [];
+    const maxCargaNumber =
+      currentCargas.length > 0
+        ? Math.max(...currentCargas.map((c) => c.cargaNumber || 0))
+        : 0;
+
+    const newCarga = {
+      ...newCargaData,
+      cargaNumber: maxCargaNumber + 1,
+    };
+    console.log(maxCargaNumber);
+
+    await addCarga(key, newCarga);
     setNewCargaData({
       chofer: "",
       fecha: formatDate(),
@@ -131,7 +148,7 @@ const Carga = () => {
               eliminarCarga={handleDeleteCarga}
             />
           )}
-          {!loading && (
+          {!loading && !cargasLoading && !initialLoading && (
             <button className="crear-carga-button" onClick={handleAddCarga}>
               Crear nueva carga
             </button>

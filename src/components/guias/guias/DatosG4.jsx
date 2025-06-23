@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import NumGuias from "./NumGuias";
 import NumPrecintos from "./NumPrecintos";
-import { useGuardar } from "../../../hooks/useGuardar";
 import { PROVIDER_MAP } from "../../../constants/constants";
 import { isValidNumber } from "../../../utils/CharLimit";
 import { formatNumber } from "../../../utils/FormatNumber";
@@ -19,17 +18,16 @@ import { useEstados } from "../../../contexts/EstadosContext";
 const DatosG4 = () => {
   const {
     cargas,
-    setCargas,
     cargaActual,
     proveedor,
     guias_precintos,
     setGuias_precintos,
+    updateCargaField,
+    currentCarga,
   } = useEstados();
   const [codigos, setCodigos] = useState([]);
   const [pesos, setPesos] = useState([]);
   const [precintos, setPrecintos] = useState([]);
-  const guardar = useGuardar(setCargas);
-  const mapeo = PROVIDER_MAP[proveedor] || "";
   const numGuias =
     guias_precintos.guias === "" ? "" : Number(guias_precintos.guias);
   const numPrecintos =
@@ -41,19 +39,15 @@ const DatosG4 = () => {
   const [onEdit, setOnEdit] = useState(null);
   const navigate = useNavigate();
   const { addAlert } = useAlert();
-
-  // Always define currentCarga, even if cargas is not loaded yet
-  const currentCarga =
-    cargas && cargas[mapeo]?.[cargaActual - 1]
-      ? cargas[mapeo][cargaActual - 1]
-      : {};
+  const key_prov = PROVIDER_MAP[proveedor];
 
   useEffect(() => {
     if (!cargas) return;
     const initialCodigos =
-      cargas[mapeo]?.[cargaActual - 1]?.codigos_guias || [];
-    const initialPesos = cargas[mapeo]?.[cargaActual - 1]?.pesos_guias || [];
-    const initialPrecintos = cargas[mapeo]?.[cargaActual - 1]?.precintos || [];
+      cargas[key_prov]?.[cargaActual - 1]?.codigos_guias || [];
+    const initialPesos = cargas[key_prov]?.[cargaActual - 1]?.pesos_guias || [];
+    const initialPrecintos =
+      cargas[key_prov]?.[cargaActual - 1]?.precintos || [];
     setCodigos(initialCodigos);
     setPesos(initialPesos);
     setPrecintos(initialPrecintos);
@@ -62,9 +56,9 @@ const DatosG4 = () => {
       guias: initialCodigos.length || "",
       precintos: initialPrecintos.length || "",
     }));
-  }, [cargas, cargaActual, mapeo, setGuias_precintos]);
+  }, [cargas, cargaActual, key_prov, setGuias_precintos]);
 
-  if (loading || !currentUser || !cargas) {
+  if (loading || !currentUser || !currentCarga || !currentCarga.id) {
     return <LoadingSpinner />;
   }
 
@@ -98,7 +92,9 @@ const DatosG4 = () => {
       precintos: precintos.length > 0 ? precintos : ["S/P"],
     };
 
-    guardar(proveedor, cargaActual, "/revisionguias", newData);
+    updateCargaField(key_prov, currentCarga.id, newData).then(() => {
+      navigate("/revisionguias");
+    });
   };
 
   const handleGuiasChange = (e) => {
@@ -201,7 +197,8 @@ const DatosG4 = () => {
       pesos_guias: pesos.map((peso) => (peso ? formatNumber(peso) : "")),
       precintos: precintos.length > 0 ? precintos : ["S/P"],
     };
-    guardar(proveedor, cargaActual, "", newData);
+    updateCargaField(key_prov, currentCarga.id, newData);
+
     setShowNotification("button1");
     setTimeout(() => setShowNotification(false), 2000); // Hide after 2 seconds
   };
@@ -217,7 +214,7 @@ const DatosG4 = () => {
     const newData = {
       precintos: precintos.length > 0 ? precintos : ["S/P"],
     };
-    guardar(proveedor, cargaActual, "", newData);
+    updateCargaField(key_prov, currentCarga.id, newData);
     setShowNotification("button2");
     setTimeout(() => setShowNotification(false), 2000); // Hide after 2 seconds
   };
@@ -228,7 +225,7 @@ const DatosG4 = () => {
       const integerPart = parts.slice(0, -1).join("").replace(/\./g, "");
       const decimalPart = parts[parts.length - 1];
       const finalValue = parseFloat(`${integerPart}.${decimalPart}`);
-      console.log(finalValue);
+
       return finalValue;
     }
     const finalValue = parseFloat(pesoStr.replace(/\./g, "").replace(",", "."));
@@ -240,13 +237,12 @@ const DatosG4 = () => {
     const peso = parsePeso(currentCarga.p_total) || 0;
 
     if (sumPesos !== peso) {
-      console.log(sumPesos, peso);
       alert(
         `Por favor verifique los pesos de las guías, la suma debiría ser igual a ${peso}.`
       );
       return false;
     }
-    console.log(sumPesos, peso);
+
     return true;
   };
 
@@ -269,7 +265,7 @@ const DatosG4 = () => {
         },
       },
     };
-    guardar(proveedor, cargaActual, "", newData);
+    updateCargaField(key_prov, currentCarga.id, newData);
   };
 
   if (showSuggestions) true;
@@ -329,7 +325,7 @@ const DatosG4 = () => {
           <NumPrecintos
             num={numPrecintos}
             cargas={cargas}
-            mapeo={mapeo}
+            mapeo={key_prov}
             cargaActual={cargaActual}
             onPrecintoNumberChange={handlePrecintoNumberChange}
             precintos={precintos.map((p) => p ?? "")}

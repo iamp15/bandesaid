@@ -1,7 +1,6 @@
 import { createContext, useState, useEffect, useContext } from "react";
 import {
   collection,
-  getDocs,
   addDoc,
   updateDoc,
   doc,
@@ -10,6 +9,7 @@ import {
 } from "firebase/firestore";
 import { db } from "../firebase/config";
 import { formatDate2 } from "../utils/FormatDate";
+import { PROVIDER_MAP } from "../constants/constants";
 
 export const EstadosContext = createContext();
 
@@ -27,8 +27,19 @@ export const EstadosProvider = ({ children }) => {
     av: [],
     an: [],
   });
+
   const todayId = formatDate2();
   const providers = ["tr", "tg", "al", "av", "an"];
+  const [currentCarga, setCurrentCarga] = useState({});
+  const [cargaActual, setCargaActual] = useState(() => {
+    // Initialize cargaActual from sessionStorage or use default value
+    const savedCargaActual = localStorage.getItem("cargaActual");
+    return savedCargaActual ? parseInt(savedCargaActual) : 0;
+  });
+  const [proveedor, setProveedor] = useState(() => {
+    const savedProveedor = localStorage.getItem("proveedor");
+    return savedProveedor ? savedProveedor : "";
+  });
 
   // Fetch cargas from all provider subcollections for today (real-time)
   useEffect(() => {
@@ -50,14 +61,19 @@ export const EstadosProvider = ({ children }) => {
     };
   }, [todayId]);
 
+  useEffect(() => {
+    const key_prov = PROVIDER_MAP[proveedor];
+    const carga = (cargas[key_prov] || []).find(
+      (c) => c.cargaNumber === cargaActual
+    );
+    setCurrentCarga(carga || {});
+  }, [cargas, cargaActual, proveedor]);
+
   // Add a new carga for a provider
   const addCarga = async (provider, cargaData) => {
     const provColRef = collection(db, "cargas", todayId, provider);
-    const docRef = await addDoc(provColRef, cargaData);
-    setCargas((prev) => ({
-      ...prev,
-      [provider]: [...(prev[provider] || []), { id: docRef.id, ...cargaData }],
-    }));
+    await addDoc(provColRef, cargaData);
+    // Do not update local state here; let onSnapshot handle it
   };
 
   // Update specific fields of a carga (field-level update)
@@ -68,12 +84,7 @@ export const EstadosProvider = ({ children }) => {
     );
     const cargaDocRef = doc(db, "cargas", todayId, provider, cargaId);
     await updateDoc(cargaDocRef, updatedFields);
-    setCargas((prev) => ({
-      ...prev,
-      [provider]: prev[provider].map((carga) =>
-        carga.id === cargaId ? { ...carga, ...updatedFields } : carga
-      ),
-    }));
+    // Do not update local state here; let onSnapshot handle it
   };
 
   const deleteCarga = async (provider, cargaId) => {
@@ -81,36 +92,15 @@ export const EstadosProvider = ({ children }) => {
       const cargaDocRef = doc(db, "cargas", todayId, provider, cargaId);
       console.log("Deleting carga at:", cargaDocRef.path);
       await deleteDoc(cargaDocRef);
-      setCargas((prev) => {
-        const updatedProviderCargas = Array.isArray(prev[provider])
-          ? prev[provider].filter((carga) => carga.id !== cargaId)
-          : [];
-        const newState = {
-          ...prev,
-          [provider]: updatedProviderCargas,
-        };
-        console.log("Updated cargas state after delete:", newState);
-        return newState;
-      });
+      // Do not update local state here; let onSnapshot handle it
     } catch (error) {
       console.error("Error deleting carga:", error);
     }
   };
 
-  const [cargaActual, setCargaActual] = useState(() => {
-    // Initialize cargaActual from sessionStorage or use default value
-    const savedCargaActual = localStorage.getItem("cargaActual");
-    return savedCargaActual ? parseInt(savedCargaActual) : 0;
-  });
-
   const [rol, setRol] = useState(() => {
     const savedRol = localStorage.getItem("rol");
     return savedRol ? savedRol : "";
-  });
-
-  const [proveedor, setProveedor] = useState(() => {
-    const savedProveedor = localStorage.getItem("proveedor");
-    return savedProveedor ? savedProveedor : "";
   });
 
   const [guias_precintos, setGuias_precintos] = useState(() => {
@@ -148,6 +138,7 @@ export const EstadosProvider = ({ children }) => {
     deleteCarga,
     cargaActual,
     setCargaActual,
+    currentCarga,
     rol,
     setRol,
     proveedor,

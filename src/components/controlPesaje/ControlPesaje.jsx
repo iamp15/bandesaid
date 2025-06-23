@@ -1,24 +1,25 @@
-/* eslint-disable react/prop-types */
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { PROVIDER_MAP } from "../../constants/constants";
-import { useGuardar } from "../../hooks/useGuardar";
 import { useAuth } from "../login/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { checkOnlineStatus } from "../../utils/OnlineStatus";
 import { useAlert } from "../alert/AlertContext";
 import { useEstados } from "../../contexts/EstadosContext";
 import LoadingSpinner from "../LoadingSpinner";
+import { PROVIDER_MAP } from "../../constants/constants";
 
 const ControlPesaje = () => {
-  const { cargas, setCargas, cargaActual, setCargaActual, proveedor } =
-    useEstados();
-  const key = PROVIDER_MAP[proveedor];
-  const currentCarga = cargas ? cargas[key]?.[cargaActual - 1] : {};
-  const guardar = useGuardar(setCargas);
+  const {
+    cargaActual,
+    setCargaActual,
+    proveedor,
+    currentCarga,
+    updateCargaField,
+  } = useEstados();
   const { currentUser } = useAuth();
   const navigate = useNavigate();
   const { addAlert } = useAlert();
+  const key_prov = PROVIDER_MAP[proveedor];
 
   // Always sync thermoKingStatus with currentCarga.tk
   const [thermoKingStatus, setThermoKingStatus] = useState(
@@ -34,22 +35,14 @@ const ControlPesaje = () => {
     navigate("/despachos");
   }
 
-  if (!currentUser || !cargas) {
-    return (
-      <div className="wrap-container">
-        <div className="menu">
-          <LoadingSpinner />
-        </div>
-      </div>
-    );
-  }
+  if (!currentCarga || !currentCarga.id) return <LoadingSpinner />;
 
   const handleThermoKingChange = (event) => {
     const newStatus = event.target.value;
     setThermoKingStatus(newStatus);
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     if (!checkOnlineStatus()) {
       addAlert(
         "No hay conexión a internet. No se puede guardar la información.",
@@ -59,6 +52,7 @@ const ControlPesaje = () => {
     }
     event.preventDefault();
     const newData = {
+      ...currentCarga,
       tk: thermoKingStatus,
       editHistory: {
         ...currentCarga?.editHistory,
@@ -70,7 +64,9 @@ const ControlPesaje = () => {
       },
     };
 
-    guardar(proveedor, cargaActual, "/pesaje2", newData);
+    await updateCargaField(key_prov, currentCarga.id, newData).then(() => {
+      navigate("/pesaje2");
+    });
   };
 
   return (

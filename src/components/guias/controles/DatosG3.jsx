@@ -1,6 +1,4 @@
-/* eslint-disable react/prop-types */
 import { Link } from "react-router-dom";
-import { useGuardar } from "../../../hooks/useGuardar";
 import { PROVIDER_MAP, MARCA } from "../../../constants/constants";
 import { useState } from "react";
 import SelectorMarca from "./SelectorMarca";
@@ -16,18 +14,9 @@ import { useAlert } from "../../alert/AlertContext";
 import { useEstados } from "../../../contexts/EstadosContext";
 
 const DatosG3 = () => {
-  const { cargas, setCargas, cargaActual, proveedor } = useEstados();
-  const guardar = useGuardar(setCargas);
-
-  // Always define currentCarga, even if cargas is not loaded yet
-  const currentCarga = cargas
-    ? cargas[PROVIDER_MAP[proveedor]]?.[cargaActual - 1]
-    : {};
-
-  const [chickenBrand, setChickenBrand] = useState(
-    currentCarga?.marca_rubro || MARCA[0].nombre
-  );
-
+  const { cargaActual, proveedor, updateCargaField, currentCarga } =
+    useEstados();
+  const key_prov = PROVIDER_MAP[proveedor];
   const { currentUser, loading } = useAuth();
   const [onEdit, setOnEdit] = useState(null);
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -35,7 +24,7 @@ const DatosG3 = () => {
   const { addAlert } = useAlert();
 
   // Early return for loading state
-  if (loading || !currentUser || !cargas) {
+  if (loading || !currentUser || !currentCarga || !currentCarga.id) {
     return <LoadingSpinner />;
   }
 
@@ -81,7 +70,6 @@ const DatosG3 = () => {
       );
       return;
     }
-    setChickenBrand(e.target.value);
     const newData = {
       marca_rubro: e.target.value,
       cnd: getCnd(e.target.value),
@@ -94,29 +82,23 @@ const DatosG3 = () => {
         },
       },
     };
-    guardar(proveedor, cargaActual, "", newData);
+    updateCargaField(key_prov, currentCarga.id, newData);
   };
 
-  const handleFieldSave = (fieldName, newValue) => {
-    if (!checkOnlineStatus()) {
-      addAlert(
-        "No hay conexión a internet. No se puede guardar la información.",
-        "error"
-      );
-      return;
-    }
-    const newData = {
-      [fieldName]: newValue,
+  const handleFieldSave = (name, value) => {
+    const updatedData = {
+      ...currentCarga,
+      [name]: value,
       editHistory: {
-        ...currentCarga?.editHistory,
-        [fieldName]: {
-          value: newValue,
+        ...currentCarga.editHistory,
+        [name]: {
+          value,
           editedBy: currentUser.name,
           editedAt: new Date().toISOString(),
         },
       },
     };
-    guardar(proveedor, cargaActual, "", newData);
+    updateCargaField(key_prov, currentCarga.id, updatedData);
   };
 
   const combinedFormat = (value) => {
@@ -135,7 +117,7 @@ const DatosG3 = () => {
 
           {/****** Marca ******/}
           <SelectorMarca
-            chickenBrand={chickenBrand}
+            chickenBrand={currentCarga?.marca_rubro || MARCA[0].nombre}
             onChange={handleChickenBrandChange}
           />
           {currentCarga.editHistory?.marca_rubro && (

@@ -14,17 +14,19 @@ import { useEstados } from "../../../contexts/EstadosContext";
 import { editableFieldProps } from "../../../utils/editableFieldProps";
 
 const DatosG1 = () => {
-  const { cargas, updateCargaField, cargaActual, setCargaActual, proveedor } =
-    useEstados();
+  const {
+    updateCargaField,
+    cargaActual,
+    setCargaActual,
+    proveedor,
+    currentCarga,
+  } = useEstados();
   const { currentUser, loading } = useAuth();
   const navigate = useNavigate();
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [onEdit, setOnEdit] = useState(null);
   const { addAlert } = useAlert();
   const key_prov = PROVIDER_MAP[proveedor];
-  const [formData, setFormData] = useState(
-    cargas[key_prov][cargaActual - 1] || {}
-  );
 
   // Navigation side effect
   useEffect(() => {
@@ -33,14 +35,8 @@ const DatosG1 = () => {
     }
   }, [proveedor, cargaActual, navigate]);
 
-  // Keep formData in sync with cargas for real-time updates
-  useEffect(() => {
-    setFormData(cargas[key_prov][cargaActual - 1] || {});
-    console.log("Form data updated:", cargas[key_prov][cargaActual - 1]);
-  }, [cargas, key_prov, cargaActual]);
-
   // Single check for loading state
-  if (loading || !cargas) return <LoadingSpinner />;
+  if (loading || !currentCarga || !currentCarga.id) return <LoadingSpinner />;
 
   // Helper for online status check
   const requireOnline = () => {
@@ -57,10 +53,10 @@ const DatosG1 = () => {
   const handleFieldSave = async (name, value) => {
     if (!requireOnline()) return;
     const updatedData = {
-      ...formData,
+      ...currentCarga,
       [name]: value,
       editHistory: {
-        ...formData.editHistory,
+        ...currentCarga.editHistory,
         [name]: {
           value,
           editedBy: currentUser.name,
@@ -68,8 +64,7 @@ const DatosG1 = () => {
         },
       },
     };
-    setFormData(updatedData);
-    await updateCargaField(key_prov, formData.id, updatedData);
+    await updateCargaField(key_prov, currentCarga.id, updatedData);
   };
 
   const handleContinue = () => {
@@ -77,6 +72,27 @@ const DatosG1 = () => {
       alert("Por favor, guarda los cambios antes de continuar");
       return;
     } else navigate("/datosg2");
+  };
+
+  const handleTkChange = async (e) => {
+    if (!requireOnline()) return;
+    const value = e.target.value;
+    const updatedData = {
+      ...currentCarga,
+      tk: value,
+      editHistory: {
+        ...currentCarga.editHistory,
+        tk: {
+          value,
+          editedBy: currentUser.name,
+          editedAt: new Date().toISOString(),
+        },
+      },
+    };
+    await updateCargaField(key_prov, currentCarga.id, {
+      tk: value,
+      editHistory: updatedData.editHistory,
+    });
   };
 
   return (
@@ -90,11 +106,11 @@ const DatosG1 = () => {
             {...editableFieldProps({
               fieldName: "chofer",
               label: "Nombre",
-              value: formData?.chofer,
+              value: currentCarga?.chofer,
               placeholder: "Ingrese el nombre del chofer",
               onSave: handleFieldSave,
               currentUser,
-              editHistory: formData?.editHistory,
+              editHistory: currentCarga?.editHistory,
               setShowSuggestions,
               setOnEdit,
               onEdit,
@@ -107,11 +123,11 @@ const DatosG1 = () => {
             {...editableFieldProps({
               fieldName: "cedula",
               label: "Cédula",
-              value: formData?.cedula,
+              value: currentCarga?.cedula,
               placeholder: "Ingrese la cédula del chofer",
               onSave: handleFieldSave,
               currentUser,
-              editHistory: formData?.editHistory,
+              editHistory: currentCarga?.editHistory,
               setShowSuggestions,
               setOnEdit,
               onEdit,
@@ -133,11 +149,11 @@ const DatosG1 = () => {
             {...editableFieldProps({
               fieldName: "placa",
               label: "Placa",
-              value: formData?.placa,
+              value: currentCarga?.placa,
               placeholder: "Ingrese la placa del vehículo",
               onSave: handleFieldSave,
               currentUser,
-              editHistory: formData?.editHistory,
+              editHistory: currentCarga?.editHistory,
               setShowSuggestions,
               setOnEdit,
               onEdit,
@@ -150,11 +166,11 @@ const DatosG1 = () => {
             {...editableFieldProps({
               fieldName: "marcaVehiculo",
               label: "Marca",
-              value: formData?.marcaVehiculo,
+              value: currentCarga?.marcaVehiculo,
               placeholder: "Ingrese la marca del vehículo",
               onSave: handleFieldSave,
               currentUser,
-              editHistory: formData?.editHistory,
+              editHistory: currentCarga?.editHistory,
               setShowSuggestions,
               setOnEdit,
               onEdit,
@@ -169,24 +185,23 @@ const DatosG1 = () => {
           <select
             name="tk"
             id="tk"
-            value={formData?.tk === "Si" ? "Si" : "No"}
-            onChange={handleFieldSave}
+            value={currentCarga?.tk === "Si" ? "Si" : "No"}
+            onChange={handleTkChange}
           >
             <option value="Si">Sí</option>
             <option value="No">No</option>
           </select>
-          {formData.editHistory?.tk && (
+          {currentCarga.editHistory?.tk && (
             <p className="autor">
-              Editado por: {formData.editHistory.tk.editedBy}
+              Editado por: {currentCarga.editHistory.tk.editedBy}
               {" a las "}
-              {new Date(formData.editHistory.tk.editedAt).toLocaleTimeString(
-                "es-ES",
-                {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                  hour12: true, // This ensures 24-hour format
-                }
-              )}
+              {new Date(
+                currentCarga.editHistory.tk.editedAt
+              ).toLocaleTimeString("es-ES", {
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: true, // This ensures 24-hour format
+              })}
             </p>
           )}
 

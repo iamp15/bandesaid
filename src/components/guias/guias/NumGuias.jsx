@@ -9,7 +9,6 @@ const NumGuias = ({
   onGuideNumberChange,
   onGuideWeightChange,
 }) => {
-  console.log("NumGuias render - codigos:", codigos, "pesos:", pesos);
   return (
     <div>
       {[...Array(Number(num))].map((_, index) => (
@@ -19,7 +18,6 @@ const NumGuias = ({
             type="text"
             id={`guia-${index}`}
             onChange={(e) => {
-              console.log(`Changing guide number ${index} to:`, e.target.value);
               onGuideNumberChange(index, e.target.value);
             }}
             defaultValue={codigos[index] || ""}
@@ -38,10 +36,6 @@ const NumGuias = ({
                 type="text"
                 id={`peso-${index}`}
                 onChange={(e) => {
-                  console.log(
-                    `Direct onChange: Changing guide weight ${index} to:`,
-                    e.target.value
-                  );
                   onGuideWeightChange(index, e.target.value);
                 }}
                 defaultValue={pesos[index] ? formatNumber(pesos[index]) : ""}

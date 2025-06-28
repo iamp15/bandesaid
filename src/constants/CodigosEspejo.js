@@ -331,7 +331,7 @@ export const codigos_espejo = [
     entidad: "Soberanía Patriota",
   },
   {
-    nombre: "LACTEOS LOS ANDES, C.A. (ESTADO ZULIA)",
+    nombre: "LACTEOS LOS ANDES, C.A.",
     codigo: "972605",
     estado: "Zulia",
     entidad: "Lacteos Los Andes",

@@ -6,6 +6,11 @@ import {
   doc,
   deleteDoc,
   onSnapshot,
+  runTransaction,
+  query,
+  orderBy,
+  getDocs,
+  limit,
 } from "firebase/firestore";
 import { db } from "../firebase/config";
 import { formatDate2 } from "../utils/FormatDate";
@@ -27,7 +32,6 @@ export const EstadosProvider = ({ children }) => {
     av: [],
     an: [],
   });
-
   const todayId = formatDate2();
   const providers = ["tr", "tg", "al", "av", "an"];
   const [currentCarga, setCurrentCarga] = useState({});
@@ -69,10 +73,33 @@ export const EstadosProvider = ({ children }) => {
     setCurrentCarga(carga || {});
   }, [cargas, cargaActual, proveedor]);
 
-  // Add a new carga for a provider
+  // Add a new carga for a provider with atomic cargaNumber assignment
   const addCarga = async (provider, cargaData) => {
     const provColRef = collection(db, "cargas", todayId, provider);
-    await addDoc(provColRef, cargaData);
+    const counterDocRef = doc(
+      db,
+      "cargas",
+      todayId,
+      `${provider}_counter`,
+      "last"
+    );
+    await runTransaction(db, async (transaction) => {
+      // Get the current counter (last used cargaNumber)
+      let lastCargaNumber = 0;
+      const counterSnap = await transaction.get(counterDocRef);
+      if (counterSnap.exists()) {
+        lastCargaNumber = counterSnap.data().value || 0;
+      }
+      const newCargaNumber = lastCargaNumber + 1;
+      // Update the counter
+      transaction.set(counterDocRef, { value: newCargaNumber });
+      // Add the new carga with the next cargaNumber
+      const newCargaRef = doc(provColRef); // Create a new doc ref with auto-id
+      transaction.set(newCargaRef, {
+        ...cargaData,
+        cargaNumber: newCargaNumber,
+      });
+    });
     // Do not update local state here; let onSnapshot handle it
   };
 
@@ -87,11 +114,46 @@ export const EstadosProvider = ({ children }) => {
     // Do not update local state here; let onSnapshot handle it
   };
 
+  // Delete a carga and update the counter
   const deleteCarga = async (provider, cargaId) => {
     try {
+      const provColRef = collection(db, "cargas", todayId, provider);
+      const counterDocRef = doc(
+        db,
+        "cargas",
+        todayId,
+        `${provider}_counter`,
+        "last"
+      );
+      // Get the carga to delete (to know its cargaNumber)
       const cargaDocRef = doc(db, "cargas", todayId, provider, cargaId);
-      console.log("Deleting carga at:", cargaDocRef.path);
-      await deleteDoc(cargaDocRef);
+      const cargaSnap = await getDocs(query(provColRef));
+      let deletedCargaNumber = null;
+      cargaSnap.docs.forEach((docSnap) => {
+        if (docSnap.id === cargaId) {
+          deletedCargaNumber = docSnap.data().cargaNumber;
+        }
+      });
+
+      // Get the current counter value
+      let lastCargaNumber = 0;
+      const counterSnap = await getDocs(
+        collection(db, "cargas", todayId, `${provider}_counter`)
+      );
+      if (!counterSnap.empty) {
+        const lastDoc = counterSnap.docs[0];
+        lastCargaNumber = lastDoc.data().value || 0;
+      }
+
+      // Delete the carga and update the counter if needed
+      await runTransaction(db, async (transaction) => {
+        transaction.delete(cargaDocRef);
+        if (deletedCargaNumber && deletedCargaNumber === lastCargaNumber) {
+          // Decrement the counter by 1 if the deleted carga was the last one
+          const newCounterValue = lastCargaNumber - 1;
+          transaction.set(counterDocRef, { value: newCounterValue });
+        }
+      });
       // Do not update local state here; let onSnapshot handle it
     } catch (error) {
       console.error("Error deleting carga:", error);

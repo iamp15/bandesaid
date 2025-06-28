@@ -1,7 +1,5 @@
-/* eslint-disable react/prop-types */
 import { useState } from "react";
 import { useAuth } from "../login/AuthContext";
-import { useGuardar } from "../../hooks/useGuardar";
 import { useNavigate } from "react-router-dom";
 import { PROVIDER_MAP } from "../../constants/constants";
 import LoadingSpinner from "../LoadingSpinner";
@@ -13,20 +11,16 @@ import { useAlert } from "../alert/AlertContext";
 import { useEstados } from "../../contexts/EstadosContext";
 
 const Sistemas2 = () => {
-  const { cargas, setCargas, cargaActual, proveedor } = useEstados();
+  const { cargaActual, proveedor, currentCarga, updateCargaField } =
+    useEstados();
   const { currentUser, loading } = useAuth();
   const key = PROVIDER_MAP[proveedor];
-  const currentCarga =
-    cargas && cargas[key]?.[cargaActual - 1]
-      ? cargas[key]?.[cargaActual - 1]
-      : {};
-  const guardar = useGuardar(setCargas);
   const navigate = useNavigate();
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [onEdit, setOnEdit] = useState(null);
   const { addAlert } = useAlert();
 
-  if (loading || !currentUser || !cargas) {
+  if (loading || !currentUser || !currentCarga || !currentCarga.id) {
     return <LoadingSpinner />;
   }
 
@@ -34,7 +28,7 @@ const Sistemas2 = () => {
     navigate("/despachos");
   }
 
-  const handleFieldSave = (fieldName, newValue) => {
+  const handleFieldSave = async (fieldName, newValue) => {
     if (!checkOnlineStatus()) {
       addAlert(
         "No hay conexión a internet. No se puede guardar la información.",
@@ -43,6 +37,7 @@ const Sistemas2 = () => {
       return;
     }
     const newData = {
+      ...currentCarga,
       [fieldName]: newValue,
       editHistory: {
         ...currentCarga?.editHistory,
@@ -53,7 +48,7 @@ const Sistemas2 = () => {
         },
       },
     };
-    guardar(proveedor, cargaActual, "", newData);
+    await updateCargaField(key, currentCarga.id, newData);
   };
 
   const handleContinue = () => {

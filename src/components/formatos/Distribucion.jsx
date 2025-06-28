@@ -1,6 +1,7 @@
 import { useState } from "react";
 import BotonCopiar from "../BotonCopiar";
 import { formatDate } from "../../utils/FormatDate";
+import { useNavigate } from "react-router-dom";
 
 const Distribucion = () => {
   const initialInspectores = [
@@ -14,6 +15,7 @@ const Distribucion = () => {
   const [sustitutos, setSustitutos] = useState(["Eduwin Olaya"]);
 
   const [inspectores, setInspectores] = useState(initialInspectores);
+  const navigate = useNavigate();
 
   const rotateInspectores = () => {
     // Rotate the array
@@ -60,7 +62,7 @@ const Distribucion = () => {
     `*FECHA:* ${formatDate()}\n\n` +
     ` *CONTROL DE PESO:*\n\n` +
     `📌 ${inspectores[0]}\n\n` +
-    ` *CONTROL DE CALIDAD - LIMPIEZA DE LOS IMPLEMENTOS:*\n\n` +
+    ` *CONTROL DE CALIDAD - BARRIDO DEL SISTEMA:*\n\n` +
     `📌 ${inspectores[1]}\n` +
     `📌 ${inspectores[2]}\n\n` +
     ` *VERIFICACIÓN DE GUÍAS - SALIDA DE VEHÍCULOS:*\n\n` +
@@ -85,6 +87,12 @@ const Distribucion = () => {
         <p>📌 {inspectores[4]}</p>
         <br />
         <BotonCopiar text1={texto} text2={"Copiar formato"} />
+
+        <div className="button-group">
+          <button type="button" onClick={() => navigate("/selectorformatos")}>
+            Volver
+          </button>
+        </div>
       </div>
     </div>
   );

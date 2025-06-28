@@ -1,37 +1,18 @@
-/* eslint-disable react/prop-types */
 import { useNavigate } from "react-router-dom";
-import {
-  PROVIDER_MAP,
-  RUBRO,
-  GALPON,
-  PERMISO_SANITARIO,
-} from "../../constants/constants";
+import { RUBRO, GALPON, PERMISO_SANITARIO } from "../../constants/constants";
 import BotonCopiar from "../BotonCopiar";
 import LoadingSpinner from "../LoadingSpinner";
 import { useEstados } from "../../contexts/EstadosContext";
 
 const ControlCalidad4 = () => {
-  const { cargas, setCargaActual, cargaActual, proveedor } = useEstados();
+  const { setCargaActual, cargaActual, proveedor, currentCarga } = useEstados();
   const navigate = useNavigate();
-  const mapeo = PROVIDER_MAP[proveedor];
-  const infoCarga =
-    cargas && cargas[mapeo]?.[cargaActual - 1]
-      ? cargas[mapeo]?.[cargaActual - 1]
-      : {};
 
   if (!proveedor || !cargaActual) {
     navigate("/despachos");
   }
 
-  if (!infoCarga) {
-    return (
-      <div className="wrap-container">
-        <div className="menu">
-          <LoadingSpinner />
-        </div>
-      </div>
-    );
-  }
+  if (!currentCarga || !currentCarga.id) return <LoadingSpinner />;
 
   const numeracion = () => {
     if (cargaActual < 10) {
@@ -47,7 +28,7 @@ const ControlCalidad4 = () => {
       `*Proveedor:* ${proveedor}\n` +
       `*Galpón:* ${GALPON}\n` +
       `*Rubro:* ${RUBRO}\n` +
-      `*Fecha:* ${infoCarga.fecha}\n` +
+      `*Fecha:* ${currentCarga.fecha}\n` +
       "\n✓ Control de Calidad"
     );
   };
@@ -58,14 +39,14 @@ const ControlCalidad4 = () => {
       `*Proveedor:* ${proveedor}\n` +
       `*Galpón:* ${GALPON}\n` +
       `*Rubro:* ${RUBRO}\n` +
-      `*Fecha:* ${infoCarga.fecha}\n` +
+      `*Fecha:* ${currentCarga.fecha}\n` +
       "\n✓ *Fecha Elaboración:* N/A\n" +
       "✓ *Fecha Vencimiento:* N/A\n" +
-      `✓ *Nº Lote:* ${infoCarga.lote || "N/A"}\n` +
-      `✓ *Peso promedio:* ${infoCarga.p_promedio} kg\n` +
-      `✓ *Temperatura promedio:* ${infoCarga.t_promedio} ºC\n` +
+      `✓ *Nº Lote:* ${currentCarga.lote || "N/A"}\n` +
+      `✓ *Peso promedio:* ${currentCarga.p_promedio} kg\n` +
+      `✓ *Temperatura promedio:* ${currentCarga.t_promedio} ºC\n` +
       `✓ *Permiso sanitario:* ${PERMISO_SANITARIO}\n` +
-      `✓ *CND o CPE:* ${infoCarga.cnd}`
+      `✓ *CND o CPE:* ${currentCarga.cnd}`
     );
   };
 
@@ -75,63 +56,56 @@ const ControlCalidad4 = () => {
       `*Proveedor:* ${proveedor}\n` +
       `*Galpón:* ${GALPON}\n` +
       `*Rubro:* ${RUBRO}\n` +
-      `*Fecha:* ${infoCarga.fecha}\n` +
+      `*Fecha:* ${currentCarga.fecha}\n` +
       "\n✓ Muestras verificadas"
     );
   };
 
   return (
     <div className="wrap-container">
-      {!infoCarga ? (
-        <LoadingSpinner />
-      ) : (
-        <div className="menu">
-          <h2>Control de calidad</h2>
-          <div className="section">
-            <p>
-              Rubro: <span className="value">{RUBRO}</span>
-            </p>
-            <p>
-              Marca: <span className="value">{infoCarga.marca_rubro}</span>
-            </p>
-            <p>
-              CND: <span className="value">{infoCarga.cnd}</span>
-            </p>
-            <p>
-              Lote: <span className="value">{infoCarga.lote || "N/A"}</span>
-            </p>
-            <p>
-              Peso promedio:{" "}
-              <span className="value">{infoCarga.p_promedio} Kg</span>
-            </p>
-            <p>
-              Temperatura promedio:{" "}
-              <span className="value">{infoCarga.t_promedio} ºC</span>
-            </p>
-          </div>
-          <h2>Formatos</h2>
-          <BotonCopiar text1={genTextCC()} text2={"Control de calidad"} />
-          <BotonCopiar text1={genTextTyP()} text2={"Temperatura y peso"} />
-          <BotonCopiar
-            text1={genTextMuestras()}
-            text2={"Muestras verificadas"}
-          />
-          <div className="button-group">
-            <button type="button" onClick={() => navigate("/cc3")}>
-              Volver
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                navigate("/carga");
-                setCargaActual(0);
-              }}
-            >
-              Inicio
-            </button>
-          </div>
+      <div className="menu">
+        <h2>Control de calidad</h2>
+        <div className="section">
+          <p>
+            Rubro: <span className="value">{RUBRO}</span>
+          </p>
+          <p>
+            Marca: <span className="value">{currentCarga.marca_rubro}</span>
+          </p>
+          <p>
+            CND: <span className="value">{currentCarga.cnd}</span>
+          </p>
+          <p>
+            Lote: <span className="value">{currentCarga.lote || "N/A"}</span>
+          </p>
+          <p>
+            Peso promedio:{" "}
+            <span className="value">{currentCarga.p_promedio} Kg</span>
+          </p>
+          <p>
+            Temperatura promedio:{" "}
+            <span className="value">{currentCarga.t_promedio} ºC</span>
+          </p>
         </div>
-      )}
+        <h2>Formatos</h2>
+        <BotonCopiar text1={genTextCC()} text2={"Control de calidad"} />
+        <BotonCopiar text1={genTextTyP()} text2={"Temperatura y peso"} />
+        <BotonCopiar text1={genTextMuestras()} text2={"Muestras verificadas"} />
+        <div className="button-group">
+          <button type="button" onClick={() => navigate("/cc3")}>
+            Volver
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              navigate("/carga");
+              setCargaActual(0);
+            }}
+          >
+            Inicio
+          </button>
+        </div>
+      </div>
     </div>
   );
 };

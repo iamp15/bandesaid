@@ -26,13 +26,14 @@ const Carga = () => {
     cnd: "072249161",
     lote: "N/A",
   });
+  const [addDisabled, setAddDisabled] = useState(false);
 
   // Local loading state for cargas
   const [cargasLoading, setCargasLoading] = useState(true);
   // Show spinner for at least 2 seconds on mount
   const [initialLoading, setInitialLoading] = useState(true);
   useEffect(() => {
-    const timer = setTimeout(() => setInitialLoading(false), 1500);
+    const timer = setTimeout(() => setInitialLoading(false), 3000);
     return () => clearTimeout(timer);
   }, []);
   // Watch cargas[key] and set loading to false when it is loaded
@@ -56,6 +57,7 @@ const Carga = () => {
   };
 
   const handleAddCarga = async () => {
+    if (addDisabled) return;
     if (!checkOnlineStatus()) {
       addAlert(
         "No hay conexión a internet. No se puede guardar la información.",
@@ -68,18 +70,13 @@ const Carga = () => {
       return;
     }
 
-    // Find the highest cargaNumber for this provider
-    const currentCargas = cargas[key] || [];
-    const maxCargaNumber =
-      currentCargas.length > 0
-        ? Math.max(...currentCargas.map((c) => c.cargaNumber || 0))
-        : 0;
+    setAddDisabled(true); // Disable button
+    setTimeout(() => setAddDisabled(false), 1000); // Enable after 1 second
 
     const newCarga = {
       ...newCargaData,
-      cargaNumber: maxCargaNumber + 1,
+      // cargaNumber will be assigned in Firestore transaction
     };
-    console.log(maxCargaNumber);
 
     await addCarga(key, newCarga);
     setNewCargaData({
@@ -149,7 +146,11 @@ const Carga = () => {
             />
           )}
           {!loading && !cargasLoading && !initialLoading && (
-            <button className="crear-carga-button" onClick={handleAddCarga}>
+            <button
+              className="crear-carga-button"
+              onClick={handleAddCarga}
+              disabled={addDisabled}
+            >
               Crear nueva carga
             </button>
           )}

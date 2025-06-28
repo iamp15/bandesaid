@@ -1,5 +1,3 @@
-/* eslint-disable react/prop-types */
-import { PROVIDER_MAP } from "../../constants/constants";
 import { useNavigate } from "react-router-dom";
 import BotonCopiar from "../BotonCopiar";
 import { GALPON, RUBRO } from "../../constants/constants";
@@ -7,30 +5,17 @@ import { useEstados } from "../../contexts/EstadosContext";
 import LoadingSpinner from "../LoadingSpinner";
 
 const ControlCalidad2 = () => {
-  const { cargas, setCargaActual, cargaActual, proveedor } = useEstados();
-  const mapeo = PROVIDER_MAP[proveedor];
-  const infoCarga =
-    cargas && cargas[mapeo]?.[cargaActual - 1]
-      ? cargas[mapeo]?.[cargaActual - 1]
-      : {};
+  const { setCargaActual, cargaActual, proveedor, currentCarga } = useEstados();
   const navigate = useNavigate();
 
   if (!proveedor || !cargaActual) {
     navigate("/despachos");
   }
 
-  if (!infoCarga) {
-    return (
-      <div className="wrap-container">
-        <div className="menu">
-          <LoadingSpinner />
-        </div>
-      </div>
-    );
-  }
+  if (!currentCarga || !currentCarga.id) return <LoadingSpinner />;
 
   const paredes = () => {
-    switch (infoCarga.paredes) {
+    switch (currentCarga.paredes) {
       case "1":
         return "Las paredes y el techo se encuentran limpios y en buen estado";
       case "2":
@@ -54,41 +39,42 @@ const ControlCalidad2 = () => {
 
     const genObservacion = () => {
       const paletas =
-        infoCarga.paletas === "Si"
+        currentCarga.paletas === "Si"
           ? "con paletas, por lo que la proteína no estará en contacto directo con el suelo"
           : "sin paletas, por lo que la proteína estará en contacto directo con el suelo";
 
       const tk = () => {
-        if (infoCarga.tk === "Si")
+        if (currentCarga.tk === "Si")
           return "El Thermo King se encuentra operativo";
-        if (infoCarga.tk === "No")
+        if (currentCarga.tk === "No")
           return "El Thermo King no se encuentra operativo";
-        if (infoCarga.tk === "No posee") return "No posee Thermo King";
+        if (currentCarga.tk === "No posee") return "No posee Thermo King";
       };
       const olor = () => {
-        if (infoCarga.olor === "fresco") return "fresco característico";
-        else return `a ${infoCarga.otroOlor}`;
+        if (currentCarga.olor === "fresco") return "fresco característico";
+        else return `a ${currentCarga.otroOlor}`;
       };
       const puertaLateral = () => {
-        if (infoCarga.puertaLateral === "Si") return " Posee puerta lateral.";
+        if (currentCarga.puertaLateral === "Si")
+          return " Posee puerta lateral.";
         else return "";
       };
 
       return `Vehículo ${paletas}. ${paredes()}. ${tk()}.${puertaLateral()} El vehículo posee un olor ${olor()}. En planta se encuentra el representante de ${
-        infoCarga.entidad
+        currentCarga.transporte
       }, ${
-        infoCarga.responsable
+        currentCarga.responsable
       }, quien se hace responsable de las condiciones de la carga.`;
     };
 
     return (
-      "*INSPECCION DE VEHICULO* 👀\n" +
+      "*INSPECCIÓN DE VEHÍCULO* 👀\n" +
       `*CARGA Nº ${numeracion()}:*\n` +
-      `*Proveedor:* ${infoCarga.proveedor}\n` +
+      `*Proveedor:* ${proveedor}\n` +
       `*Galpón:* ${GALPON}\n` +
       `*Rubro:* ${RUBRO}\n` +
-      `*Thermo King:* ${infoCarga.tk}\n` +
-      `*Fecha:* ${infoCarga.fecha}\n` +
+      `*Thermo King:* ${currentCarga.tk}\n` +
+      `*Fecha:* ${currentCarga.fecha}\n` +
       `*Motivo:* Inicio de Carga\n` +
       `\n*Observación:* ${genObservacion()}`
     );
@@ -105,17 +91,17 @@ const ControlCalidad2 = () => {
         <div className="section">
           <h2>Inspección de vehículo</h2>
           <p>
-            Thermo King: <span className="value">{infoCarga.tk}</span>
+            Thermo King: <span className="value">{currentCarga.tk}</span>
           </p>
           <p>
-            Paletas: <span className="value">{infoCarga.paletas}</span>
+            Paletas: <span className="value">{currentCarga.paletas}</span>
           </p>
           <p>
             Olor:{" "}
             <span className="value">
-              {infoCarga.olor === "fresco"
-                ? "Fresco característoco"
-                : infoCarga.otroOlor}
+              {currentCarga.olor === "fresco"
+                ? "Fresco característico"
+                : currentCarga.otroOlor}
             </span>
           </p>
           <p>
@@ -123,14 +109,15 @@ const ControlCalidad2 = () => {
           </p>
           <p>
             Puerta lateral:{" "}
-            <span className="value">{infoCarga.puertaLateral}</span>
+            <span className="value">{currentCarga.puertaLateral}</span>
           </p>
 
           <p>
-            Entidad: <span className="value">{infoCarga.entidad}</span>
+            Entidad: <span className="value">{currentCarga.transporte}</span>
           </p>
           <p>
-            Responsable: <span className="value">{infoCarga.responsable}</span>
+            Responsable:{" "}
+            <span className="value">{currentCarga.responsable}</span>
           </p>
         </div>
         <BotonCopiar text1={genFormato()} text2="Copiar formato" />

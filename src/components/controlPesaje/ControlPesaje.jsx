@@ -40,9 +40,11 @@ const ControlPesaje = () => {
   const handleThermoKingChange = (event) => {
     const newStatus = event.target.value;
     setThermoKingStatus(newStatus);
+    saveData("tk", newStatus);
   };
 
   const handleSubmit = async (event) => {
+    event.preventDefault();
     if (!checkOnlineStatus()) {
       addAlert(
         "No hay conexión a internet. No se puede guardar la información.",
@@ -50,23 +52,30 @@ const ControlPesaje = () => {
       );
       return;
     }
-    event.preventDefault();
-    const newData = {
+    navigate("/pesaje2");
+  };
+
+  const saveData = async (fieldName, newValue) => {
+    if (!checkOnlineStatus()) {
+      addAlert(
+        "No hay conexión a internet. No se puede guardar la información.",
+        "error"
+      );
+      return;
+    }
+    const updatedData = {
       ...currentCarga,
-      tk: thermoKingStatus,
+      [fieldName]: newValue,
       editHistory: {
-        ...currentCarga?.editHistory,
-        tk: {
-          value: thermoKingStatus,
+        ...currentCarga.editHistory,
+        [fieldName]: {
+          value: newValue,
           editedBy: currentUser.name,
           editedAt: new Date().toISOString(),
         },
       },
     };
-
-    await updateCargaField(key_prov, currentCarga.id, newData).then(() => {
-      navigate("/pesaje2");
-    });
+    await updateCargaField(key_prov, currentCarga.id, updatedData);
   };
 
   return (

@@ -1,10 +1,6 @@
 import { useEffect, useState } from "react";
-/* eslint-disable react/prop-types */
 import { Link } from "react-router-dom";
-import NumGuias from "./NumGuias";
-import NumPrecintos from "./NumPrecintos";
 import { PROVIDER_MAP } from "../../../constants/constants";
-import { isValidNumber } from "../../../utils/CharLimit";
 import { formatNumber } from "../../../utils/FormatNumber";
 import { useAuth } from "../../login/AuthContext";
 import "../../../styles/guias/DatosG4.css";
@@ -16,47 +12,28 @@ import { useAlert } from "../../alert/AlertContext";
 import { useEstados } from "../../../contexts/EstadosContext";
 
 const DatosG4 = () => {
-  const {
-    cargas,
-    cargaActual,
-    proveedor,
-    guias_precintos,
-    setGuias_precintos,
-    updateCargaField,
-    currentCarga,
-  } = useEstados();
-  const [codigos, setCodigos] = useState([]);
-  const [pesos, setPesos] = useState([]);
-  const [precintos, setPrecintos] = useState([]);
-  const numGuias =
-    guias_precintos.guias === "" ? "" : Number(guias_precintos.guias);
-  const numPrecintos =
-    guias_precintos.precintos === "" ? "" : Number(guias_precintos.precintos);
-
+  const { cargaActual, proveedor, updateCargaField, currentCarga } =
+    useEstados();
   const { loading, currentUser } = useAuth();
   const [showNotification, setShowNotification] = useState(null);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [onEdit, setOnEdit] = useState(null);
   const navigate = useNavigate();
   const { addAlert } = useAlert();
+  const [amountGuias, setAmountGuias] = useState(0);
+  const [amountPrecintos, setAmountPrecintos] = useState(0);
+  const [numGuias, setNumGuias] = useState([0]);
+  const [pesosGuias, setPesosGuias] = useState([0]);
+  const [precintos, setPrecintos] = useState(["S/P"]);
   const key_prov = PROVIDER_MAP[proveedor];
 
   useEffect(() => {
-    if (!cargas) return;
-    const initialCodigos =
-      cargas[key_prov]?.[cargaActual - 1]?.codigos_guias || [];
-    const initialPesos = cargas[key_prov]?.[cargaActual - 1]?.pesos_guias || [];
-    const initialPrecintos =
-      cargas[key_prov]?.[cargaActual - 1]?.precintos || [];
-    setCodigos(initialCodigos);
-    setPesos(initialPesos);
-    setPrecintos(initialPrecintos);
-    setGuias_precintos((prev) => ({
-      ...prev,
-      guias: initialCodigos.length || "",
-      precintos: initialPrecintos.length || "",
-    }));
-  }, [cargas, cargaActual, key_prov, setGuias_precintos]);
+    setNumGuias(currentCarga.codigos_guias || []);
+    setPesosGuias(currentCarga.pesos_guias || []);
+    setAmountGuias(currentCarga.codigos_guias?.length || 0);
+    setAmountPrecintos(currentCarga.precintos?.length || 0);
+    setPrecintos(currentCarga.precintos || ["S/P"]);
+  }, [currentCarga]);
 
   if (loading || !currentUser || !currentCarga || !currentCarga.id) {
     return <LoadingSpinner />;
@@ -82,141 +59,55 @@ const DatosG4 = () => {
       return;
     }
 
-    if (numGuias > 1 && !checkPesos()) {
-      return;
-    }
-
-    const newData = {
-      codigos_guias: codigos,
-      pesos_guias: pesos.map((peso) => (peso ? formatNumber(peso) : "")),
-      precintos: precintos.length > 0 ? precintos : ["S/P"],
-    };
-
-    updateCargaField(key_prov, currentCarga.id, newData).then(() => {
-      navigate("/revisionguias");
-    });
+    navigate("/revisionguias");
   };
 
   const handleGuiasChange = (e) => {
-    const inputValue = e.target.value;
-    const newGuiasValue =
-      inputValue === "" ? "" : Math.min(Math.max(0, Number(inputValue)), 15);
-
-    setGuias_precintos((prev) => ({ ...prev, guias: newGuiasValue }));
-
-    setCodigos((prev) => {
-      const newCodigos =
-        newGuiasValue === ""
-          ? []
-          : Array(Number(newGuiasValue))
-              .fill("")
-              .map((_, i) => prev[i] || "");
-
-      return newCodigos;
-    });
-
-    setPesos((prev) => {
-      const newPesos =
-        newGuiasValue === ""
-          ? []
-          : Array(Number(newGuiasValue))
-              .fill("")
-              .map((_, i) => prev[i] || "");
-
-      return newPesos;
-    });
+    const value = Number(e.target.value);
+    if (value < 0) return;
+    setAmountGuias(value);
+    // Adjust arrays to match new number of guias
+    setNumGuias((prev) =>
+      Array.from({ length: value }, (_, i) => prev[i] ?? "")
+    );
+    setPesosGuias((prev) =>
+      Array.from({ length: value }, (_, i) => prev[i] ?? "")
+    );
   };
 
-  const handleGuideNumberChange = (index, value) => {
-    if (value === "" || isValidNumber(value, 9)) {
-      setCodigos((prev) => {
-        const newCodigos = [...prev];
-        newCodigos[index] = value;
-        return newCodigos;
-      });
-    }
+  // Update: split handlePrecintosChange into two functions:
+  // 1. For changing the amount (input number)
+  // 2. For changing the value of each precinto (input text)
+
+  // Handles the amount of precintos
+  const handlePrecintosAmountChange = (e) => {
+    const value = Number(e.target.value);
+    if (value < 0) return;
+    setAmountPrecintos(value);
+    setPrecintos((prev) =>
+      Array.from({ length: value }, (_, i) => prev[i] ?? "")
+    );
   };
 
-  const handleGuideWeightChange = (index, value) => {
-    const numericValue = value.replace(/[^0-9]/g, "");
-    setPesos((prev) => {
-      const newPesos = [...prev];
-      newPesos[index] = numericValue;
-      return newPesos;
-    });
-  };
-
-  const handlePrecintosChange = (e) => {
-    const inputValue = e.target.value;
-    const newPrecintosValue =
-      inputValue === "" ? "" : Math.min(Math.max(0, Number(inputValue)), 15);
-
-    setGuias_precintos((prev) => ({ ...prev, precintos: newPrecintosValue }));
-
+  // Handles the value of each precinto
+  const handlePrecintoValueChange = (idx, val) => {
     setPrecintos((prev) => {
-      if (newPrecintosValue === "") {
-        return [];
-      }
-      const numPrecintos = Number(newPrecintosValue);
-      const newPrecintos = [...prev];
-      if (numPrecintos > prev.length) {
-        for (let i = prev.length; i < numPrecintos; i++) {
-          newPrecintos.push("");
-        }
-      } else if (numPrecintos < prev.length) {
-        newPrecintos.splice(numPrecintos);
-      }
-      return newPrecintos;
+      const arr = [...prev];
+      arr[idx] = val;
+      return arr;
     });
   };
 
-  const handlePrecintoNumberChange = (index, value) => {
-    const sanitizedValue = value.replace(/\D/g, "");
-    setPrecintos((prev) => {
-      const newPrecintos = [...prev];
-      newPrecintos[index] = sanitizedValue;
-      return newPrecintos;
+  const handleCodigoChange = (idx, val) => {
+    setNumGuias((prev) => {
+      const arr = [...prev];
+      arr[idx] = val;
+      return arr;
     });
   };
 
-  const saveGuias = () => {
-    if (numGuias > 1 && !checkPesos()) {
-      return;
-    }
-
-    if (!checkOnlineStatus()) {
-      addAlert(
-        "No hay conexión a internet. No se puede guardar la información.",
-        "error"
-      );
-      return;
-    }
-
-    const newData = {
-      codigos_guias: codigos,
-      pesos_guias: pesos.map((peso) => (peso ? formatNumber(peso) : "")),
-      precintos: precintos.length > 0 ? precintos : ["S/P"],
-    };
-    updateCargaField(key_prov, currentCarga.id, newData);
-
-    setShowNotification("button1");
-    setTimeout(() => setShowNotification(false), 2000); // Hide after 2 seconds
-  };
-
-  const savePrecintos = () => {
-    if (!checkOnlineStatus()) {
-      addAlert(
-        "No hay conexión a internet. No se puede guardar la información.",
-        "error"
-      );
-      return;
-    }
-    const newData = {
-      precintos: precintos.length > 0 ? precintos : ["S/P"],
-    };
-    updateCargaField(key_prov, currentCarga.id, newData);
-    setShowNotification("button2");
-    setTimeout(() => setShowNotification(false), 2000); // Hide after 2 seconds
+  const handlePesoChange = (idx, val) => {
+    setPesosGuias((prev) => prev.map((p, i) => (i === idx ? val : p)));
   };
 
   const parsePeso = (pesoStr) => {
@@ -233,12 +124,13 @@ const DatosG4 = () => {
   };
 
   const checkPesos = () => {
-    const sumPesos = pesos.reduce((acc, peso) => acc + parsePeso(peso), 0) || 0;
-    const peso = parsePeso(currentCarga.p_total) || 0;
+    const sumPesos =
+      pesosGuias.reduce((acc, peso) => acc + parsePeso(peso), 0) || 0;
+    const pesoTotal = parsePeso(currentCarga.p_total) || 0;
 
-    if (sumPesos !== peso) {
+    if (sumPesos !== pesoTotal) {
       alert(
-        `Por favor verifique los pesos de las guías, la suma debiría ser igual a ${peso}.`
+        `Por favor verifique los pesos de las guías, la suma debiría ser igual a ${pesoTotal}.`
       );
       return false;
     }
@@ -268,6 +160,49 @@ const DatosG4 = () => {
     updateCargaField(key_prov, currentCarga.id, newData);
   };
 
+  // Save guias codes and weights to Firestore when clicking "Guardar"
+  const saveGuias = () => {
+    if (!checkOnlineStatus()) {
+      addAlert(
+        "No hay conexión a internet. No se puede guardar la información.",
+        "error"
+      );
+      return;
+    }
+
+    if (amountGuias > 1 && !checkPesos()) {
+      return;
+    }
+
+    const newData = {
+      codigos_guias: numGuias,
+      pesos_guias: pesosGuias.map((peso) => (peso ? formatNumber(peso) : "")),
+    };
+
+    updateCargaField(key_prov, currentCarga.id, newData).then(() => {
+      setShowNotification("button1");
+      setTimeout(() => setShowNotification(null), 2000);
+    });
+  };
+
+  // Save precintos to Firestore when clicking "Guardar"
+  const savePrecintos = () => {
+    if (!checkOnlineStatus()) {
+      addAlert(
+        "No hay conexión a internet. No se puede guardar la información.",
+        "error"
+      );
+      return;
+    }
+    const newData = {
+      precintos: precintos.length > 0 ? precintos : ["S/P"],
+    };
+    updateCargaField(key_prov, currentCarga.id, newData).then(() => {
+      setShowNotification("button2");
+      setTimeout(() => setShowNotification(null), 2000);
+    });
+  };
+
   if (showSuggestions) true;
 
   return (
@@ -283,20 +218,51 @@ const DatosG4 = () => {
               min={0}
               max={15}
               step={1}
-              value={numGuias === 0 ? "" : numGuias}
+              value={amountGuias === 0 ? "" : amountGuias}
               onChange={handleGuiasChange}
               placeholder="Ingrese la cantidad de guías"
             />
           </div>
-          <NumGuias
-            num={numGuias}
-            codigos={codigos.map((c) => c ?? "")}
-            pesos={pesos.map((p) => p ?? "")}
-            onGuideNumberChange={handleGuideNumberChange}
-            onGuideWeightChange={handleGuideWeightChange}
-          />
 
-          {numGuias > 0 && (
+          {/* Conditionally render guia fields */}
+          {amountGuias === 1 && (
+            <div className="guia-fields">
+              <label>Código de guía:</label>
+              <input
+                type="text"
+                maxLength={9}
+                value={numGuias[0] || ""}
+                onChange={(e) => handleCodigoChange(0, e.target.value)}
+                placeholder="Ingrese código de guía (9 dígitos)"
+              />
+            </div>
+          )}
+
+          {amountGuias > 1 && (
+            <div className="guia-fields-multiple">
+              {Array.from({ length: amountGuias }).map((_, idx) => (
+                <div key={idx} className="guia-set">
+                  <label>Código de guía #{idx + 1}:</label>
+                  <input
+                    type="text"
+                    maxLength={9}
+                    value={numGuias[idx] || ""}
+                    onChange={(e) => handleCodigoChange(idx, e.target.value)}
+                    placeholder="Ingrese código de guía"
+                  />
+                  <label>Peso guía #{idx + 1}:</label>
+                  <input
+                    type="text"
+                    value={pesosGuias[idx] || ""}
+                    onChange={(e) => handlePesoChange(idx, e.target.value)}
+                    placeholder="Ingrese peso de la guía"
+                  />
+                </div>
+              ))}
+            </div>
+          )}
+
+          {amountGuias > 0 && (
             <div className="button-group">
               {showNotification === "button1" && (
                 <div className="notificacion">¡Información guardada!</div>
@@ -307,6 +273,7 @@ const DatosG4 = () => {
             </div>
           )}
 
+          {/* Datos Precintos */}
           <div className="number-input-container">
             <h2>Datos Precintos</h2>
             <label htmlFor="n_precintos">Cantidad de precintos: </label>
@@ -316,22 +283,32 @@ const DatosG4 = () => {
               min={0}
               max={15}
               step={1}
-              value={numPrecintos === 0 ? "" : numPrecintos}
-              onChange={handlePrecintosChange}
+              value={amountPrecintos === 0 ? "" : amountPrecintos}
+              onChange={handlePrecintosAmountChange}
               placeholder="Ingrese la cantidad de precintos"
             />
           </div>
 
-          <NumPrecintos
-            num={numPrecintos}
-            cargas={cargas}
-            mapeo={key_prov}
-            cargaActual={cargaActual}
-            onPrecintoNumberChange={handlePrecintoNumberChange}
-            precintos={precintos.map((p) => p ?? "")}
-          />
+          {amountPrecintos > 0 && (
+            <div className="precintos-fields-multiple">
+              {Array.from({ length: amountPrecintos }).map((_, idx) => (
+                <div key={idx} className="precinto-set">
+                  <label>Código de precinto #{idx + 1}:</label>
+                  <input
+                    type="text"
+                    maxLength={8}
+                    value={precintos[idx] || ""}
+                    onChange={(e) =>
+                      handlePrecintoValueChange(idx, e.target.value)
+                    }
+                    placeholder="Ingrese código de precinto"
+                  />
+                </div>
+              ))}
+            </div>
+          )}
 
-          {numPrecintos > 0 && (
+          {amountPrecintos > 0 && (
             <div className="button-group">
               {showNotification === "button2" && (
                 <div className="notificacion">¡Información guardada!</div>

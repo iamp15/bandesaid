@@ -2,9 +2,17 @@
 import { Link } from "react-router-dom";
 import "./../styles/Rol.css";
 import { useEstados } from "../contexts/EstadosContext";
+import { useNavigate } from "react-router-dom";
 
 export const Rol = () => {
   const { setRol } = useEstados();
+  const navigate = useNavigate();
+
+  const handleVolver = () => {
+    setRol("");
+    localStorage.removeItem("rol");
+    navigate("/menu");
+  };
 
   return (
     <div className="wrap-container">
@@ -28,9 +36,7 @@ export const Rol = () => {
           </Link>
         </div>
         <div className="button-group">
-          <Link to={"/menu"}>
-            <button>Volver a inicio</button>
-          </Link>
+          <button onClick={handleVolver}>Volver a inicio</button>
         </div>
       </div>
     </div>

@@ -100,13 +100,7 @@ const DatosG2 = () => {
       return;
     }
 
-    const newData = {
-      codigo_espejo: selectedCompany?.codigo || "N/A",
-    };
-
-    updateCargaField(key_prov, currentCarga.id, newData).then(() =>
-      navigate("/datosg3")
-    );
+    navigate("/datosg3");
   };
 
   const handleEmpresaInput = (e) => {
@@ -139,18 +133,40 @@ const DatosG2 = () => {
   };
 
   const handleFieldSave = (name, value) => {
-    const updatedData = {
-      ...currentCarga,
-      [name]: value,
-      editHistory: {
-        ...currentCarga.editHistory,
-        [name]: {
-          value,
-          editedBy: currentUser.name,
-          editedAt: new Date().toISOString(),
+    // When saving "destino", also save codigo_espejo (or N/A)
+    let updatedData;
+    if (name === "destino") {
+      // Find the selected company in both lists
+      const company =
+        companyNames.find((c) => c.nombre === value) ||
+        sinCodigo.find((c) => c.nombre === value);
+      updatedData = {
+        ...currentCarga,
+        destino: value,
+        codigo_espejo: company ? company.codigo : "N/A",
+        editHistory: {
+          ...currentCarga.editHistory,
+          [name]: {
+            value,
+            editedBy: currentUser.name,
+            editedAt: new Date().toISOString(),
+          },
         },
-      },
-    };
+      };
+    } else {
+      updatedData = {
+        ...currentCarga,
+        [name]: value,
+        editHistory: {
+          ...currentCarga.editHistory,
+          [name]: {
+            value,
+            editedBy: currentUser.name,
+            editedAt: new Date().toISOString(),
+          },
+        },
+      };
+    }
     updateCargaField(key_prov, currentCarga.id, updatedData);
   };
 

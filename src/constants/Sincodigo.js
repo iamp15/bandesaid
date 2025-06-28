@@ -1,12 +1,10 @@
 export const sinCodigo = [
   {
-    nombre:
-      "(GOBERNACION SUCRE) EMPRESA DE PRODUCCION SOCIAL COMERCIALIZADORA DE ALIMENTOS, C.A.",
+    nombre: "EMPRESA DE PRODUCCION SOCIAL COMERCIALIZADORA DE ALIMENTOS, C.A.",
     codigo: 1,
   },
   {
-    nombre:
-      "(GOBERNACION ANZOATEGUI) EMPRESA DE PRODUCCION SOCIAL CACIQUE UCHIRE, C.A.",
+    nombre: "EMPRESA DE PRODUCCION SOCIAL CACIQUE UCHIRE, C.A.",
     codigo: 2,
   },
   {
@@ -14,7 +12,7 @@ export const sinCodigo = [
     codigo: 3,
   },
   {
-    nombre: "(GOBERNACION MERIDA) EMPRESA SOCIALISTA DE ALIMENTOS S.A.",
+    nombre: "EMPRESA SOCIALISTA DE ALIMENTOS S.A.",
     codigo: 4,
   },
   { nombre: "SERVICIO DE ALIMENTACION DEL EJERCITO", codigo: 84 },

@@ -13,21 +13,21 @@ import { useAlert } from "../alert/AlertContext";
 import { useEstados } from "../../contexts/EstadosContext";
 
 const Sistemas1 = () => {
-  const { cargas, setCargas, cargaActual, proveedor, setCargaActual } =
-    useEstados();
+  const {
+    cargaActual,
+    proveedor,
+    setCargaActual,
+    currentCarga,
+    updateCargaField,
+  } = useEstados();
   const { currentUser, loading } = useAuth();
-  const key = PROVIDER_MAP[proveedor];
-  const currentCarga =
-    cargas && cargas[key]?.[cargaActual - 1]
-      ? cargas[key][cargaActual - 1]
-      : {};
-  const guardar = useGuardar(setCargas);
+  const key_prov = PROVIDER_MAP[proveedor];
   const navigate = useNavigate();
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [onEdit, setOnEdit] = useState(null);
   const { addAlert } = useAlert();
 
-  if ((loading, !currentUser || !cargas)) {
+  if ((loading, !currentUser || !currentCarga || !currentCarga.id)) {
     return <LoadingSpinner />;
   }
 
@@ -35,7 +35,7 @@ const Sistemas1 = () => {
     navigate("/despachos");
   }
 
-  const handleFieldSave = (fieldName, newValue) => {
+  const handleFieldSave = async (fieldName, newValue) => {
     if (!checkOnlineStatus()) {
       addAlert(
         "No hay conexión a internet. No se puede guardar la información.",
@@ -44,6 +44,7 @@ const Sistemas1 = () => {
       return;
     }
     const newData = {
+      ...currentCarga,
       [fieldName]: newValue,
       editHistory: {
         ...currentCarga?.editHistory,
@@ -54,10 +55,10 @@ const Sistemas1 = () => {
         },
       },
     };
-    guardar(proveedor, cargaActual, "", newData);
+    await updateCargaField(key_prov, currentCarga.id, newData);
   };
 
-  const tkChange = (e) => {
+  const tkChange = async (e) => {
     if (!checkOnlineStatus()) {
       addAlert(
         "No hay conexión a internet. No se puede guardar la información.",
@@ -65,18 +66,8 @@ const Sistemas1 = () => {
       );
       return;
     }
-    const newData = {
-      tk: e.target.value,
-      editHistory: {
-        ...currentCarga?.editHistory,
-        tk: {
-          value: e.target.value,
-          editedBy: currentUser.name,
-          editedAt: new Date().toISOString(),
-        },
-      },
-    };
-    guardar(proveedor, cargaActual, "", newData);
+    const newValue = e.target.value === "Si" ? "Si" : "No";
+    await handleFieldSave("tk", newValue);
   };
 
   const handleContinue = () => {

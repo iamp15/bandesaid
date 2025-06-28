@@ -1,8 +1,6 @@
-/* eslint-disable react/prop-types */
 import { Link } from "react-router-dom";
 import { useState } from "react";
 import { PROVIDER_MAP } from "../../constants/constants";
-import { useGuardar } from "../../hooks/useGuardar";
 import { capitalizeWords } from "../../utils/Capitalizer";
 import { useAuth } from "../login/AuthContext";
 import EditableField from "../EditableField";
@@ -14,13 +12,9 @@ import { useEstados } from "../../contexts/EstadosContext";
 import LoadingSpinner from "../LoadingSpinner";
 
 const ControlCalidad1 = () => {
-  const { cargas, setCargas, cargaActual, proveedor } = useEstados();
+  const { cargaActual, proveedor, currentCarga, updateCargaField } =
+    useEstados();
   const key = PROVIDER_MAP[proveedor];
-  const currentCarga =
-    cargas && cargas[key]?.[cargaActual - 1]
-      ? cargas[key]?.[cargaActual - 1]
-      : {};
-  const guardar = useGuardar(setCargas);
   const [thermoKingStatus, setThermoKingStatus] = useState(
     currentCarga?.tk || "Si"
   );
@@ -41,14 +35,8 @@ const ControlCalidad1 = () => {
     navigate("/despachos");
   }
 
-  if (!currentUser || !cargas) {
-    return (
-      <div className="wrap-container">
-        <div className="menu">
-          <LoadingSpinner />
-        </div>
-      </div>
-    );
+  if (!currentUser || !currentCarga || !currentCarga.id) {
+    return <LoadingSpinner />;
   }
 
   const saveData = (fieldName, newValue) => {
@@ -61,6 +49,7 @@ const ControlCalidad1 = () => {
     }
 
     const newData = {
+      ...currentCarga,
       [fieldName]: newValue,
       editHistory: {
         ...currentCarga?.editHistory,
@@ -71,7 +60,7 @@ const ControlCalidad1 = () => {
         },
       },
     };
-    guardar(proveedor, cargaActual, "", newData);
+    updateCargaField(key, currentCarga.id, newData);
   };
 
   const formatEditHistory = (editHistory, fieldName) => {
@@ -233,9 +222,9 @@ const ControlCalidad1 = () => {
 
           {/* Entidad */}
           <EditableField
-            fieldName="entidad"
+            fieldName="transporte"
             label="Entidad"
-            value={currentCarga?.entidad}
+            value={currentCarga?.transporte}
             placeholder="Ingrese la entidad"
             onSave={saveData}
             currentUser={currentUser}

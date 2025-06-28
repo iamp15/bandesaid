@@ -1,8 +1,6 @@
 import { useState, useEffect } from "react";
-/* eslint-disable react/prop-types */
 import { PROVIDER_MAP, MARCA } from "../../constants/constants";
 import { useNavigate } from "react-router-dom";
-import { useGuardar } from "../../hooks/useGuardar";
 import { useAuth } from "../login/AuthContext";
 import { useAlert } from "../alert/AlertContext";
 import SelectorMarca from "../guias/controles/SelectorMarca";
@@ -14,21 +12,23 @@ import { useEstados } from "../../contexts/EstadosContext";
 import LoadingSpinner from "../LoadingSpinner";
 
 const ControlCalidad3 = () => {
-  const { cargas, setCargas, cargaActual, setCargaActual, proveedor } =
-    useEstados();
-  const mapeo = PROVIDER_MAP[proveedor];
-  const infoCarga =
-    cargas && cargas[mapeo][cargaActual - 1]
-      ? cargas[mapeo][cargaActual - 1]
-      : {};
+  const {
+    cargaActual,
+    setCargaActual,
+    proveedor,
+    currentCarga,
+    updateCargaField,
+  } = useEstados();
+  const key_prov = PROVIDER_MAP[proveedor];
   const navigate = useNavigate();
   const [muestras, setMuestras] = useState(0);
   const [temperaturas, setTemperaturas] = useState(
-    infoCarga.temperaturas || []
+    currentCarga.temperaturas || []
   );
-  const [pesos, setPesos] = useState(infoCarga.pesos || []);
-  const [chickenBrand, setChickenBrand] = useState(infoCarga.marca_rubro);
-  const guardar = useGuardar(setCargas);
+  const [pesos, setPesos] = useState(currentCarga.pesos || []);
+  const [chickenBrand, setChickenBrand] = useState(
+    currentCarga.marca_rubro || "San José"
+  );
   const { currentUser } = useAuth();
   const [onEdit, setOnEdit] = useState(null);
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -36,25 +36,19 @@ const ControlCalidad3 = () => {
   const [showNotification, setShowNotification] = useState(null);
 
   useEffect(() => {
-    if (infoCarga.muestras) {
-      setMuestras(infoCarga.muestras);
-      setTemperaturas(infoCarga.temperaturas || []);
-      setPesos(infoCarga.pesos || []);
+    if (currentCarga.muestras) {
+      setMuestras(currentCarga.muestras);
+      setTemperaturas(currentCarga.temperaturas || []);
+      setPesos(currentCarga.pesos || []);
     }
-  }, [infoCarga]);
+  }, [currentCarga]);
 
   if (!proveedor || !cargaActual) {
     navigate("/despachos");
   }
 
-  if (!currentUser || !cargas) {
-    return (
-      <div className="wrap-container">
-        <div className="menu">
-          <LoadingSpinner />
-        </div>
-      </div>
-    );
+  if (!currentUser || !currentCarga || !currentCarga.id) {
+    return <LoadingSpinner />;
   }
 
   const promedio = (valores) => {
@@ -138,6 +132,7 @@ const ControlCalidad3 = () => {
       return;
     }
     const newData = {
+      ...currentCarga,
       cnd: cndNumber,
       muestras: Number(muestras),
       temperaturas: temperaturas,
@@ -145,7 +140,13 @@ const ControlCalidad3 = () => {
       t_promedio: parseFloat(decimalPeriod(t_promedio)).toFixed(1),
       p_promedio: decimalComma(p_promedio.toFixed(2)),
     };
-    guardar(proveedor, cargaActual, "/cc4", newData);
+    updateCargaField(key_prov, currentCarga.id, newData)
+      .then(() => {
+        navigate("/cc4");
+      })
+      .catch((error) => {
+        addAlert(`Error al guardar la información: ${error.message}`, "error");
+      });
   };
 
   const saveData = (fieldName, newValue) => {
@@ -158,9 +159,10 @@ const ControlCalidad3 = () => {
     }
 
     const newData = {
+      ...currentCarga,
       [fieldName]: newValue,
       editHistory: {
-        ...infoCarga?.editHistory,
+        ...currentCarga?.editHistory,
         [fieldName]: {
           value: newValue,
           editedBy: currentUser.name,
@@ -168,7 +170,7 @@ const ControlCalidad3 = () => {
         },
       },
     };
-    guardar(proveedor, cargaActual, "", newData);
+    updateCargaField(key_prov, currentCarga.id, newData);
   };
 
   const formatEditHistory = (editHistory, fieldName) => {
@@ -199,13 +201,13 @@ const ControlCalidad3 = () => {
     setShowNotification(true);
     setTimeout(() => {
       setShowNotification(false);
-    }, 3000);
+    }, 2000);
     const newData = {
       muestras: Number(muestras),
       temperaturas: temperaturas,
       pesos: pesos,
     };
-    guardar(proveedor, cargaActual, "", newData);
+    updateCargaField(key_prov, currentCarga.id, newData);
   };
 
   return (
@@ -219,17 +221,17 @@ const ControlCalidad3 = () => {
             chickenBrand={chickenBrand}
             onChange={handleChickenBrandChange}
           />
-          {formatEditHistory(infoCarga.editHistory, "marca_rubro")}
+          {formatEditHistory(currentCarga.editHistory, "marca_rubro")}
 
           {/* Lote */}
           <EditableField
             fieldName="lote"
             label="Número de lote"
-            value={infoCarga.lote}
+            value={currentCarga.lote}
             placeholder="Escribe el número de lote"
             onSave={saveData}
             currentUser={currentUser}
-            editHistory={infoCarga.editHistory}
+            editHistory={currentCarga.editHistory}
             setShowSuggestions={setShowSuggestions}
             setOnEdit={setOnEdit}
             onEdit={onEdit}

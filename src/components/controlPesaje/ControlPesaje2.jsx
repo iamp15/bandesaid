@@ -68,13 +68,13 @@ const ControlPesaje2 = () => {
       }
     };
     return (
-      "*INICIO DE CARGA  👀*\n" +
-      `*CARGA Nº ${numeracion()}*\n` +
-      `*Proveedor:* ${proveedor}\n` +
-      `*Galpón:* ${GALPON}\n` +
-      `*Rubro:* ${RUBRO}\n` +
-      `*Thermo King:* ${currentCarga.tk}\n` +
-      `*Fecha:* ${currentCarga.fecha}\n`
+      "**INICIO DE CARGA  👀**\n" +
+      `**CARGA Nº ${numeracion()}**\n` +
+      `**Proveedor:** ${proveedor}\n` +
+      `**Galpón:** ${GALPON}\n` +
+      `**Rubro:** ${RUBRO}\n` +
+      `**Thermo King:** ${currentCarga.tk}\n` +
+      `**Fecha:** ${currentCarga.fecha}\n`
     );
   };
 
@@ -87,11 +87,11 @@ const ControlPesaje2 = () => {
       }
     };
     return (
-      `*CARGA Nº ${numeracion()}*\n` +
-      `*Proveedor:* ${proveedor}\n` +
-      `*Galpón:* ${GALPON}\n` +
-      `*Rubro:* ${RUBRO}\n` +
-      `*Fecha:* ${currentCarga.fecha}\n` +
+      `**CARGA Nº ${numeracion()}**\n` +
+      `**Proveedor:** ${proveedor}\n` +
+      `**Galpón:** ${GALPON}\n` +
+      `**Rubro:** ${RUBRO}\n` +
+      `**Fecha:** ${currentCarga.fecha}\n` +
       "\n✓ Carga finalizada.\n" +
       `🆔: ${currentCarga.id_unidad}`
     );

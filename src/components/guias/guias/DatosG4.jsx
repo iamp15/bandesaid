@@ -75,10 +75,6 @@ const DatosG4 = () => {
     );
   };
 
-  // Update: split handlePrecintosChange into two functions:
-  // 1. For changing the amount (input number)
-  // 2. For changing the value of each precinto (input text)
-
   // Handles the amount of precintos
   const handlePrecintosAmountChange = (e) => {
     const value = Number(e.target.value);
@@ -281,7 +277,7 @@ const DatosG4 = () => {
               type="number"
               id="n_precintos"
               min={0}
-              max={15}
+              max={10}
               step={1}
               value={amountPrecintos === 0 ? "" : amountPrecintos}
               onChange={handlePrecintosAmountChange}
@@ -323,7 +319,7 @@ const DatosG4 = () => {
           <EditableField
             fieldName="id_despacho"
             label="ID despacho"
-            value={currentCarga.id_despacho ?? ""}
+            value={currentCarga.id_despacho}
             onSave={handleFieldSave}
             placeholder={"Ingresa el ID del despacho"}
             currentUser={currentUser}

@@ -9,7 +9,7 @@ import { PROVIDER_MAP } from "../constants/constants";
 import { useEstados } from "../contexts/EstadosContext";
 
 const Carga = () => {
-  const { cargas, addCarga, deleteCarga, proveedor } = useEstados();
+  const { cargas, addCarga, deleteCarga, proveedor, setCargas } = useEstados();
   const { askConfirmation, addAlert } = useAlert();
   const { currentUser, loading } = useAuth(); // Get current user
   const key = PROVIDER_MAP[proveedor];
@@ -27,6 +27,7 @@ const Carga = () => {
     lote: "N/A",
   });
   const [addDisabled, setAddDisabled] = useState(false);
+  const [lastAddTime, setLastAddTime] = useState(0);
 
   // Local loading state for cargas
   const [cargasLoading, setCargasLoading] = useState(true);
@@ -57,7 +58,11 @@ const Carga = () => {
   };
 
   const handleAddCarga = async () => {
-    if (addDisabled) return;
+    const now = Date.now();
+    if (addDisabled || now - lastAddTime < 2000) return;
+    setAddDisabled(true);
+    setLastAddTime(now);
+
     if (!checkOnlineStatus()) {
       addAlert(
         "No hay conexión a internet. No se puede guardar la información.",
@@ -67,18 +72,32 @@ const Carga = () => {
         `No hay conexión a internet. No se puede guardar la información.`,
         "error"
       );
+      setAddDisabled(false);
       return;
     }
 
-    setAddDisabled(true); // Disable button
-    setTimeout(() => setAddDisabled(false), 1000); // Enable after 1 second
-
-    const newCarga = {
+    // Optimistically add a pending carga to the UI
+    const pendingCarga = {
       ...newCargaData,
-      // cargaNumber will be assigned in Firestore transaction
+      id: "pending-" + Date.now(),
+      loading: true,
     };
+    setCargas((prev) => ({
+      ...prev,
+      [key]: [...(prev[key] || []), pendingCarga],
+    }));
 
-    await addCarga(key, newCarga);
+    try {
+      await addCarga(key, newCargaData);
+    } catch {
+      addAlert("Error creando la carga. Intenta de nuevo.", "error");
+      // Remove the pending carga if Firestore fails
+      setCargas((prev) => ({
+        ...prev,
+        [key]: (prev[key] || []).filter((c) => c.id !== pendingCarga.id),
+      }));
+    }
+
     setNewCargaData({
       chofer: "",
       fecha: formatDate(),
@@ -91,6 +110,8 @@ const Carga = () => {
       cnd: "072249161",
       lote: "N/A",
     });
+
+    setTimeout(() => setAddDisabled(false), 2000);
   };
 
   const handleDeleteCarga = async (cargaId) => {

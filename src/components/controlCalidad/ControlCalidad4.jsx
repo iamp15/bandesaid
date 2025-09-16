@@ -24,39 +24,39 @@ const ControlCalidad4 = () => {
 
   const genTextCC = () => {
     return (
-      `*CARGA Nº ${numeracion()}*\n` +
-      `*Proveedor:* ${proveedor}\n` +
-      `*Galpón:* ${GALPON}\n` +
-      `*Rubro:* ${RUBRO}\n` +
-      `*Fecha:* ${currentCarga.fecha}\n` +
+      `**CARGA Nº ${numeracion()}**\n` +
+      `**Proveedor:** ${proveedor}\n` +
+      `**Galpón:** ${GALPON}\n` +
+      `**Rubro:** ${RUBRO}\n` +
+      `**Fecha:** ${currentCarga.fecha}\n` +
       "\n✓ Control de Calidad"
     );
   };
 
   const genTextTyP = () => {
     return (
-      `*CARGA Nº ${numeracion()}*\n` +
-      `*Proveedor:* ${proveedor}\n` +
-      `*Galpón:* ${GALPON}\n` +
-      `*Rubro:* ${RUBRO}\n` +
-      `*Fecha:* ${currentCarga.fecha}\n` +
-      "\n✓ *Fecha Elaboración:* N/A\n" +
-      "✓ *Fecha Vencimiento:* N/A\n" +
-      `✓ *Nº Lote:* ${currentCarga.lote || "N/A"}\n` +
-      `✓ *Peso promedio:* ${currentCarga.p_promedio} kg\n` +
-      `✓ *Temperatura promedio:* ${currentCarga.t_promedio} ºC\n` +
-      `✓ *Permiso sanitario:* ${PERMISO_SANITARIO}\n` +
-      `✓ *CND o CPE:* ${currentCarga.cnd}`
+      `**CARGA Nº ${numeracion()}**\n` +
+      `**Proveedor:** ${proveedor}\n` +
+      `**Galpón:** ${GALPON}\n` +
+      `**Rubro:** ${RUBRO}\n` +
+      `**Fecha:** ${currentCarga.fecha}\n` +
+      "\n✓ **Fecha Elaboración:** N/A\n" +
+      "✓ **Fecha Vencimiento:** N/A\n" +
+      `✓ **Nº Lote:** ${currentCarga.lote || "N/A"}\n` +
+      `✓ **Peso promedio:** ${currentCarga.p_promedio} kg\n` +
+      `✓ **Temperatura promedio:** ${currentCarga.t_promedio} ºC\n` +
+      `✓ **Permiso sanitario:** ${PERMISO_SANITARIO}\n` +
+      `✓ **CND o CPE:** ${currentCarga.cnd}`
     );
   };
 
   const genTextMuestras = () => {
     return (
-      `*CARGA Nº ${numeracion()}*\n` +
-      `*Proveedor:* ${proveedor}\n` +
-      `*Galpón:* ${GALPON}\n` +
-      `*Rubro:* ${RUBRO}\n` +
-      `*Fecha:* ${currentCarga.fecha}\n` +
+      `**CARGA Nº ${numeracion()}**\n` +
+      `**Proveedor:** ${proveedor}\n` +
+      `**Galpón:** ${GALPON}\n` +
+      `**Rubro:** ${RUBRO}\n` +
+      `**Fecha:** ${currentCarga.fecha}\n` +
       "\n✓ Muestras verificadas"
     );
   };

@@ -71,24 +71,24 @@ const FormulariosGuia = () => {
     };
 
     return (
-      "*DATOS DE LA GUIA* 🧾\n" +
-      `*Carga Nº ${numeracion()}:*\n` +
-      `*Empresa:* ${proveedor}\n` +
-      `*Galpón:* ${GALPON}\n` +
-      `*Rubro:* ${RUBRO}\n` +
-      `*Monto según Guía:* ${choosePeso()} kg\n` +
-      `*Monto verificado:* ${choosePesoVerificado()} kg\n` +
-      `*Número de Guía:* ${currentCarga?.codigos_guias[index]}\n` +
-      `*Marca:* ${currentCarga?.marca_rubro}\n` +
-      `*Números de lotes:* ${currentCarga.lote}\n` +
-      `*Fecha de Elaboración:* ${LOTE.elaboracion}\n` +
-      `*Fecha de Vencimiento:* ${LOTE.vencimiento}\n` +
-      `*Peso promedio:* ${currentCarga.p_promedio} kg\n` +
-      `*Temperatura:* ${currentCarga.t_promedio} ºC\n` +
-      `*CND o CPE:* ${currentCarga.cnd}\n` +
-      `*Permiso Sanitario:* ${PERMISO_SANITARIO}\n` +
-      `*Estado destino:* ${currentCarga.estadoDestino}\n` +
-      `*Entidad destino:* ${currentCarga.destino}\n` +
+      "**DATOS DE LA GUIA** 🧾\n" +
+      `**Carga Nº ${numeracion()}**:\n` +
+      `**Empresa:** ${proveedor}\n` +
+      `**Galpón:** ${GALPON}\n` +
+      `**Rubro:** ${RUBRO}\n` +
+      `**Monto según Guía:** ${choosePeso()} kg\n` +
+      `**Monto verificado:** ${choosePesoVerificado()} kg\n` +
+      `**Número de Guía:** ${currentCarga?.codigos_guias[index]}\n` +
+      `**Marca:** ${currentCarga?.marca_rubro}\n` +
+      `**Números de lotes:** ${currentCarga.lote}\n` +
+      `**Fecha de Elaboración:** ${LOTE.elaboracion}\n` +
+      `**Fecha de Vencimiento:** ${LOTE.vencimiento}\n` +
+      `**Peso promedio:** ${currentCarga.p_promedio} kg\n` +
+      `**Temperatura:** ${currentCarga.t_promedio} ºC\n` +
+      `**CND o CPE:** ${currentCarga.cnd}\n` +
+      `**Permiso Sanitario:** ${PERMISO_SANITARIO}\n` +
+      `**Estado destino:** ${currentCarga.estadoDestino}\n` +
+      `**Entidad destino:** ${currentCarga.destino}\n` +
       `🆔: ${currentCarga.id_despacho}`
     );
   };
@@ -115,24 +115,24 @@ const FormulariosGuia = () => {
     };
 
     return (
-      "*DATOS DEL VEHÍCULO* 🚚\n" +
-      `*Carga Nº ${numeracion()}:*\n` +
-      `*Empresa:* ${proveedor}\n` +
-      `*Galpón:* ${GALPON}\n` +
-      `*Rubro:* ${RUBRO}\n` +
-      `*Número de Guía:* ${currentCarga?.codigos_guias.join("/")}\n` +
-      `*Thermo King operativo:* ${checkTk()}\n` +
-      `*Transporte:* ${currentCarga.transporte}\n` +
-      `*Nombre del chofer:* ${currentCarga.chofer}\n` +
-      `*Cédula de identidad del chofer:* ${currentCarga.cedula}\n` +
-      `*Placa del vehículo:* ${currentCarga.placa}\n` +
-      `*Número de precintos:* ${
+      "**DATOS DEL VEHÍCULO** 🚚\n" +
+      `**Carga Nº ${numeracion()}:**\n` +
+      `**Empresa:** ${proveedor}\n` +
+      `**Galpón:** ${GALPON}\n` +
+      `**Rubro:** ${RUBRO}\n` +
+      `**Número de Guía:** ${currentCarga?.codigos_guias.join("/")}\n` +
+      `**Thermo King operativo:** ${checkTk()}\n` +
+      `**Transporte:** ${currentCarga.transporte}\n` +
+      `**Nombre del chofer:** ${currentCarga.chofer}\n` +
+      `**Cédula de identidad del chofer:** ${currentCarga.cedula}\n` +
+      `**Placa del vehículo:** ${currentCarga.placa}\n` +
+      `**Número de precintos:** ${
         Array.isArray(currentCarga.precintos) &&
         currentCarga.precintos.length > 0
           ? currentCarga.precintos.join(", ")
           : "S/P"
       }\n` +
-      `*Marca del vehículo:* ${currentCarga.marcaVehiculo}\n`
+      `**Marca del vehículo:** ${currentCarga.marcaVehiculo}\n`
     );
   };
 
@@ -144,13 +144,13 @@ const FormulariosGuia = () => {
     };
 
     return (
-      "*ACTA DE RESPONSABILIDAD*\n" +
-      `*CARGA Nº ${numeracion()}*\n` +
-      `*Proveedor:* ${proveedor}\n` +
-      `*Galpón:* ${GALPON}\n` +
-      `*Rubro:* ${RUBRO}\n` +
-      `*Guía Sada Nro:* ${currentCarga?.codigos_guias[index]}\n` +
-      `*Fecha:* ${currentCarga.fecha}`
+      "**ACTA DE RESPONSABILIDAD**\n" +
+      `**CARGA Nº ${numeracion()}**\n` +
+      `**Proveedor:** ${proveedor}\n` +
+      `**Galpón:** ${GALPON}\n` +
+      `**Rubro:** ${RUBRO}\n` +
+      `**Guía Sada Nro:** ${currentCarga?.codigos_guias[index]}\n` +
+      `**Fecha:** ${currentCarga.fecha}`
     );
   };
 
@@ -160,13 +160,13 @@ const FormulariosGuia = () => {
       else return `${cargaActual}`;
     };
     return (
-      `*CARGA Nº ${numeracion()}*\n` +
-      `*Empresa:* ${proveedor}\n` +
-      `*Galpón:* ${GALPON}\n` +
-      `*Producto:* ${RUBRO}\n` +
-      `*Fecha:* ${currentCarga.fecha}\n` +
-      `*Destino:* ${currentCarga.destino}\n\n` +
-      " *SALIENDO DE PLANTA*"
+      `**CARGA Nº ${numeracion()}**\n` +
+      `**Empresa:** ${proveedor}\n` +
+      `**Galpón:** ${GALPON}\n` +
+      `**Producto:** ${RUBRO}\n` +
+      `**Fecha:** ${currentCarga.fecha}\n` +
+      `**Destino:** ${currentCarga.destino}\n\n` +
+      " **SALIENDO DE PLANTA**"
     );
   };
 

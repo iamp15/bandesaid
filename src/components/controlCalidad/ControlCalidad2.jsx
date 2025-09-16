@@ -68,15 +68,15 @@ const ControlCalidad2 = () => {
     };
 
     return (
-      "*INSPECCIÓN DE VEHÍCULO* 👀\n" +
-      `*CARGA Nº ${numeracion()}:*\n` +
-      `*Proveedor:* ${proveedor}\n` +
-      `*Galpón:* ${GALPON}\n` +
-      `*Rubro:* ${RUBRO}\n` +
-      `*Thermo King:* ${currentCarga.tk}\n` +
-      `*Fecha:* ${currentCarga.fecha}\n` +
-      `*Motivo:* Inicio de Carga\n` +
-      `\n*Observación:* ${genObservacion()}`
+      "**INSPECCIÓN DE VEHÍCULO** 👀\n" +
+      `**CARGA Nº ${numeracion()}:**\n` +
+      `**Proveedor:** ${proveedor}\n` +
+      `**Galpón:** ${GALPON}\n` +
+      `**Rubro:** ${RUBRO}\n` +
+      `**Thermo King:** ${currentCarga.tk}\n` +
+      `**Fecha:** ${currentCarga.fecha}\n` +
+      `**Motivo:** Inicio de Carga\n` +
+      `\n**Observación:** ${genObservacion()}`
     );
   };
 

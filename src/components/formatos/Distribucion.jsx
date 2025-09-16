@@ -58,16 +58,16 @@ const Distribucion = () => {
   };
 
   const texto =
-    `*Distribución del grupo para su jornada laboral*\n` +
-    `*FECHA:* ${formatDate()}\n\n` +
-    ` *CONTROL DE PESO:*\n\n` +
+    `**Distribución del grupo para su jornada laboral**\n` +
+    `**FECHA:** ${formatDate()}\n\n` +
+    ` **CONTROL DE PESO:**\n\n` +
     `📌 ${inspectores[0]}\n\n` +
-    ` *CONTROL DE CALIDAD - BARRIDO DEL SISTEMA:*\n\n` +
+    ` **CONTROL DE CALIDAD - BARRIDO DEL SISTEMA:**\n\n` +
     `📌 ${inspectores[1]}\n` +
     `📌 ${inspectores[2]}\n\n` +
-    ` *VERIFICACIÓN DE GUÍAS - SALIDA DE VEHÍCULOS:*\n\n` +
+    ` **VERIFICACIÓN DE GUÍAS - SALIDA DE VEHÍCULOS:**\n\n` +
     `📌 ${inspectores[3]}\n\n` +
-    ` *SISTEMA:*\n\n` +
+    ` **SISTEMA:**\n\n` +
     `📌 ${inspectores[4]}\n`;
 
   return (

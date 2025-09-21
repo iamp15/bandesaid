@@ -45,21 +45,87 @@ export const EstadosProvider = ({ children }) => {
     return savedProveedor ? savedProveedor : "";
   });
 
+  // Estados para manejo de conectividad y sincronización
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [syncStatus, setSyncStatus] = useState({
+    isConnected: false,
+    lastSync: null,
+    hasInitialData: false,
+    pendingOperations: 0,
+  });
+
+  // Monitor de conectividad
+  useEffect(() => {
+    const handleOnline = () => {
+      setIsOnline(true);
+      setSyncStatus((prev) => ({ ...prev, isConnected: true }));
+    };
+
+    const handleOffline = () => {
+      setIsOnline(false);
+      setSyncStatus((prev) => ({ ...prev, isConnected: false }));
+    };
+
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
+
+    return () => {
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
+    };
+  }, []);
+
   // Fetch cargas from all provider subcollections for today (real-time)
   useEffect(() => {
     const unsubscribes = [];
-    const newCargas = { id: todayId, tr: [], tg: [], al: [], av: [], an: [] };
+    const loadedProviders = new Set();
+    const totalProviders = providers.length;
+
     providers.forEach((prov) => {
       const provColRef = collection(db, "cargas", todayId, prov);
-      const unsubscribe = onSnapshot(provColRef, (provSnap) => {
-        newCargas[prov] = provSnap.docs.map((d) => ({
-          id: d.id,
-          ...d.data(),
-        }));
-        setCargas({ ...newCargas });
-      });
+      const unsubscribe = onSnapshot(
+        provColRef,
+        (provSnap) => {
+          setCargas((prevCargas) => ({
+            ...prevCargas,
+            [prov]: provSnap.docs.map((d) => ({
+              id: d.id,
+              ...d.data(),
+            })),
+          }));
+
+          // Track initial data load - only count each provider once
+          if (!loadedProviders.has(prov)) {
+            loadedProviders.add(prov);
+            if (loadedProviders.size >= totalProviders) {
+              setSyncStatus((prev) => ({
+                ...prev,
+                hasInitialData: true,
+                lastSync: new Date(),
+                isConnected: true,
+              }));
+            }
+          } else {
+            // Update sync status for subsequent updates
+            setSyncStatus((prev) => ({
+              ...prev,
+              lastSync: new Date(),
+              isConnected: true,
+            }));
+          }
+        },
+        (error) => {
+          console.error(`Error syncing ${prov} cargas:`, error);
+          setSyncStatus((prev) => ({
+            ...prev,
+            isConnected: false,
+            lastSync: prev.lastSync, // Keep last successful sync time
+          }));
+        }
+      );
       unsubscribes.push(unsubscribe);
     });
+
     return () => {
       unsubscribes.forEach((unsub) => unsub());
     };
@@ -73,32 +139,93 @@ export const EstadosProvider = ({ children }) => {
     setCurrentCarga(carga || {});
   }, [cargas, cargaActual, proveedor]);
 
-  // Add a new carga for a provider with atomic cargaNumber assignment
-  const addCarga = async (provider, cargaData) => {
-    const provColRef = collection(db, "cargas", todayId, provider);
-    const counterDocRef = doc(
-      db,
-      "cargas",
-      todayId,
-      `${provider}_counter`,
-      "last"
-    );
-    await runTransaction(db, async (transaction) => {
-      // Get the current counter (last used cargaNumber)
-      let lastCargaNumber = 0;
-      const counterSnap = await transaction.get(counterDocRef);
-      if (counterSnap.exists()) {
-        lastCargaNumber = counterSnap.data().value || 0;
-      }
-      const newCargaNumber = lastCargaNumber + 1;
-      // Update the counter
-      transaction.set(counterDocRef, { value: newCargaNumber });
-      // Add the new carga with the next cargaNumber
-      const newCargaRef = doc(provColRef); // Create a new doc ref with auto-id
-      transaction.set(newCargaRef, {
-        ...cargaData,
-        cargaNumber: newCargaNumber,
+  // Migration function to fix existing cargas with timestamp cargaNumbers
+  const migrateCargaNumbers = async (provider) => {
+    try {
+      const provColRef = collection(db, "cargas", todayId, provider);
+      const existingCargas = await getDocs(provColRef);
+
+      const cargasToMigrate = [];
+      existingCargas.docs.forEach((doc) => {
+        const carga = doc.data();
+        // If cargaNumber is a timestamp (very large number), it needs migration
+        if (carga.cargaNumber && carga.cargaNumber > 1000000) {
+          cargasToMigrate.push({ id: doc.id, data: carga });
+        }
       });
+
+      if (cargasToMigrate.length > 0) {
+        console.log(
+          `Migrating ${cargasToMigrate.length} cargas for provider ${provider}`
+        );
+
+        // Sort by creation time or timestamp to maintain order
+        cargasToMigrate.sort((a, b) => {
+          const timeA = a.data.createdAt || a.data.cargaNumber;
+          const timeB = b.data.createdAt || b.data.cargaNumber;
+          return new Date(timeA) - new Date(timeB);
+        });
+
+        // Assign simple consecutive numbers
+        for (let i = 0; i < cargasToMigrate.length; i++) {
+          const carga = cargasToMigrate[i];
+          const newCargaNumber = i + 1;
+
+          const cargaDocRef = doc(db, "cargas", todayId, provider, carga.id);
+          await updateDoc(cargaDocRef, { cargaNumber: newCargaNumber });
+        }
+
+        console.log(`Migration completed for provider ${provider}`);
+      }
+    } catch (error) {
+      console.error(`Error migrating cargas for provider ${provider}:`, error);
+    }
+  };
+
+  // Add a new carga for a provider with simple consecutive numbering
+  const addCarga = async (provider, cargaData) => {
+    // Check if user is authenticated with Firebase Auth
+    const { auth } = await import("../firebase/config");
+    const currentAuthUser = auth.currentUser;
+
+    if (!currentAuthUser) {
+      throw new Error(
+        "Usuario no autenticado. Por favor, inicia sesión nuevamente."
+      );
+    }
+
+    console.log(
+      "Creating carga with authenticated user:",
+      currentAuthUser.email
+    );
+
+    const provColRef = collection(db, "cargas", todayId, provider);
+
+    // Get existing cargas to find the next consecutive number
+    const existingCargas = await getDocs(provColRef);
+    let maxCargaNumber = 0;
+
+    // Find the highest cargaNumber currently in use
+    existingCargas.docs.forEach((doc) => {
+      const carga = doc.data();
+      if (
+        carga.cargaNumber &&
+        typeof carga.cargaNumber === "number" &&
+        carga.cargaNumber > maxCargaNumber
+      ) {
+        maxCargaNumber = carga.cargaNumber;
+      }
+    });
+
+    const newCargaNumber = maxCargaNumber + 1;
+    console.log(`Creating carga #${newCargaNumber} for provider ${provider}`);
+
+    // Add the new carga with consecutive numbering
+    await addDoc(provColRef, {
+      ...cargaData,
+      cargaNumber: newCargaNumber,
+      createdBy: currentAuthUser.email,
+      createdAt: new Date().toISOString(),
     });
     // Do not update local state here; let onSnapshot handle it
   };
@@ -114,49 +241,15 @@ export const EstadosProvider = ({ children }) => {
     // Do not update local state here; let onSnapshot handle it
   };
 
-  // Delete a carga and update the counter
+  // Delete a carga (simplified version)
   const deleteCarga = async (provider, cargaId) => {
     try {
-      const provColRef = collection(db, "cargas", todayId, provider);
-      const counterDocRef = doc(
-        db,
-        "cargas",
-        todayId,
-        `${provider}_counter`,
-        "last"
-      );
-      // Get the carga to delete (to know its cargaNumber)
       const cargaDocRef = doc(db, "cargas", todayId, provider, cargaId);
-      const cargaSnap = await getDocs(query(provColRef));
-      let deletedCargaNumber = null;
-      cargaSnap.docs.forEach((docSnap) => {
-        if (docSnap.id === cargaId) {
-          deletedCargaNumber = docSnap.data().cargaNumber;
-        }
-      });
-
-      // Get the current counter value
-      let lastCargaNumber = 0;
-      const counterSnap = await getDocs(
-        collection(db, "cargas", todayId, `${provider}_counter`)
-      );
-      if (!counterSnap.empty) {
-        const lastDoc = counterSnap.docs[0];
-        lastCargaNumber = lastDoc.data().value || 0;
-      }
-
-      // Delete the carga and update the counter if needed
-      await runTransaction(db, async (transaction) => {
-        transaction.delete(cargaDocRef);
-        if (deletedCargaNumber && deletedCargaNumber === lastCargaNumber) {
-          // Decrement the counter by 1 if the deleted carga was the last one
-          const newCounterValue = lastCargaNumber - 1;
-          transaction.set(counterDocRef, { value: newCounterValue });
-        }
-      });
+      await deleteDoc(cargaDocRef);
       // Do not update local state here; let onSnapshot handle it
     } catch (error) {
       console.error("Error deleting carga:", error);
+      throw error;
     }
   };
 
@@ -192,12 +285,31 @@ export const EstadosProvider = ({ children }) => {
     localStorage.setItem("guias_precintos", JSON.stringify(guias_precintos));
   }, [guias_precintos]);
 
+  // Auto-migrate carga numbers when data is initially loaded
+  useEffect(() => {
+    if (syncStatus.hasInitialData) {
+      providers.forEach(async (provider) => {
+        const providerCargas = cargas[provider] || [];
+        // Check if any cargas need migration (have timestamp cargaNumbers)
+        const needsMigration = providerCargas.some(
+          (carga) => carga.cargaNumber && carga.cargaNumber > 1000000
+        );
+
+        if (needsMigration) {
+          console.log(`Auto-migrating carga numbers for provider: ${provider}`);
+          await migrateCargaNumbers(provider);
+        }
+      });
+    }
+  }, [syncStatus.hasInitialData, cargas]);
+
   const values = {
     cargas,
     setCargas, // Optional: you may want to restrict direct usage
     addCarga,
     updateCargaField,
     deleteCarga,
+    migrateCargaNumbers, // Migration function
     cargaActual,
     setCargaActual,
     currentCarga,
@@ -207,6 +319,9 @@ export const EstadosProvider = ({ children }) => {
     setProveedor,
     guias_precintos,
     setGuias_precintos,
+    // Estados de conectividad
+    isOnline,
+    syncStatus,
   };
 
   return (

@@ -1,7 +1,11 @@
 /* eslint-disable react/prop-types */
 import { createContext, useContext, useState, useEffect } from "react";
 import { auth, db } from "../../firebase/config";
-import { signInWithEmailAndPassword, signOut } from "firebase/auth";
+import {
+  signInWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged,
+} from "firebase/auth";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { useNavigate, useLocation } from "react-router-dom";
 import LoadingSpinner from "../LoadingSpinner";
@@ -22,27 +26,51 @@ export function AuthProvider({ children }) {
   const location = useLocation();
 
   useEffect(() => {
-    const initializeAuth = async () => {
+    // Listen to Firebase Auth state changes
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       try {
-        const user = storageUtils.getUser();
-        if (user) {
-          console.log("Found user in session:", user.email);
-          setCurrentUser(user);
+        if (firebaseUser) {
+          console.log("Firebase user authenticated:", firebaseUser.email);
+
+          // Fetch or create user data in Firestore
+          const userData = await fetchUserData(firebaseUser);
+          const userToStore = {
+            email: firebaseUser.email,
+            uid: firebaseUser.uid,
+            ...userData,
+          };
+
+          // Store user data in session storage
+          storageUtils.setUser(userToStore);
+          setCurrentUser(userToStore);
+
+          // Navigate to menu if on login page
           if (location.pathname === "/") {
             navigate("/menu");
           }
         } else {
-          console.log("No user in session");
+          console.log("No Firebase user authenticated");
+          // Check if we have user in storage (for persistence)
+          const storedUser = storageUtils.getUser();
+          if (storedUser) {
+            console.log(
+              "Found user in storage, but Firebase not authenticated"
+            );
+            // Clear storage if Firebase is not authenticated
+            storageUtils.removeUser();
+          }
+          setCurrentUser(null);
         }
       } catch (error) {
-        console.error("Error initializing auth:", error);
-        saveLog(`Error initializing auth: ${error.message}`, "error");
+        console.error("Error in auth state change:", error);
+        saveLog(`Error in auth state change: ${error.message}`, "error");
+        setCurrentUser(null);
       } finally {
-        setLoading(false); // Set to false after everything is done
+        setLoading(false);
       }
-    };
+    });
 
-    initializeAuth();
+    return () => unsubscribe();
   }, [location.pathname, navigate]);
 
   const fetchUserData = async (user) => {
@@ -79,30 +107,13 @@ export function AuthProvider({ children }) {
       console.log("Starting login for:", email);
       saveLog(`Starting login for: ${email}`);
 
-      const userCredential = await signInWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
-      const user = userCredential.user;
+      // Sign in with Firebase Auth - onAuthStateChanged will handle the rest
+      await signInWithEmailAndPassword(auth, email, password);
 
-      console.log("Auth successful for:", user.email);
-      saveLog(`Auth successful for: ${user.email}`);
+      console.log("Auth successful for:", email);
+      saveLog(`Auth successful for: ${email}`);
 
-      // Fetch or create user data in Firestore
-      const userData = await fetchUserData(user);
-      const userToStore = {
-        email: user.email,
-        uid: user.uid,
-        ...userData,
-      };
-
-      // Store user data in session storage
-      storageUtils.setUser(userToStore);
-      setCurrentUser(userToStore);
-
-      console.log("Login complete with user data:", userToStore);
-      navigate("/menu");
+      // onAuthStateChanged will handle user state and navigation
     } catch (error) {
       console.error("Login error:", error);
       setError(
@@ -115,9 +126,8 @@ export function AuthProvider({ children }) {
           : "An error occurred during login"
       );
       saveLog(`Login error: ${error.message}`);
+      setLoading(false); // Set loading to false on error
       throw error;
-    } finally {
-      setLoading(false);
     }
   };
 

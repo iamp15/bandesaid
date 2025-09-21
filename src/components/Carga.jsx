@@ -9,7 +9,15 @@ import { PROVIDER_MAP } from "../constants/constants";
 import { useEstados } from "../contexts/EstadosContext";
 
 const Carga = () => {
-  const { cargas, addCarga, deleteCarga, proveedor, setCargas } = useEstados();
+  const {
+    cargas,
+    addCarga,
+    deleteCarga,
+    proveedor,
+    setCargas,
+    isOnline,
+    syncStatus,
+  } = useEstados();
   const { askConfirmation, addAlert } = useAlert();
   const { currentUser, loading } = useAuth(); // Get current user
   const key = PROVIDER_MAP[proveedor];
@@ -51,7 +59,10 @@ const Carga = () => {
       .sort((a, b) => (a.cargaNumber || 0) - (b.cargaNumber || 0));
   }, [cargas, key]);
 
-  if (loading || cargasLoading || initialLoading) return <LoadingSpinner />;
+  // Mostrar loading solo para estados críticos
+  if (loading || initialLoading) {
+    return <LoadingSpinner />;
+  }
 
   const checkOnlineStatus = () => {
     return navigator.onLine;
@@ -76,26 +87,12 @@ const Carga = () => {
       return;
     }
 
-    // Optimistically add a pending carga to the UI
-    const pendingCarga = {
-      ...newCargaData,
-      id: "pending-" + Date.now(),
-      loading: true,
-    };
-    setCargas((prev) => ({
-      ...prev,
-      [key]: [...(prev[key] || []), pendingCarga],
-    }));
-
     try {
       await addCarga(key, newCargaData);
-    } catch {
+      // No actualización local - onSnapshot se encarga de actualizar la UI
+    } catch (error) {
       addAlert("Error creando la carga. Intenta de nuevo.", "error");
-      // Remove the pending carga if Firestore fails
-      setCargas((prev) => ({
-        ...prev,
-        [key]: (prev[key] || []).filter((c) => c.id !== pendingCarga.id),
-      }));
+      console.error("Error creating carga:", error);
     }
 
     setNewCargaData({
@@ -119,8 +116,13 @@ const Carga = () => {
       addAlert("No tienes permisos para eliminar cargas", "error");
       return;
     }
+
+    // Find the carga to get its number
+    const cargaToDelete = providerCargas.find((carga) => carga.id === cargaId);
+    const cargaNumber = cargaToDelete ? cargaToDelete.cargaNumber : cargaId;
+
     askConfirmation(
-      `¿Estás seguro de que deseas borrar la carga ${cargaId}? Esta acción no se puede deshacer.`,
+      `¿Estás seguro de que deseas borrar la Carga #${cargaNumber}? Esta acción no se puede deshacer.`,
       async (isConfirmed) => {
         if (!checkOnlineStatus()) {
           addAlert(
@@ -138,15 +140,23 @@ const Carga = () => {
           try {
             await deleteCarga(key, cargaId);
             if (selectedCargaId === cargaId) setSelectedCargaId(null);
-            saveLog(`Carga ${cargaId} deleted by ${currentUser.name}`);
-            console.log(`Carga ${cargaId} deleted and logged successfully`);
+            saveLog(
+              `Carga #${cargaNumber} (ID: ${cargaId}) deleted by ${currentUser.name}`
+            );
+            console.log(
+              `Carga #${cargaNumber} deleted and logged successfully`
+            );
+            addAlert(`Carga #${cargaNumber} eliminada exitosamente`, "success");
           } catch (error) {
             console.error("Error logging carga deletion:", error);
             saveLog(
-              `Error deleting carga ${cargaId}: ${error.message}`,
+              `Error deleting carga #${cargaNumber} (ID: ${cargaId}): ${error.message}`,
               "error"
             );
-            // You might want to show an error message to the user here
+            addAlert(
+              `Error eliminando la Carga #${cargaNumber}. Intenta de nuevo.`,
+              "error"
+            );
           }
         }
       }
@@ -155,6 +165,62 @@ const Carga = () => {
 
   return (
     <div className="wrap-container">
+      {/* Indicador de conectividad */}
+      {!isOnline && (
+        <div
+          style={{
+            background: "#ff4444",
+            color: "white",
+            padding: "10px",
+            textAlign: "center",
+            marginBottom: "10px",
+            borderRadius: "4px",
+            fontWeight: "bold",
+          }}
+        >
+          ⚠️ Sin conexión a internet. Los datos pueden estar desactualizados.
+        </div>
+      )}
+
+      {/* Indicador de operaciones pendientes */}
+      {syncStatus.pendingOperations > 0 && (
+        <div
+          style={{
+            background: "#ffa500",
+            color: "white",
+            padding: "8px",
+            textAlign: "center",
+            fontSize: "14px",
+            marginBottom: "10px",
+            borderRadius: "4px",
+          }}
+        >
+          🔄 Sincronizando... ({syncStatus.pendingOperations} operaciones
+          pendientes)
+        </div>
+      )}
+
+      {/* Indicador de última sincronización */}
+      {!isOnline && syncStatus.lastSync && (
+        <div
+          style={{
+            background: "#666",
+            color: "white",
+            padding: "5px",
+            textAlign: "center",
+            fontSize: "12px",
+            marginBottom: "10px",
+            borderRadius: "4px",
+          }}
+        >
+          Última sincronización:{" "}
+          {syncStatus.lastSync.toLocaleTimeString("es-ES", {
+            hour: "2-digit",
+            minute: "2-digit",
+          })}
+        </div>
+      )}
+
       <div className="menu">
         <div className="carga-container">
           <p>Cargas creadas de {proveedor}:</p>
@@ -170,9 +236,23 @@ const Carga = () => {
             <button
               className="crear-carga-button"
               onClick={handleAddCarga}
-              disabled={addDisabled}
+              disabled={
+                addDisabled || !isOnline || syncStatus.pendingOperations > 0
+              }
+              style={{
+                opacity:
+                  !isOnline || syncStatus.pendingOperations > 0 ? 0.5 : 1,
+                cursor:
+                  !isOnline || syncStatus.pendingOperations > 0
+                    ? "not-allowed"
+                    : "pointer",
+              }}
             >
-              Crear nueva carga
+              {!isOnline
+                ? "🔌 Sin conexión"
+                : syncStatus.pendingOperations > 0
+                ? "🔄 Sincronizando..."
+                : "Crear nueva carga"}
             </button>
           )}
         </div>

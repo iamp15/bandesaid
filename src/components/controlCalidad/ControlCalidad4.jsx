@@ -24,23 +24,25 @@ const ControlCalidad4 = () => {
 
   const genTextCC = () => {
     return (
+      "**CONTROL DE CALIDAD 1/1**\n" +
       `**CARGA Nº ${numeracion()}**\n` +
       `**Proveedor:** ${proveedor}\n` +
       `**Galpón:** ${GALPON}\n` +
       `**Rubro:** ${RUBRO}\n` +
-      `**Fecha:** ${currentCarga.fecha}\n` +
-      "\n✓ Control de Calidad"
+      `**Fecha:** ${currentCarga.fecha}\n`
     );
   };
 
   const genTextTyP = () => {
     return (
+      "RESULTADOS DE MUESTRAS VERIFICADAS**\n" +
       `**CARGA Nº ${numeracion()}**\n` +
       `**Proveedor:** ${proveedor}\n` +
       `**Galpón:** ${GALPON}\n` +
       `**Rubro:** ${RUBRO}\n` +
       `**Fecha:** ${currentCarga.fecha}\n` +
-      "\n✓ **Fecha Elaboración:** N/A\n" +
+      `\n**✓ Marca del rubro:** ${currentCarga.marca_rubro}\n` +
+      "✓ **Fecha Elaboración:** N/A\n" +
       "✓ **Fecha Vencimiento:** N/A\n" +
       `✓ **Nº Lote:** ${currentCarga.lote || "N/A"}\n` +
       `✓ **Peso promedio:** ${currentCarga.p_promedio} kg\n` +
@@ -52,12 +54,12 @@ const ControlCalidad4 = () => {
 
   const genTextMuestras = () => {
     return (
+      "**MUESTRAS VERIFICADAS**\n" +
       `**CARGA Nº ${numeracion()}**\n` +
       `**Proveedor:** ${proveedor}\n` +
       `**Galpón:** ${GALPON}\n` +
       `**Rubro:** ${RUBRO}\n` +
-      `**Fecha:** ${currentCarga.fecha}\n` +
-      "\n✓ Muestras verificadas"
+      `**Fecha:** ${currentCarga.fecha}\n`
     );
   };
 

@@ -87,13 +87,13 @@ const ControlPesaje2 = () => {
       }
     };
     return (
+      "**CARGA CULMINADA**\n" +
       `**CARGA Nº ${numeracion()}**\n` +
       `**Proveedor:** ${proveedor}\n` +
       `**Galpón:** ${GALPON}\n` +
       `**Rubro:** ${RUBRO}\n` +
       `**Fecha:** ${currentCarga.fecha}\n` +
-      "\n✓ Carga finalizada.\n" +
-      `🆔: ${currentCarga.id_unidad}`
+      `**🆔 de la unidad:** ${currentCarga.id_unidad}`
     );
   };
 

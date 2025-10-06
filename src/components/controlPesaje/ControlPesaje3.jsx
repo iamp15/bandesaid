@@ -25,12 +25,13 @@ const ControlPesaje3 = () => {
       }
     };
     return (
+      "**PESO VERIFICADO**\n" +
       `**CARGA Nº ${numeracion()}**\n` +
       `**Proveedor:** ${proveedor}\n` +
       `**Galpón:** ${GALPON}\n` +
       `**Rubro:** ${RUBRO}\n` +
       `**Fecha:** ${currentCarga.fecha}\n` +
-      `\n✓ Peso verificado **${currentCarga.p_verificado} kg**`
+      `**✓ Monto verificado:** ${currentCarga.p_verificado} kg`
     );
   };
 

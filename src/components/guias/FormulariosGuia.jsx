@@ -83,13 +83,13 @@ const FormulariosGuia = () => {
       `**Números de lotes:** ${currentCarga.lote}\n` +
       `**Fecha de Elaboración:** ${LOTE.elaboracion}\n` +
       `**Fecha de Vencimiento:** ${LOTE.vencimiento}\n` +
-      `**Peso promedio:** ${currentCarga.p_promedio} kg\n` +
-      `**Temperatura:** ${currentCarga.t_promedio} ºC\n` +
+      `**Peso Promedio:** ${currentCarga.p_promedio} kg\n` +
+      `**Temperatura Promedio:** ${currentCarga.t_promedio} ºC\n` +
       `**CND o CPE:** ${currentCarga.cnd}\n` +
       `**Permiso Sanitario:** ${PERMISO_SANITARIO}\n` +
       `**Estado destino:** ${currentCarga.estadoDestino}\n` +
       `**Entidad destino:** ${currentCarga.destino}\n` +
-      `🆔: ${currentCarga.id_despacho}`
+      `**🆔 del Despacho:** ${currentCarga.id_despacho}`
     );
   };
 
@@ -121,7 +121,7 @@ const FormulariosGuia = () => {
       `**Galpón:** ${GALPON}\n` +
       `**Rubro:** ${RUBRO}\n` +
       `**Número de Guía:** ${currentCarga?.codigos_guias.join("/")}\n` +
-      `**Thermo King operativo:** ${checkTk()}\n` +
+      `**Thermo King Operativo:** ${checkTk()}\n` +
       `**Transporte:** ${currentCarga.transporte}\n` +
       `**Nombre del chofer:** ${currentCarga.chofer}\n` +
       `**Cédula de identidad del chofer:** ${currentCarga.cedula}\n` +
@@ -132,7 +132,8 @@ const FormulariosGuia = () => {
           ? currentCarga.precintos.join(", ")
           : "S/P"
       }\n` +
-      `**Marca del vehículo:** ${currentCarga.marcaVehiculo}\n`
+      `**Marca del vehículo:** ${currentCarga.marcaVehiculo}\n` +
+      `**🆔 de la unidad:** ${currentCarga.id_unidad}`
     );
   };
 
@@ -160,13 +161,13 @@ const FormulariosGuia = () => {
       else return `${cargaActual}`;
     };
     return (
+      "**SALIENDO DE PLANTA**\n" +
       `**CARGA Nº ${numeracion()}**\n` +
       `**Empresa:** ${proveedor}\n` +
       `**Galpón:** ${GALPON}\n` +
       `**Producto:** ${RUBRO}\n` +
       `**Fecha:** ${currentCarga.fecha}\n` +
-      `**Destino:** ${currentCarga.destino}\n\n` +
-      " **SALIENDO DE PLANTA**"
+      `**Destino:** ${currentCarga.destino}\n`
     );
   };
 

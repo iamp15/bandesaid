@@ -29,6 +29,7 @@ import MenuConfiguracion from "./components/configuracion/MenuConfiguracion";
 import LogViewer from "./components/configuracion/logs/LogViewer";
 import { useEstados } from "./contexts/EstadosContext";
 import Pruebas from "./components/configuracion/Pruebas";
+import ScannerGuiaSADA from "./components/qr/ScannerGuiaSADA";
 
 function App() {
   const { cargas } = useEstados();
@@ -205,6 +206,14 @@ function App() {
             }
           />
           <Route path="/pruebas" element={<Pruebas />} />
+          <Route
+            path="/scanner-guia-sada"
+            element={
+              <ProtectedRoute>
+                <ScannerGuiaSADA />
+              </ProtectedRoute>
+            }
+          />
         </Routes>
         <footer>Creado por ©iamp15 2024. Todos los derechos reservados.</footer>
       </div>

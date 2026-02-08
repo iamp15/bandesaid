@@ -103,31 +103,75 @@ const DatosG2 = () => {
     navigate("/datosg3");
   };
 
+  /**
+   * Calcula puntuación y metadatos para ordenar sugerencias.
+   * Retorna { score, phraseIndex } para ordenamiento estable.
+   */
+  const getRelevanceData = (companyName, searchValue, searchWords) => {
+    const nameLower = companyName.toLowerCase().replace(/\s+/g, " ");
+    const searchNorm = searchValue.replace(/\s+/g, " ");
+
+    // 1. Coincidencia exacta (máxima prioridad)
+    if (nameLower === searchNorm) return { score: 10000, phraseIndex: 0 };
+
+    // 2. El nombre empieza con la búsqueda completa
+    if (nameLower.startsWith(searchNorm)) return { score: 9000, phraseIndex: 0 };
+
+    // 3. La frase de búsqueda aparece consecutiva en el nombre (prioridad alta)
+    const phraseIdx = nameLower.indexOf(searchNorm);
+    if (phraseIdx >= 0) return { score: 8000, phraseIndex: phraseIdx };
+
+    // 4. Todas las palabras coinciden
+    const wordMatches = searchWords.filter((w) => nameLower.includes(w));
+    if (wordMatches.length !== searchWords.length) return { score: 0, phraseIndex: 9999 };
+
+    let score = 400;
+    const indices = searchWords.map((w) => nameLower.indexOf(w)).sort((a, b) => a - b);
+    const span = indices[indices.length - 1] - indices[0];
+    score += Math.max(0, 200 - span);
+    if (nameLower.startsWith(searchWords[0])) score += 150;
+    if (nameLower.length < 60) score += 20;
+
+    return { score, phraseIndex: indices[0] };
+  };
+
   const handleEmpresaInput = (e) => {
-    const value = e.target.value.toLowerCase().trim();
-    const searchWords = value.split(/\s+/); // Split input into words
+    const rawValue = e.target.value;
+    const value = rawValue.toLowerCase().trim().replace(/\s+/g, " ");
+    const searchWords = value.split(/\s+/).filter(Boolean);
 
-    const filtered = companyNames.filter((company) =>
+    if (searchWords.length === 0) {
+      setSuggestions([]);
+      return;
+    }
+
+    const allCompanies = [
+      ...companyNames.map((c) => ({ ...c })),
+      ...sinCodigo.map((c) => ({ ...c })),
+    ];
+
+    const filtered = allCompanies.filter((company) =>
       searchWords.every((word) => company.nombre.toLowerCase().includes(word))
     );
 
-    // Filter sinCodigo list using the same logic
-    const filteredSinCodigo = sinCodigo.filter((company) =>
-      searchWords.every((word) => company.nombre.toLowerCase().includes(word))
+    const sorted = [...filtered].sort((a, b) => {
+      const dataA = getRelevanceData(a.nombre, value, searchWords);
+      const dataB = getRelevanceData(b.nombre, value, searchWords);
+      if (dataB.score !== dataA.score) return dataB.score - dataA.score;
+      // Desempate: frase más al inicio primero, luego nombre más corto
+      if (dataA.phraseIndex !== dataB.phraseIndex) return dataA.phraseIndex - dataB.phraseIndex;
+      return a.nombre.length - b.nombre.length;
+    });
+
+    setSuggestions(
+      sorted.map(({ nombre, codigo }) => ({ nombre, codigo }))
     );
 
-    // Combine both filtered lists
-    setSuggestions([...filtered, ...filteredSinCodigo]);
-
-    // Only set selectedCompany to null if the input doesn't match any company from either list
-    if (
-      !filtered.some(
-        (company) => company.nombre.toLowerCase() === value.toLowerCase()
-      ) &&
-      !filteredSinCodigo.some(
-        (company) => company.nombre.toLowerCase() === value.toLowerCase()
-      )
-    ) {
+    // Solo deseleccionar si no hay coincidencia exacta en ninguna lista
+    const hasExactMatch = sorted.some(
+      (c) => c.nombre.toLowerCase().replace(/\s+/g, " ").trim() === value
+    );
+    if (!hasExactMatch) {
       setSelectedCompany(null);
     }
   };

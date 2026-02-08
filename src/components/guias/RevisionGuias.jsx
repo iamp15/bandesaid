@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { RUBRO } from "../../constants/constants";
+import { validarDatosParaAnclajes } from "../../utils/validarDatosAnclajes";
 import "../../styles/guias/revisionGuias.css";
 import LoadingSpinner from "../LoadingSpinner";
 import { useEstados } from "../../contexts/EstadosContext";
@@ -17,38 +18,8 @@ const RevisionGuias = () => {
   }
 
   const handleContinue = () => {
-    // Check for missing required fields
-    const missingFields = [];
-    if (!currentCarga.chofer) missingFields.push("Nombre del chofer");
-    if (!currentCarga.cedula) missingFields.push("Cédula");
-    if (!currentCarga.marcaVehiculo) missingFields.push("Marca vehículo");
-    if (!currentCarga.placa) missingFields.push("Placa");
-    if (!currentCarga.destino) missingFields.push("Entidad destino");
-    if (!currentCarga.codigo_espejo) missingFields.push("Código espejo");
-    if (!currentCarga.estadoDestino) missingFields.push("Estado destino");
-    if (!currentCarga.transporte) missingFields.push("Transporte");
-    if (!currentCarga.marca_rubro) missingFields.push("Marca");
-    if (!currentCarga.lote) missingFields.push("Lote");
-    if (!currentCarga.p_promedio) missingFields.push("Peso promedio");
-    if (!currentCarga.t_promedio) missingFields.push("Temperatura promedio");
-    if (!currentCarga.p_total) missingFields.push("Peso total de la carga");
-    if (!currentCarga.p_verificado) missingFields.push("Peso verificado");
-    // Safely check codigos_guias and precintos arrays
-    if (
-      !Array.isArray(currentCarga.codigos_guias) ||
-      currentCarga.codigos_guias.length === 0 ||
-      !currentCarga.codigos_guias[0]
-    )
-      missingFields.push("Código(s) de guía");
-    if (
-      !Array.isArray(currentCarga.precintos) ||
-      currentCarga.precintos.length === 0 ||
-      !currentCarga.precintos[0]
-    )
-      missingFields.push("Precintos");
-    if (!currentCarga.id_despacho) missingFields.push("ID del despacho");
-
-    if (missingFields.length > 0) {
+    const { valid, missingFields } = validarDatosParaAnclajes(currentCarga);
+    if (!valid) {
       alert(
         "Faltan los siguientes campos obligatorios:\n\n" +
           missingFields.join("\n")
@@ -174,8 +145,21 @@ const RevisionGuias = () => {
           <button onClick={() => navigate("/datosg4")}>Editar</button>
         </div>
 
+        <div className="section section-sada">
+          <h3>Verificar guía SADA</h3>
+          <p className="section-sada-desc">Comparar los datos de la guía con lo registrado en SICA/SUNAGRO.</p>
+          <div className="section-sada-btn-wrap">
+            <button
+              className="btn-sada"
+              onClick={() => navigate("/scanner-guia-sada")}
+            >
+              📋 Procesar Guía SADA
+            </button>
+          </div>
+        </div>
+
         <div className="button-group">
-          <button onClick={handleContinue}>Confirmar</button>
+          <button onClick={handleContinue}>Copiar anclajes</button>
         </div>
       </div>
     </div>

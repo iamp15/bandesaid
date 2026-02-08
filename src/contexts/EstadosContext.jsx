@@ -53,6 +53,14 @@ export const EstadosProvider = ({ children }) => {
     hasInitialData: false,
     pendingOperations: 0,
   });
+  // Indica qué proveedores ya recibieron al menos un snapshot (evita mostrar lista vacía antes de que lleguen datos)
+  const [providerSnapshotReceived, setProviderSnapshotReceived] = useState({
+    tr: false,
+    tg: false,
+    al: false,
+    av: false,
+    an: false,
+  });
 
   // Monitor de conectividad
   useEffect(() => {
@@ -93,6 +101,9 @@ export const EstadosProvider = ({ children }) => {
               ...d.data(),
             })),
           }));
+
+          // Marcar que este proveedor ya recibió al menos un snapshot (para que la página de cargas no muestre 0 hasta que lleguen datos)
+          setProviderSnapshotReceived((prev) => ({ ...prev, [prov]: true }));
 
           // Track initial data load - only count each provider once
           if (!loadedProviders.has(prov)) {
@@ -182,9 +193,10 @@ export const EstadosProvider = ({ children }) => {
     }
   };
 
-  // Add a new carga for a provider with simple consecutive numbering
+  // Add a new carga for a provider with simple consecutive numbering.
+  // Uses a Firestore transaction so the next number is assigned atomically and
+  // two devices creating at the same time cannot get the same number.
   const addCarga = async (provider, cargaData) => {
-    // Check if user is authenticated with Firebase Auth
     const { auth } = await import("../firebase/config");
     const currentAuthUser = auth.currentUser;
 
@@ -200,34 +212,49 @@ export const EstadosProvider = ({ children }) => {
     );
 
     const provColRef = collection(db, "cargas", todayId, provider);
+    // Contador atómico por proveedor (transaction.get() solo acepta DocumentReference, no Query)
+    const counterRef = doc(db, "cargas", todayId, "_counters", provider);
 
-    // Get existing cargas to find the next consecutive number
-    const existingCargas = await getDocs(provColRef);
-    let maxCargaNumber = 0;
+    // Refs de cargas existentes para inicializar el contador si no existe (solo lectura, se usa dentro de la transacción)
+    const existingSnap = await getDocs(provColRef);
+    const existingDocRefs = existingSnap.docs.map((d) => d.ref);
 
-    // Find the highest cargaNumber currently in use
-    existingCargas.docs.forEach((doc) => {
-      const carga = doc.data();
-      if (
-        carga.cargaNumber &&
-        typeof carga.cargaNumber === "number" &&
-        carga.cargaNumber > maxCargaNumber
-      ) {
-        maxCargaNumber = carga.cargaNumber;
+    await runTransaction(db, async (transaction) => {
+      const counterSnap = await transaction.get(counterRef);
+      let newCargaNumber;
+
+      if (counterSnap.exists()) {
+        newCargaNumber = counterSnap.data().nextCargaNumber ?? 1;
+        transaction.set(counterRef, {
+          nextCargaNumber: newCargaNumber + 1,
+        });
+      } else if (existingDocRefs.length === 0) {
+        newCargaNumber = 1;
+        transaction.set(counterRef, { nextCargaNumber: 2 });
+      } else {
+        let maxCargaNumber = 0;
+        for (const ref of existingDocRefs) {
+          const snap = await transaction.get(ref);
+          if (snap.exists()) {
+            const n = snap.data().cargaNumber;
+            if (typeof n === "number" && n > maxCargaNumber) maxCargaNumber = n;
+          }
+        }
+        newCargaNumber = maxCargaNumber + 1;
+        transaction.set(counterRef, { nextCargaNumber: newCargaNumber + 1 });
       }
-    });
 
-    const newCargaNumber = maxCargaNumber + 1;
-    console.log(`Creating carga #${newCargaNumber} for provider ${provider}`);
+      console.log(`Creating carga #${newCargaNumber} for provider ${provider}`);
 
-    // Add the new carga with consecutive numbering
-    await addDoc(provColRef, {
-      ...cargaData,
-      cargaNumber: newCargaNumber,
-      createdBy: currentAuthUser.email,
-      createdAt: new Date().toISOString(),
+      const newDocRef = doc(provColRef);
+      transaction.set(newDocRef, {
+        ...cargaData,
+        cargaNumber: newCargaNumber,
+        createdBy: currentAuthUser.email,
+        createdAt: new Date().toISOString(),
+      });
     });
-    // Do not update local state here; let onSnapshot handle it
+    // Do not update local state here; onSnapshot will update the UI
   };
 
   // Update specific fields of a carga (field-level update)
@@ -322,6 +349,7 @@ export const EstadosProvider = ({ children }) => {
     // Estados de conectividad
     isOnline,
     syncStatus,
+    providerSnapshotReceived,
   };
 
   return (

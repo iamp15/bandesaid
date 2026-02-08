@@ -35,7 +35,7 @@ const ControlCalidad4 = () => {
 
   const genTextTyP = () => {
     return (
-      "RESULTADOS DE MUESTRAS VERIFICADAS**\n" +
+      "**RESULTADOS DE MUESTRAS VERIFICADAS**\n" +
       `**CARGA Nº ${numeracion()}**\n` +
       `**Proveedor:** ${proveedor}\n` +
       `**Galpón:** ${GALPON}\n` +

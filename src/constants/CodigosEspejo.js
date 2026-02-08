@@ -66,8 +66,14 @@ export const codigos_espejo = [
     entidad: "PDVAL",
   },
   {
-    nombre: "PDVAL GUARICO",
+    nombre: "PDVAL GUARICO / SAN JUAN",
     codigo: "897955",
+    estado: "Guárico",
+    entidad: "PDVAL",
+  },
+  {
+    nombre: "PDVAL GUARICO / VALLE LA PASCUA",
+    codigo: "919378",
     estado: "Guárico",
     entidad: "PDVAL",
   },
@@ -139,7 +145,7 @@ export const codigos_espejo = [
     entidad: "PDVAL",
   },
   {
-    nombre: "PDVAL AMAZONAS",
+    nombre: "PDVAL AMAZONAS PTTO AYACUCHO",
     codigo: "898020",
     estado: "Amazonas",
     entidad: "PDVAL",
@@ -217,8 +223,14 @@ export const codigos_espejo = [
     entidad: "Mercal",
   },
   {
-    nombre: "MERCAL MONAGAS TEJERO",
+    nombre: "MERCAL MONAGAS EL TEJERO",
     codigo: "898011",
+    estado: "Monagas",
+    entidad: "Mercal",
+  },
+  {
+    nombre: "MERCAL MONAGAS MATURIN",
+    codigo: "898027",
     estado: "Monagas",
     entidad: "Mercal",
   },
@@ -226,6 +238,24 @@ export const codigos_espejo = [
     nombre: "MERCAL PORTUGUESA",
     codigo: "898012",
     estado: "Portuguesa",
+    entidad: "Mercal",
+  },
+  {
+    nombre: "MERCAL PORTUGUESA PAEZ",
+    codigo: "898029",
+    estado: "Portuguesa",
+    entidad: "Mercal",
+  },
+  {
+    nombre: "MERCAL TACHIRA ABEJALES",
+    codigo: "898030",
+    estado: "Táchira",
+    entidad: "Mercal",
+  },
+  {
+    nombre: "MERCAL ANZOATEGUI PIRITU",
+    codigo: "899031",
+    estado: "Anzoátegui",
     entidad: "Mercal",
   },
   {
@@ -265,6 +295,12 @@ export const codigos_espejo = [
     entidad: "Mercal",
   },
   {
+    nombre: "MERCAL MIRANDA CHARALLAVE",
+    codigo: "898024",
+    estado: "Miranda",
+    entidad: "Mercal",
+  },
+  {
     nombre: "MERCAL MIRANDA EL LLANITO",
     codigo: "898025",
     estado: "Miranda",
@@ -301,7 +337,13 @@ export const codigos_espejo = [
     entidad: "Mercal",
   },
   {
-    nombre: "CAMSA MIRANDA",
+    nombre: "MERCAL BOLIVAR CARONI",
+    codigo: "898021",
+    estado: "Bolívar",
+    entidad: "Mercal",
+  },
+  {
+    nombre: "CORPORACION DE ABASTECIMIENTO DEL ESTADO BOLIVAR DE MIRANDA S.A.",
     codigo: "898421",
     estado: "Miranda",
     entidad: "CAMSA",
@@ -313,27 +355,39 @@ export const codigos_espejo = [
     entidad: "RABSA",
   },
   {
+    nombre: "RED DE ABASTOS BICENTENARIO MONAGAS",
+    codigo: "979277",
+    estado: "Distrito Capital",
+    entidad: "RABSA",
+  },
+  {
     nombre: "INTEGRAL DE MERCADOS Y ALMACENES COCHE",
     codigo: "899032",
     estado: "Distrito Capital",
     entidad: "IMAC",
   },
   {
-    nombre: "RECDIAL S.A. PORTUGUESA",
+    nombre: "(GOBERNACION PORTUGUESA) RECDIAL S.A. PORTUGUESA",
     codigo: "898092",
     estado: "Portuguesa",
     entidad: "RECDIAL",
   },
   {
-    nombre: "SOBERANIA PATRIOTA C.A. MONAGAS",
+    nombre: "(GOBERNACION MONAGAS) SOBERANIA PATRIOTA C.A.",
     codigo: "898422",
     estado: "Monagas",
     entidad: "Soberanía Patriota",
   },
   {
-    nombre: "LACTEOS LOS ANDES, C.A.",
+    nombre: "LACTEOS LOS ANDES, C.A. (ESTADO ZULIA)",
     codigo: "972605",
     estado: "Zulia",
+    entidad: "Lacteos Los Andes",
+  },
+  {
+    nombre: "LACTEOS LOS ANDES, C.A. (ESTADO LARA)",
+    codigo: "910334",
+    estado: "Lara",
     entidad: "Lacteos Los Andes",
   },
   {
@@ -343,7 +397,7 @@ export const codigos_espejo = [
     entidad: "ALIMCA",
   },
   {
-    nombre: "GOBERNACION LARA (ABASTLARA)",
+    nombre: "(GOBERNACION LARA) ABASTLARA C.A.",
     codigo: "902267",
     estado: "Lara",
     entidad: "Gobernación Lara",
@@ -379,6 +433,12 @@ export const codigos_espejo = [
     entidad: "Frigorífico Tazón",
   },
   {
+    nombre: "FRIGORIFICO TAZON",
+    codigo: "216123",
+    estado: "Distrito Capital",
+    entidad: "Frigorífico Tazón",
+  },
+  {
     nombre: "CEALCO BARCELONA",
     codigo: "440796",
     estado: "Anzoátegui",
@@ -388,6 +448,12 @@ export const codigos_espejo = [
     nombre: "CEALCO LA MORITA",
     codigo: "42292",
     estado: "Aragua",
+    entidad: "CEALCO",
+  },
+  {
+    nombre: "CEALCO QUIBOR",
+    codigo: "877086",
+    estado: "N/A",
     entidad: "CEALCO",
   },
 ];

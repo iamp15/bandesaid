@@ -17,6 +17,7 @@ const Carga = () => {
     setCargas,
     isOnline,
     syncStatus,
+    providerSnapshotReceived,
   } = useEstados();
   const { askConfirmation, addAlert } = useAlert();
   const { currentUser, loading } = useAuth(); // Get current user
@@ -37,20 +38,15 @@ const Carga = () => {
   const [addDisabled, setAddDisabled] = useState(false);
   const [lastAddTime, setLastAddTime] = useState(0);
 
-  // Local loading state for cargas
-  const [cargasLoading, setCargasLoading] = useState(true);
-  // Show spinner for at least 2 seconds on mount
+  // Cargas están "cargadas" solo cuando Firestore ha enviado al menos un snapshot para este proveedor
+  // (el estado inicial tiene arrays vacíos, por eso no se puede usar solo Array.isArray(cargas[key]))
+  const cargasLoading = !providerSnapshotReceived[key];
+  // Show spinner for a short time on first mount to avoid flash of empty content
   const [initialLoading, setInitialLoading] = useState(true);
   useEffect(() => {
     const timer = setTimeout(() => setInitialLoading(false), 3000);
     return () => clearTimeout(timer);
   }, []);
-  // Watch cargas[key] and set loading to false when it is loaded
-  useEffect(() => {
-    if (Array.isArray(cargas[key])) {
-      setCargasLoading(false);
-    }
-  }, [cargas, key]);
 
   // Sort providerCargas by cargaNumber before rendering
   const providerCargas = useMemo(() => {
@@ -224,7 +220,9 @@ const Carga = () => {
       <div className="menu">
         <div className="carga-container">
           <p>Cargas creadas de {proveedor}:</p>
-          {cargasLoading ? null : providerCargas.length === 0 ? (
+          {cargasLoading ? (
+            <p>Cargando cargas...</p>
+          ) : providerCargas.length === 0 ? (
             <p>No hay cargas creadas</p>
           ) : (
             <CuadroCargas

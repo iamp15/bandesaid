@@ -2,27 +2,31 @@ export const sinCodigo = [
   {
     nombre: "(GOBERNACION ANZOATEGUI) EMPRESA DE PRODUCCION SOCIAL CACIQUE UCHIRE, C.A.",
     codigo: 1,
+    estado: "Anzoátegui",
   },
   {
     nombre: "(GOBERNACION MERIDA) EMPRESA SOCIALISTA DE ALIMENTOS S.A.",
     codigo: 2,
+    estado: "Mérida",
   },
   {
     nombre:
       "(GOBERNACION SUCRE) EMPRESA DE PRODUCCION SOCIAL COMERCIALIZADORA DE ALIMENTOS, C.A.",
     codigo: 3,
+    estado: "Sucre",
   },
   { nombre: "ACADEMIA MILITAR DE CIENCIAS DE LA SALUD", codigo: 4 },
   { nombre: "ACADEMIA MILITAR DE LA ARMADA BOLIVARIANA", codigo: 5 },
-  { nombre: "ACADEMIA MILITAR DE LA ARMANADA BOLIVARIANA", codigo: 6 },
+  { nombre: "ACADEMIA MILITAR DE LA ARMANADA BOLIVARIANA", codigo: 6, estado: "La Guaira" },
   { nombre: "ACADEMIA MILITAR DE LA AVIACION", codigo: 7 },
   { nombre: "ACADEMIA MILITAR DE LA GUARDIA NACIONAL BOLIVARIANA", codigo: 8 },
-  { nombre: "ACADEMIA MILITAR DE MEDICINA", codigo: 9 },
+  { nombre: "ACADEMIA MILITAR DE MEDICINA", codigo: 9, estado: "Distrito Capital" },
   {
     nombre: "ACADEMIA MILITAR DE OFICIALES DE TROPA COMANDANTE EN JEFE HUGO CHAVEZ FRIAS",
     codigo: 10,
+    estado: "Miranda",
   },
-  { nombre: "ACADEMIA MILITAR DE VENEZUELA", codigo: 11 },
+  { nombre: "ACADEMIA MILITAR DE VENEZUELA", codigo: 11, estado: "Distrito Capital" },
   { nombre: "ACADEMIA TECNICA ARMADA", codigo: 12 },
   { nombre: "ACADEMIA TECNICA MILITAR BOLIVARIANA", codigo: 13 },
   {
@@ -38,16 +42,16 @@ export const sinCodigo = [
     codigo: 16,
   },
   { nombre: "ACADEMIA TECNICA MILITAR DEL EJERCITO", codigo: 17 },
-  { nombre: "ALIMENTOS AMAZONAS C.A.", codigo: 18 },
-  { nombre: "ALIMENTOS ARAGUA SOCIALISTA SA", codigo: 19 },
-  { nombre: "ALIMENTOS BOLIVAR", codigo: 20 },
+  { nombre: "ALIMENTOS AMAZONAS C.A.", codigo: 18, estado: "Amazonas" },
+  { nombre: "ALIMENTOS ARAGUA SOCIALISTA SA", codigo: 19, estado: "Aragua" },
+  { nombre: "ALIMENTOS BOLIVAR", codigo: 20, estado: "Bolívar" },
   { nombre: "BRIFFEE GHP", codigo: 21 },
   {
     nombre: "BRIGADA ESPECIAL DE PROTECCION Y ASEGURAMIENTO PRESIDENCIAL",
     codigo: 22,
   },
   { nombre: "BRIGADA GUARDIA DE HONOR PRESIDENCIAL", codigo: 23 },
-  { nombre: "CCP DISTRITO CAPITAL", codigo: 24 },
+  { nombre: "CCP DISTRITO CAPITAL", codigo: 24, estado: "Distrito Capital" },
   { nombre: "CENTRO DE LOS SERVICIOS LOGISTICOS", codigo: 25 },
   { nombre: "CESPPA", codigo: 26 },
   {
@@ -73,6 +77,7 @@ export const sinCodigo = [
   {
     nombre: "CORPORACION DE DESARROLLO DE LA REGION ZULIANA",
     codigo: 35,
+    estado: "Zulia",
   },
   {
     nombre: "CORPORACION UNICA DE SERVICIOS PRODUCTIVOS Y ALIMENTARIOS CA",
@@ -96,6 +101,7 @@ export const sinCodigo = [
   {
     nombre: "DIRECCION DE ALIMENTACION DE LA AVIACION MILITAR ARAGUA",
     codigo: 43,
+    estado: "Aragua",
   },
   {
     nombre: "DIRECCION DE ALIMENTACION DE LA AVIACION MILITAR BOLIVARIANA",
@@ -124,9 +130,9 @@ export const sinCodigo = [
     nombre: "DIRECCION NAVAL DE PARTICIPACION ACTIVA EN EL DESARROLLO NACIONAL",
     codigo: 52,
   },
-  { nombre: "DISTRIBUIDORA DE ALIMENTOS SUCRE XXL C.A", codigo: 53 },
+  { nombre: "DISTRIBUIDORA DE ALIMENTOS SUCRE XXL C.A", codigo: 53, estado: "Sucre" },
   { nombre: "DISTRIBUIDORA RED VENEZUELA CLAP BICENTENARIO", codigo: 54 },
-  { nombre: "DISTRIBUIDORA SOCIALISTA DE BARINAS S.A", codigo: 55 },
+  { nombre: "DISTRIBUIDORA SOCIALISTA DE BARINAS S.A", codigo: 55, estado: "Barinas" },
   {
     nombre: "DISTRIBUIDORA SOCIALISTA DEL MUNICIPIO ARISMENDI SOCIEDAD ANONIMA",
     codigo: 56,
@@ -142,12 +148,14 @@ export const sinCodigo = [
   {
     nombre: "EMPRESA DE PROPIEDAD SOCIAL WABINOKOIDA DELTA, S.A.",
     codigo: 59,
+    estado: "Delta Amacuro",
   },
   { nombre: "EMPRESA JOSEFA CAMEJO S A", codigo: 60 },
   { nombre: "EMPRESA SOCIALISTA DE ALIMENTOS S.A.", codigo: 61 },
   {
     nombre: "EPS DISTRIBUIDORA TRUJILLANA DE ALIMENTOS DISTAL SA",
     codigo: 62,
+    estado: "Trujillo",
   },
   {
     nombre: "FABRICA PARA PROCESAMIENTO DE SABILA DE VENEZUELA S.A.",
@@ -158,10 +166,10 @@ export const sinCodigo = [
   { nombre: "FUNDACION MISION NEGRA HIPOLITA", codigo: 66 },
   { nombre: "FUNDACION NACIONAL EL NIÑO SIMON", codigo: 67 },
   { nombre: "FUNDAPROAL", codigo: 68 },
-  { nombre: "FUNDECA YERBA CARACAS", codigo: 69 },
+  { nombre: "FUNDECA YERBA CARACAS", codigo: 69, estado: "Distrito Capital" },
   { nombre: "GRUPO AEREO DE TRANSPORTE 4", codigo: 70 },
-  { nombre: "GRUPO AEREO PRESIDENCIAL N4 (LA CARLOTA)", codigo: 71 },
-  { nombre: "GRUPO AEREO PRESIDENCIAL N4 (MAIQUETIA)", codigo: 72 },
+  { nombre: "GRUPO AEREO PRESIDENCIAL N4 (LA CARLOTA)", codigo: 71, estado: "Distrito Capital" },
+  { nombre: "GRUPO AEREO PRESIDENCIAL N4 (MAIQUETIA)", codigo: 72, estado: "La Guaira" },
   { nombre: "GUARDIA DE HONOR PRESIDENCIAL", codigo: 73 },
   {
     nombre: "HOSPITAL MILITAR DR VICENTE SALIAS SANOJA",
@@ -171,9 +179,9 @@ export const sinCodigo = [
   { nombre: "IDENNA", codigo: 76 },
   { nombre: "INASS", codigo: 77 },
   { nombre: "INDUSTRIA DIANA, C.A.", codigo: 78 },
-  { nombre: "INN PROGRAMA SOCIAL DISTRITO CAPITAL", codigo: 79 },
+  { nombre: "INN PROGRAMA SOCIAL DISTRITO CAPITAL", codigo: 79, estado: "Distrito Capital" },
   { nombre: "INSTITUTO NACIONAL DE NUTRICION", codigo: 80 },
-  { nombre: "LACTEOS LOS ANDES, C.A. (ESTADO LARA)", codigo: 81 },
+  { nombre: "LACTEOS LOS ANDES, C.A. (ESTADO LARA)", codigo: 81, estado: "Lara" },
   { nombre: "LOGISTICA CASA, LOGICASA S.A", codigo: 82 },
   {
     nombre:
@@ -202,6 +210,7 @@ export const sinCodigo = [
   {
     nombre: "SERVICIO SOCIALISTA DE ABASTECIMIENTO DEL ESTADO YARACUY",
     codigo: 90,
+    estado: "Yaracuy",
   },
   { nombre: "UNIDAD ESPECIAL DE MILICIA GHP", codigo: 91 },
   {
@@ -221,5 +230,5 @@ export const sinCodigo = [
     nombre: "VICIMINISTERIO DE EDUCACION PARA LA DEFENSA",
     codigo: 95,
   },
-  { nombre: "ZONA OPERATIVA DE DEFENSA INTEGRAL ZULIA", codigo: 96 },
+  { nombre: "ZONA OPERATIVA DE DEFENSA INTEGRAL ZULIA", codigo: 96, estado: "Zulia" },
 ];

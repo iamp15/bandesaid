@@ -19,19 +19,27 @@ export const Rol = () => {
       <div className="menu">
         <h2>Escoge tu rol:</h2>
         <div className="buttons-container">
-          <Link to={"/proveedor"}>
+          <Link to={"/proveedor"} className="role-link">
             <button onClick={() => setRol("Inspección de Vehículos")}>
               Inspección de Vehículos
             </button>
+          </Link>
+          <Link to={"/proveedor"} className="role-link">
             <button onClick={() => setRol("Control Pesaje")}>
               Control de Pesaje
             </button>
+          </Link>
+          <Link to={"/proveedor"} className="role-link">
             <button onClick={() => setRol("Control de Calidad")}>
               Control de Calidad
             </button>
+          </Link>
+          <Link to={"/proveedor"} className="role-link">
             <button onClick={() => setRol("Verificación de Guías")}>
               Verificación de Guías
             </button>
+          </Link>
+          <Link to={"/proveedor"} className="role-link">
             <button onClick={() => setRol("Sistemas")}>Sistemas</button>
           </Link>
         </div>

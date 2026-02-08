@@ -59,10 +59,14 @@
 }
 
 .copy-button {
-  width: 30px !important;
+  width: 40px !important;
+  min-width: 40px !important;
+  max-width: 40px !important;
   height: 27px !important;
   padding: 0 !important;
-  align-content: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .notification {

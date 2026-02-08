@@ -15,24 +15,26 @@ const DatosG4 = () => {
   const { cargaActual, proveedor, updateCargaField, currentCarga } =
     useEstados();
   const { loading, currentUser } = useAuth();
-  const [showNotification, setShowNotification] = useState(null);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [onEdit, setOnEdit] = useState(null);
   const navigate = useNavigate();
   const { addAlert } = useAlert();
-  const [amountGuias, setAmountGuias] = useState(0);
-  const [amountPrecintos, setAmountPrecintos] = useState(0);
-  const [numGuias, setNumGuias] = useState([0]);
-  const [pesosGuias, setPesosGuias] = useState([0]);
-  const [precintos, setPrecintos] = useState(["S/P"]);
+  const [numGuias, setNumGuias] = useState([]);
+  const [pesosGuias, setPesosGuias] = useState([]);
+  const [precintos, setPrecintos] = useState([]);
+  const [showAddGuia, setShowAddGuia] = useState(false);
+  const [showAddPrecinto, setShowAddPrecinto] = useState(false);
+  const [editingGuiaIndex, setEditingGuiaIndex] = useState(null);
+  const [editingPrecintoIndex, setEditingPrecintoIndex] = useState(null);
+  const [draftCodigo, setDraftCodigo] = useState("");
+  const [draftPeso, setDraftPeso] = useState("");
+  const [draftPrecinto, setDraftPrecinto] = useState("");
   const key_prov = PROVIDER_MAP[proveedor];
 
   useEffect(() => {
     setNumGuias(currentCarga.codigos_guias || []);
     setPesosGuias(currentCarga.pesos_guias || []);
-    setAmountGuias(currentCarga.codigos_guias?.length || 0);
-    setAmountPrecintos(currentCarga.precintos?.length || 0);
-    setPrecintos(currentCarga.precintos || ["S/P"]);
+    setPrecintos(currentCarga.precintos || []);
   }, [currentCarga]);
 
   if (loading || !currentUser || !currentCarga || !currentCarga.id) {
@@ -42,6 +44,37 @@ const DatosG4 = () => {
   if (!proveedor || !cargaActual) {
     navigate("/despachos");
   }
+
+  const parsePeso = (pesoStr) => {
+    if (!pesoStr) return 0;
+    const parts = String(pesoStr).split(",");
+    if (parts.length > 1) {
+      const integerPart = parts.slice(0, -1).join("").replace(/\./g, "");
+      const decimalPart = parts[parts.length - 1];
+      const finalValue = parseFloat(`${integerPart}.${decimalPart}`);
+      return isNaN(finalValue) ? 0 : finalValue;
+    }
+    const finalValue = parseFloat(
+      String(pesoStr).replace(/\./g, "").replace(",", ".")
+    );
+    return isNaN(finalValue) ? 0 : finalValue;
+  };
+
+  const checkPesos = () => {
+    if (numGuias.length === 0) return true;
+    const sumPesos =
+      pesosGuias.reduce((acc, peso) => acc + parsePeso(peso), 0) || 0;
+    const pesoTotal = parsePeso(currentCarga.p_total) || 0;
+
+    if (Math.abs(sumPesos - pesoTotal) > 0.001) {
+      addAlert(
+        `La suma de los pesos de las guías (${sumPesos}) debe ser igual al peso total de la carga (${pesoTotal}).`,
+        "error"
+      );
+      return false;
+    }
+    return true;
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -55,83 +88,15 @@ const DatosG4 = () => {
     }
 
     if (onEdit) {
-      alert("Por favor, guarda los cambios antes de continuar");
+      addAlert("Por favor, guarda los cambios antes de continuar", "error");
+      return;
+    }
+
+    if (!checkPesos()) {
       return;
     }
 
     navigate("/revisionguias");
-  };
-
-  const handleGuiasChange = (e) => {
-    const value = Number(e.target.value);
-    if (value < 0) return;
-    setAmountGuias(value);
-    // Adjust arrays to match new number of guias
-    setNumGuias((prev) =>
-      Array.from({ length: value }, (_, i) => prev[i] ?? "")
-    );
-    setPesosGuias((prev) =>
-      Array.from({ length: value }, (_, i) => prev[i] ?? "")
-    );
-  };
-
-  // Handles the amount of precintos
-  const handlePrecintosAmountChange = (e) => {
-    const value = Number(e.target.value);
-    if (value < 0) return;
-    setAmountPrecintos(value);
-    setPrecintos((prev) =>
-      Array.from({ length: value }, (_, i) => prev[i] ?? "")
-    );
-  };
-
-  // Handles the value of each precinto
-  const handlePrecintoValueChange = (idx, val) => {
-    setPrecintos((prev) => {
-      const arr = [...prev];
-      arr[idx] = val;
-      return arr;
-    });
-  };
-
-  const handleCodigoChange = (idx, val) => {
-    setNumGuias((prev) => {
-      const arr = [...prev];
-      arr[idx] = val;
-      return arr;
-    });
-  };
-
-  const handlePesoChange = (idx, val) => {
-    setPesosGuias((prev) => prev.map((p, i) => (i === idx ? val : p)));
-  };
-
-  const parsePeso = (pesoStr) => {
-    const parts = pesoStr.split(",");
-    if (parts.length > 1) {
-      const integerPart = parts.slice(0, -1).join("").replace(/\./g, "");
-      const decimalPart = parts[parts.length - 1];
-      const finalValue = parseFloat(`${integerPart}.${decimalPart}`);
-
-      return finalValue;
-    }
-    const finalValue = parseFloat(pesoStr.replace(/\./g, "").replace(",", "."));
-    return finalValue;
-  };
-
-  const checkPesos = () => {
-    const sumPesos =
-      pesosGuias.reduce((acc, peso) => acc + parsePeso(peso), 0) || 0;
-    const pesoTotal = parsePeso(currentCarga.p_total) || 0;
-
-    if (sumPesos !== pesoTotal) {
-      alert(
-        `Por favor verifique los pesos de las guías, la suma debiría ser igual a ${pesoTotal}.`
-      );
-      return false;
-    }
-
-    return true;
   };
 
   const handleFieldSave = (fieldName, newValue) => {
@@ -156,47 +121,285 @@ const DatosG4 = () => {
     updateCargaField(key_prov, currentCarga.id, newData);
   };
 
-  // Save guias codes and weights to Firestore when clicking "Guardar"
-  const saveGuias = () => {
+  const handleConfirmAddGuia = async () => {
     if (!checkOnlineStatus()) {
       addAlert(
-        "No hay conexión a internet. No se puede guardar la información.",
+        "No hay conexión a internet. No se puede agregar la guía.",
         "error"
       );
       return;
     }
 
-    if (amountGuias > 1 && !checkPesos()) {
+    const codigo = String(draftCodigo).trim();
+    const peso = String(draftPeso).trim();
+
+    if (!codigo) {
+      addAlert("El código de guía no puede estar vacío.", "error");
       return;
     }
 
-    const newData = {
-      codigos_guias: numGuias,
-      pesos_guias: pesosGuias.map((peso) => (peso ? formatNumber(peso) : "")),
-    };
+    if (numGuias.some((c) => String(c).trim() === codigo)) {
+      addAlert("Este código de guía ya está registrado.", "error");
+      return;
+    }
 
-    updateCargaField(key_prov, currentCarga.id, newData).then(() => {
-      setShowNotification("button1");
-      setTimeout(() => setShowNotification(null), 2000);
-    });
+    if (!peso) {
+      addAlert("El peso de la guía no puede estar vacío.", "error");
+      return;
+    }
+
+    const newNumGuias = [...numGuias, codigo];
+    const pesoFormateado = formatNumber(peso);
+    const newPesosGuias = [...pesosGuias, pesoFormateado];
+
+    setNumGuias(newNumGuias);
+    setPesosGuias(newPesosGuias);
+    setDraftCodigo("");
+    setDraftPeso("");
+    setShowAddGuia(false);
+
+    try {
+      await updateCargaField(key_prov, currentCarga.id, {
+        codigos_guias: newNumGuias,
+        pesos_guias: newPesosGuias,
+      });
+      addAlert("Guía agregada correctamente.", "success");
+    } catch (error) {
+      setNumGuias(numGuias);
+      setPesosGuias(pesosGuias);
+      setDraftCodigo(codigo);
+      setDraftPeso(peso);
+      addAlert(
+        "Error al guardar la guía. Verifique su conexión e intente de nuevo.",
+        "error"
+      );
+    }
   };
 
-  // Save precintos to Firestore when clicking "Guardar"
-  const savePrecintos = () => {
+  const handleCancelAddGuia = () => {
+    setShowAddGuia(false);
+    setEditingGuiaIndex(null);
+    setDraftCodigo("");
+    setDraftPeso("");
+  };
+
+  const handleEditGuia = (idx) => {
+    setEditingGuiaIndex(idx);
+    setDraftCodigo(numGuias[idx] || "");
+    setDraftPeso(pesosGuias[idx] || "");
+  };
+
+  const handleSaveEditGuia = async () => {
     if (!checkOnlineStatus()) {
       addAlert(
-        "No hay conexión a internet. No se puede guardar la información.",
+        "No hay conexión a internet. No se puede guardar la guía.",
         "error"
       );
       return;
     }
-    const newData = {
-      precintos: precintos.length > 0 ? precintos : ["S/P"],
-    };
-    updateCargaField(key_prov, currentCarga.id, newData).then(() => {
-      setShowNotification("button2");
-      setTimeout(() => setShowNotification(null), 2000);
-    });
+    if (editingGuiaIndex === null) return;
+
+    const codigo = String(draftCodigo).trim();
+    const peso = String(draftPeso).trim();
+
+    if (!codigo) {
+      addAlert("El código de guía no puede estar vacío.", "error");
+      return;
+    }
+
+    const otroIndexConMismoCodigo = numGuias.findIndex(
+      (c, i) => i !== editingGuiaIndex && String(c).trim() === codigo
+    );
+    if (otroIndexConMismoCodigo >= 0) {
+      addAlert("Este código de guía ya existe.", "error");
+      return;
+    }
+
+    if (!peso) {
+      addAlert("El peso de la guía no puede estar vacío.", "error");
+      return;
+    }
+
+    const newNumGuias = [...numGuias];
+    const newPesosGuias = [...pesosGuias];
+    newNumGuias[editingGuiaIndex] = codigo;
+    newPesosGuias[editingGuiaIndex] = formatNumber(peso);
+
+    const prevNumGuias = [...numGuias];
+    const prevPesosGuias = [...pesosGuias];
+
+    setNumGuias(newNumGuias);
+    setPesosGuias(newPesosGuias);
+    setEditingGuiaIndex(null);
+    setDraftCodigo("");
+    setDraftPeso("");
+
+    try {
+      await updateCargaField(key_prov, currentCarga.id, {
+        codigos_guias: newNumGuias,
+        pesos_guias: newPesosGuias,
+      });
+      addAlert("Guía actualizada correctamente.", "success");
+    } catch (error) {
+      setNumGuias(prevNumGuias);
+      setPesosGuias(prevPesosGuias);
+      setEditingGuiaIndex(null);
+      addAlert(
+        "Error al guardar la guía. Verifique su conexión e intente de nuevo.",
+        "error"
+      );
+    }
+  };
+
+  const handleDeleteGuia = async (idx) => {
+    if (!checkOnlineStatus()) {
+      addAlert(
+        "No hay conexión a internet. No se puede eliminar la guía.",
+        "error"
+      );
+      return;
+    }
+
+    const newNumGuias = numGuias.filter((_, i) => i !== idx);
+    const newPesosGuias = pesosGuias.filter((_, i) => i !== idx);
+
+    const prevNumGuias = [...numGuias];
+    const prevPesosGuias = [...pesosGuias];
+
+    setNumGuias(newNumGuias);
+    setPesosGuias(newPesosGuias);
+
+    try {
+      await updateCargaField(key_prov, currentCarga.id, {
+        codigos_guias: newNumGuias.length > 0 ? newNumGuias : [],
+        pesos_guias: newPesosGuias.length > 0 ? newPesosGuias : [],
+      });
+      addAlert("Guía eliminada correctamente.", "success");
+    } catch (error) {
+      setNumGuias(prevNumGuias);
+      setPesosGuias(prevPesosGuias);
+      addAlert(
+        "Error al eliminar la guía. Verifique su conexión e intente de nuevo.",
+        "error"
+      );
+    }
+  };
+
+  const handleConfirmAddPrecinto = async () => {
+    if (!checkOnlineStatus()) {
+      addAlert(
+        "No hay conexión a internet. No se puede agregar el precinto.",
+        "error"
+      );
+      return;
+    }
+
+    const codigo = String(draftPrecinto).trim();
+
+    if (!codigo) {
+      addAlert("El código de precinto no puede estar vacío.", "error");
+      return;
+    }
+
+    const newPrecintos = [...precintos, codigo];
+
+    setPrecintos(newPrecintos);
+    setDraftPrecinto("");
+    setShowAddPrecinto(false);
+
+    try {
+      await updateCargaField(key_prov, currentCarga.id, {
+        precintos: newPrecintos,
+      });
+      addAlert("Precinto agregado correctamente.", "success");
+    } catch (error) {
+      setPrecintos(precintos);
+      setDraftPrecinto(codigo);
+      addAlert(
+        "Error al guardar el precinto. Verifique su conexión e intente de nuevo.",
+        "error"
+      );
+    }
+  };
+
+  const handleCancelAddPrecinto = () => {
+    setShowAddPrecinto(false);
+    setEditingPrecintoIndex(null);
+    setDraftPrecinto("");
+  };
+
+  const handleEditPrecinto = (idx) => {
+    setEditingPrecintoIndex(idx);
+    setDraftPrecinto(precintos[idx] || "");
+  };
+
+  const handleSaveEditPrecinto = async () => {
+    if (!checkOnlineStatus()) {
+      addAlert(
+        "No hay conexión a internet. No se puede guardar el precinto.",
+        "error"
+      );
+      return;
+    }
+    if (editingPrecintoIndex === null) return;
+
+    const codigo = String(draftPrecinto).trim();
+
+    if (!codigo) {
+      addAlert("El código de precinto no puede estar vacío.", "error");
+      return;
+    }
+
+    const newPrecintos = [...precintos];
+    newPrecintos[editingPrecintoIndex] = codigo;
+
+    const prevPrecintos = [...precintos];
+
+    setPrecintos(newPrecintos);
+    setEditingPrecintoIndex(null);
+    setDraftPrecinto("");
+
+    try {
+      await updateCargaField(key_prov, currentCarga.id, {
+        precintos: newPrecintos,
+      });
+      addAlert("Precinto actualizado correctamente.", "success");
+    } catch (error) {
+      setPrecintos(prevPrecintos);
+      setEditingPrecintoIndex(null);
+      addAlert(
+        "Error al guardar el precinto. Verifique su conexión e intente de nuevo.",
+        "error"
+      );
+    }
+  };
+
+  const handleDeletePrecinto = async (idx) => {
+    if (!checkOnlineStatus()) {
+      addAlert(
+        "No hay conexión a internet. No se puede eliminar el precinto.",
+        "error"
+      );
+      return;
+    }
+
+    const newPrecintos = precintos.filter((_, i) => i !== idx);
+    const prevPrecintos = [...precintos];
+
+    setPrecintos(newPrecintos.length > 0 ? newPrecintos : []);
+
+    try {
+      await updateCargaField(key_prov, currentCarga.id, {
+        precintos: newPrecintos.length > 0 ? newPrecintos : [],
+      });
+      addAlert("Precinto eliminado correctamente.", "success");
+    } catch (error) {
+      setPrecintos(prevPrecintos);
+      addAlert(
+        "Error al eliminar el precinto. Verifique su conexión e intente de nuevo.",
+        "error"
+      );
+    }
   };
 
   if (showSuggestions) true;
@@ -205,117 +408,166 @@ const DatosG4 = () => {
     <div className="wrap-container">
       <div className="menu">
         <form onSubmit={handleSubmit}>
-          <div className="number-input-container">
+          {/* Datos Guía */}
+          <div className="section-g4">
             <h2>Datos Guía</h2>
-            <label htmlFor="n_guias">Cantidad de guías: </label>
-            <input
-              type="number"
-              id="n_guias"
-              min={0}
-              max={15}
-              step={1}
-              value={amountGuias === 0 ? "" : amountGuias}
-              onChange={handleGuiasChange}
-              placeholder="Ingrese la cantidad de guías"
-            />
-          </div>
 
-          {/* Conditionally render guia fields */}
-          {amountGuias === 1 && (
-            <div className="guia-fields">
-              <label>Código de guía:</label>
-              <input
-                type="text"
-                maxLength={9}
-                value={numGuias[0] || ""}
-                onChange={(e) => handleCodigoChange(0, e.target.value)}
-                placeholder="Ingrese código de guía (9 dígitos)"
-              />
-            </div>
-          )}
+            {numGuias.length > 0 && (
+              <div className="lista-guias">
+                {numGuias.map((codigo, idx) => (
+                  <div key={idx} className="lista-item">
+                    <span className="lista-item-text">
+                      Guía {idx + 1}: {codigo}
+                      {pesosGuias[idx] && ` - ${pesosGuias[idx]} kg`}
+                    </span>
+                    <div className="lista-item-actions">
+                      <button
+                        type="button"
+                        className="btn-editar"
+                        onClick={() => handleEditGuia(idx)}
+                        title="Editar guía"
+                      >
+                        Editar
+                      </button>
+                      <button
+                        type="button"
+                        className="btn-eliminar"
+                        onClick={() => handleDeleteGuia(idx)}
+                        title="Eliminar guía"
+                      >
+                        Eliminar
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
 
-          {amountGuias > 1 && (
-            <div className="guia-fields-multiple">
-              {Array.from({ length: amountGuias }).map((_, idx) => (
-                <div key={idx} className="guia-set">
-                  <label>Código de guía #{idx + 1}:</label>
-                  <input
-                    type="text"
-                    maxLength={9}
-                    value={numGuias[idx] || ""}
-                    onChange={(e) => handleCodigoChange(idx, e.target.value)}
-                    placeholder="Ingrese código de guía"
-                  />
-                  <label>Peso guía #{idx + 1}:</label>
-                  <input
-                    type="text"
-                    value={pesosGuias[idx] || ""}
-                    onChange={(e) => handlePesoChange(idx, e.target.value)}
-                    placeholder="Ingrese peso de la guía"
-                  />
+            {showAddGuia || editingGuiaIndex !== null ? (
+              <div className="inline-add-form">
+                <label>Código de guía (9 dígitos):</label>
+                <input
+                  type="text"
+                  maxLength={9}
+                  value={draftCodigo}
+                  onChange={(e) => setDraftCodigo(e.target.value)}
+                  placeholder="Ingrese código de guía"
+                />
+                <label>Peso de la guía:</label>
+                <input
+                  type="text"
+                  value={draftPeso}
+                  onChange={(e) => setDraftPeso(e.target.value)}
+                  placeholder="Ingrese peso"
+                />
+                <div className="inline-add-buttons">
+                  <button
+                    type="button"
+                    onClick={
+                      editingGuiaIndex !== null
+                        ? handleSaveEditGuia
+                        : handleConfirmAddGuia
+                    }
+                    className="btn-agregar"
+                  >
+                    {editingGuiaIndex !== null ? "Guardar" : "Agregar"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleCancelAddGuia}
+                    className="btn-cancelar"
+                  >
+                    Cancelar
+                  </button>
                 </div>
-              ))}
-            </div>
-          )}
-
-          {amountGuias > 0 && (
-            <div className="button-group">
-              {showNotification === "button1" && (
-                <div className="notificacion">¡Información guardada!</div>
-              )}
-              <button type="button" onClick={saveGuias}>
-                Guardar
+              </div>
+            ) : (
+              <button
+                type="button"
+                className="btn-agregar-guia-precinto"
+                onClick={() => setShowAddGuia(true)}
+              >
+                + Agregar guía
               </button>
-            </div>
-          )}
+            )}
+          </div>
 
           {/* Datos Precintos */}
-          <div className="number-input-container">
+          <div className="section-g4">
             <h2>Datos Precintos</h2>
-            <label htmlFor="n_precintos">Cantidad de precintos: </label>
-            <input
-              type="number"
-              id="n_precintos"
-              min={0}
-              max={10}
-              step={1}
-              value={amountPrecintos === 0 ? "" : amountPrecintos}
-              onChange={handlePrecintosAmountChange}
-              placeholder="Ingrese la cantidad de precintos"
-            />
+
+            {precintos.length > 0 && (
+              <div className="lista-precintos">
+                {precintos.map((codigo, idx) => (
+                  <div key={idx} className="lista-item">
+                    <span className="lista-item-text">
+                      Precinto {idx + 1}: {codigo}
+                    </span>
+                    <div className="lista-item-actions">
+                      <button
+                        type="button"
+                        className="btn-editar"
+                        onClick={() => handleEditPrecinto(idx)}
+                        title="Editar precinto"
+                      >
+                        Editar
+                      </button>
+                      <button
+                        type="button"
+                        className="btn-eliminar"
+                        onClick={() => handleDeletePrecinto(idx)}
+                        title="Eliminar precinto"
+                      >
+                        Eliminar
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {showAddPrecinto || editingPrecintoIndex !== null ? (
+              <div className="inline-add-form">
+                <label>Código de precinto (max 8 caracteres):</label>
+                <input
+                  type="text"
+                  maxLength={8}
+                  value={draftPrecinto}
+                  onChange={(e) => setDraftPrecinto(e.target.value)}
+                  placeholder="Ingrese código de precinto"
+                />
+                <div className="inline-add-buttons">
+                  <button
+                    type="button"
+                    onClick={
+                      editingPrecintoIndex !== null
+                        ? handleSaveEditPrecinto
+                        : handleConfirmAddPrecinto
+                    }
+                    className="btn-agregar"
+                  >
+                    {editingPrecintoIndex !== null ? "Guardar" : "Agregar"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleCancelAddPrecinto}
+                    className="btn-cancelar"
+                  >
+                    Cancelar
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <button
+                type="button"
+                className="btn-agregar-guia-precinto"
+                onClick={() => setShowAddPrecinto(true)}
+              >
+                + Agregar precinto
+              </button>
+            )}
           </div>
 
-          {amountPrecintos > 0 && (
-            <div className="precintos-fields-multiple">
-              {Array.from({ length: amountPrecintos }).map((_, idx) => (
-                <div key={idx} className="precinto-set">
-                  <label>Código de precinto #{idx + 1}:</label>
-                  <input
-                    type="text"
-                    maxLength={8}
-                    value={precintos[idx] || ""}
-                    onChange={(e) =>
-                      handlePrecintoValueChange(idx, e.target.value)
-                    }
-                    placeholder="Ingrese código de precinto"
-                  />
-                </div>
-              ))}
-            </div>
-          )}
-
-          {amountPrecintos > 0 && (
-            <div className="button-group">
-              {showNotification === "button2" && (
-                <div className="notificacion">¡Información guardada!</div>
-              )}
-              <button type="button" onClick={savePrecintos}>
-                Guardar
-              </button>
-            </div>
-          )}
-
-          {/*****ID unidad******/}
           <EditableField
             fieldName="id_despacho"
             label="ID despacho"

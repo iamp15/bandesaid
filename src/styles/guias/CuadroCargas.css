@@ -52,6 +52,10 @@
 
 .eliminar-button {
   background-color: black !important;
+  width: 30px !important;
+  min-width: 30px !important;
+  max-width: 30px !important;
+  padding: 0 2px !important;
 }
 
 .carga-buttons a,

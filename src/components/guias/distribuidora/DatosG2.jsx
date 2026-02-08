@@ -177,17 +177,27 @@ const DatosG2 = () => {
   };
 
   const handleFieldSave = (name, value) => {
-    // When saving "destino", also save codigo_espejo (or N/A)
+    // When saving "destino", también guardar codigo_espejo, estadoDestino y transporte según corresponda
     let updatedData;
     if (name === "destino") {
-      // Find the selected company in both lists
-      const company =
-        companyNames.find((c) => c.nombre === value) ||
-        sinCodigo.find((c) => c.nombre === value);
+      const companyEspejo = companyNames.find((c) => c.nombre === value);
+      const companySinCodigo = sinCodigo.find((c) => c.nombre === value);
+      const company = companyEspejo || companySinCodigo;
+
+      // Solo asignar estadoDestino si hay un estado válido (no vacío, no "N/A")
+      const estadoValido =
+        company?.estado &&
+        String(company.estado).trim() !== "" &&
+        String(company.estado).toUpperCase() !== "N/A";
+
       updatedData = {
         ...currentCarga,
         destino: value,
         codigo_espejo: company ? company.codigo : "N/A",
+        ...(estadoValido && { estadoDestino: company.estado }),
+        ...(companyEspejo?.entidad != null && companyEspejo.entidad !== "" && {
+          transporte: companyEspejo.entidad,
+        }),
         editHistory: {
           ...currentCarga.editHistory,
           [name]: {

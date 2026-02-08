@@ -4,7 +4,7 @@
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background-color: var(--background-color); /* Light blue-gray background */
+  background-color: var(--background-color);
 }
 
 .menu {
@@ -16,12 +16,10 @@
   border-radius: 10px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   min-height: 80vh;
-  width: min(90%, 720px); /* Más ancho en PC (hasta 720px), 90% en pantallas pequeñas */
+  width: min(90%, 720px);
   min-width: 320px;
-  height: calc(
-    100vh - 50px
-  ); /* Adjust 100px to match your header/footer height */
-  overflow-y: auto; /* Adds vertical scrolling if content exceeds viewport height */
+  height: calc(100vh - 50px);
+  overflow-y: auto;
 }
 
 .menu h2 {
@@ -30,7 +28,7 @@
   font-size: 1.8rem;
 }
 
-/* Botones de proveedores/roles: en columna, uno debajo de otro */
+/* Botones de proveedores: en columna, uno debajo de otro */
 .buttons-container {
   display: flex;
   flex-direction: column;
@@ -40,14 +38,14 @@
 }
 
 /* Cada Link envuelve solo un botón: width fit-content para que solo el botón sea clickeable */
-.buttons-container .role-link {
+.buttons-container .provider-link {
   display: block;
   width: fit-content;
   text-decoration: none;
 }
 
-/* Ancho y altura unificados solo para los botones de roles */
-.buttons-container .role-link button {
+/* Ancho y altura unificados solo para los botones de proveedores */
+.buttons-container .provider-link button {
   width: 260px;
   min-width: 260px;
   max-width: 260px;
@@ -68,43 +66,54 @@
   width: 100%;
 }
 
-.menu button {
+/* Link de navegación: solo el botón debe ser clickeable */
+.button-group .nav-link {
+  display: block;
+  width: fit-content;
+  text-decoration: none;
+}
+
+.menu button,
+.error button {
   background-color: var(--primary-color);
   color: white;
   border: none;
   padding: 12px 20px;
   margin: 10px;
   border-radius: 5px;
-  width: 80%;
   font-size: 1rem;
   cursor: pointer;
   transition: background-color 0.3s ease;
 }
 
-.menu button:hover {
+.menu button:hover,
+.error button:hover {
   background-color: var(--hover-color);
+}
+
+/* Estado de error cuando no hay rol seleccionado */
+.error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  text-align: center;
+}
+
+.error span {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.error p {
+  color: var(--font-color);
+  margin-bottom: 1.5rem;
 }
 
 @media (max-width: 480px) {
   .menu {
     width: 90%;
     min-width: unset;
-  }
-}
-
-.warning-icon {
-  font-size: 1.2em;
-  margin-right: 8px;
-  vertical-align: middle;
-}
-
-@keyframes fadeInOut {
-  0%,
-  100% {
-    opacity: 0;
-  }
-  10%,
-  90% {
-    opacity: 1;
   }
 }

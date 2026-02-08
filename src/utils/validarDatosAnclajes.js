@@ -28,11 +28,8 @@ export const validarDatosParaAnclajes = (currentCarga) => {
   ) {
     missingFields.push("Código(s) de guía");
   }
-  if (
-    !Array.isArray(currentCarga?.precintos) ||
-    currentCarga.precintos.length === 0 ||
-    !currentCarga.precintos[0]
-  ) {
+  // Precintos vacíos o ["S/P"] es válido (carga sin precintos)
+  if (!Array.isArray(currentCarga?.precintos)) {
     missingFields.push("Precintos");
   }
   if (!currentCarga?.id_despacho) missingFields.push("ID del despacho");

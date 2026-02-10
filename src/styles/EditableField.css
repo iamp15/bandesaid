@@ -21,14 +21,23 @@
   margin-top: 10px;
 }
 
+.button-group {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
 .button-group button {
-  padding: 6px 12px;
-  min-width: 80px; /* Ensures minimum width is the same for both buttons */
+  padding: 6px 10px;
+  min-width: 70px;
+  max-width: 100px;
   border: 1px solid #ccc;
   border-radius: 4px;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 13px;
   text-align: center;
+  white-space: nowrap;
 }
 
 .suggestions-list {

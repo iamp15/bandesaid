@@ -1,7 +1,7 @@
 import { formatPesoAplicacion } from "./convertPesoGuiaSADA";
 
 /**
- * Normaliza un texto para comparación (minúsculas, sin espacios extras, sin caracteres especiales)
+ * Normaliza un texto para comparación flexible (minúsculas, sin espacios extras, sin caracteres especiales)
  */
 const normalizeText = (text) => {
   if (!text) return "";
@@ -13,7 +13,28 @@ const normalizeText = (text) => {
 };
 
 /**
- * Compara dos textos de forma permisiva
+ * Comparación estricta: mismo valor tras trim (sin flexibilidad).
+ */
+const compareStrict = (val1, val2) => {
+  const s1 = String(val1 ?? "").trim();
+  const s2 = String(val2 ?? "").trim();
+  return s1 === s2;
+};
+
+/**
+ * Comparación estricta para números/códigos: mismo valor tras quitar espacios y puntos (ej. cédula, código espejo).
+ */
+const compareStrictNumber = (val1, val2) => {
+  const normalize = (v) =>
+    String(v ?? "")
+      .replace(/\s/g, "")
+      .replace(/\./g, "")
+      .trim();
+  return normalize(val1) === normalize(val2);
+};
+
+/**
+ * Compara dos textos de forma permisiva (flexible)
  */
 const compareText = (text1, text2) => {
   const normalized1 = normalizeText(text1);
@@ -36,14 +57,24 @@ const compareText = (text1, text2) => {
 };
 
 /**
+ * Quita acentos/diacríticos de un texto (José -> Jose, María -> Maria).
+ */
+const removeAccents = (str) => {
+  if (!str) return "";
+  return String(str)
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+};
+
+/**
  * Compara dos nombres de chofer de forma flexible: coinciden si hay
  * al menos un nombre (p.ej. Antonio, José) y un apellido (p.ej. Pérez, Bonilla) en común.
- * Se toma el nombre más largo como referencia: últimas 2 palabras = apellidos, el resto = nombres.
+ * Se ignoran acentos (José = Jose, Pérez = Perez).
  */
 const compareNombreChofer = (nombre1, nombre2) => {
   const words = (str) => {
     if (!str) return [];
-    return String(str)
+    return removeAccents(String(str))
       .toUpperCase()
       .trim()
       .replace(/\s+/g, " ")
@@ -137,10 +168,11 @@ const compareFechas = (fecha1, fecha2) => {
 export const compareGuiaSADA = (datosExtraidos, currentCarga) => {
   const resultados = {};
 
-  // Comparar número de guía
+  // Comparar número de guía (estricto: debe ser el mismo número)
   const codigosGuias = currentCarga.codigos_guias || [];
-  const existeEnArreglo = codigosGuias.some(
-    (codigo) => String(codigo).trim() === String(datosExtraidos.numeroGuia).trim()
+  const numeroGuiaExtraido = String(datosExtraidos.numeroGuia ?? "").trim();
+  const existeEnArreglo = codigosGuias.some((codigo) =>
+    compareStrict(codigo, numeroGuiaExtraido)
   );
 
   resultados.numeroGuia = {
@@ -160,9 +192,9 @@ export const compareGuiaSADA = (datosExtraidos, currentCarga) => {
     valorManual: currentCarga.chofer || "",
   };
 
-  // Comparar cédula del conductor
+  // Comparar cédula del conductor (estricto: mismo número)
   resultados.cedula = {
-    coincide: compareText(
+    coincide: compareStrictNumber(
       datosExtraidos.conductorCedula || "",
       currentCarga.cedula || ""
     ),
@@ -185,10 +217,13 @@ export const compareGuiaSADA = (datosExtraidos, currentCarga) => {
     valorManual: currentCarga.destino || "",
   };
 
-  // Comparar código espejo (código de empresa destino)
+  // Comparar código espejo (estricto: debe ser el mismo número)
   const codigoExtraido = datosExtraidos.empresaDestino?.codigo || "";
   resultados.codigo_espejo = {
-    coincide: compareText(codigoExtraido, currentCarga.codigo_espejo || ""),
+    coincide: compareStrictNumber(
+      codigoExtraido,
+      currentCarga.codigo_espejo || ""
+    ),
     valorExtraido: codigoExtraido,
     valorManual: currentCarga.codigo_espejo || "",
   };

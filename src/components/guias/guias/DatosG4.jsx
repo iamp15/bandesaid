@@ -463,6 +463,13 @@ const DatosG4 = () => {
                 <div className="inline-add-buttons">
                   <button
                     type="button"
+                    onClick={handleCancelAddGuia}
+                    className="btn-cancelar"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="button"
                     onClick={
                       editingGuiaIndex !== null
                         ? handleSaveEditGuia
@@ -471,13 +478,6 @@ const DatosG4 = () => {
                     className="btn-agregar"
                   >
                     {editingGuiaIndex !== null ? "Guardar" : "Agregar"}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleCancelAddGuia}
-                    className="btn-cancelar"
-                  >
-                    Cancelar
                   </button>
                 </div>
               </div>
@@ -539,6 +539,13 @@ const DatosG4 = () => {
                 <div className="inline-add-buttons">
                   <button
                     type="button"
+                    onClick={handleCancelAddPrecinto}
+                    className="btn-cancelar"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="button"
                     onClick={
                       editingPrecintoIndex !== null
                         ? handleSaveEditPrecinto
@@ -547,13 +554,6 @@ const DatosG4 = () => {
                     className="btn-agregar"
                   >
                     {editingPrecintoIndex !== null ? "Guardar" : "Agregar"}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleCancelAddPrecinto}
-                    className="btn-cancelar"
-                  >
-                    Cancelar
                   </button>
                 </div>
               </div>

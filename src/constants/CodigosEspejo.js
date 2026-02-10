@@ -357,7 +357,7 @@ export const codigos_espejo = [
   {
     nombre: "RED DE ABASTOS BICENTENARIO MONAGAS",
     codigo: "979277",
-    estado: "Distrito Capital",
+    estado: "Monagas",
     entidad: "RABSA",
   },
   {

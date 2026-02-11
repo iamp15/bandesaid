@@ -79,6 +79,8 @@ const ScannerGuiaSADA = () => {
   const [guiasEscaneadas, setGuiasEscaneadas] = useState([]);
   const [mostrarComparacion, setMostrarComparacion] = useState(false);
   const [manualHtml, setManualHtml] = useState("");
+  const numGuias = currentCarga?.codigos_guias?.length || 1;
+  const [guiaSeleccionada, setGuiaSeleccionada] = useState(0);
 
   useEffect(() => {
     if (!currentCarga || !currentCarga.id) {
@@ -115,8 +117,9 @@ const ScannerGuiaSADA = () => {
         (codigo) => String(codigo).trim() === String(datos.numeroGuia).trim()
       );
 
-      // Comparar con datos actuales
-      const comparacionResult = compareGuiaSADA(datos, currentCarga);
+      // Comparar con datos de la guía seleccionada (o guía única)
+      const indiceGuia = numGuias > 1 ? guiaSeleccionada : 0;
+      const comparacionResult = compareGuiaSADA(datos, currentCarga, indiceGuia);
       setComparacion(comparacionResult);
 
       // Agregar a lista de guías escaneadas
@@ -157,6 +160,49 @@ const ScannerGuiaSADA = () => {
 
           {!mostrarComparacion ? (
             <>
+              {numGuias > 1 && (
+                <div className="selector-guia-sada" style={{
+                  marginBottom: "16px",
+                  padding: "12px",
+                  background: "#f8f9fa",
+                  borderRadius: "6px",
+                }}>
+                  <label htmlFor="guia-procesar" style={{
+                    display: "block",
+                    marginBottom: "6px",
+                    fontWeight: "600",
+                    fontSize: "14px",
+                  }}>
+                    Guía a procesar:
+                  </label>
+                  <select
+                    id="guia-procesar"
+                    value={guiaSeleccionada}
+                    onChange={(e) => setGuiaSeleccionada(Number(e.target.value))}
+                    style={{
+                      width: "100%",
+                      maxWidth: "280px",
+                      padding: "8px 12px",
+                      fontSize: "14px",
+                      border: "1px solid #ccc",
+                      borderRadius: "4px",
+                    }}
+                  >
+                    {currentCarga.codigos_guias.map((codigo, idx) => (
+                      <option key={idx} value={idx}>
+                        Guía {idx + 1} — {codigo}
+                        {currentCarga.pesos_guias?.[idx]
+                          ? ` (${currentCarga.pesos_guias[idx]} kg)`
+                          : ""}
+                      </option>
+                    ))}
+                  </select>
+                  <p style={{ marginTop: "6px", fontSize: "12px", color: "#666" }}>
+                    Se compararán destino, estado, código espejo y cantidad de rubros de esta guía.
+                  </p>
+                </div>
+              )}
+
               <div className="manual-html-container" style={{
                 padding: "20px",
                 margin: "20px 0",

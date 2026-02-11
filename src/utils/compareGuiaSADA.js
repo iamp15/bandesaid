@@ -1,4 +1,5 @@
 import { formatPesoAplicacion } from "./convertPesoGuiaSADA";
+import { getDestinoForGuia } from "./destinoPorGuia";
 
 /**
  * Normaliza un texto para comparación flexible (minúsculas, sin espacios extras, sin caracteres especiales)
@@ -163,22 +164,48 @@ const compareFechas = (fecha1, fecha2) => {
  * Compara los datos extraídos de la guía SADA con los datos manuales de la carga
  * @param {Object} datosExtraidos - Datos extraídos de la guía SADA
  * @param {Object} currentCarga - Datos actuales de la carga
+ * @param {number} [guiaIndex] - Índice de la guía con la que se compara (si hay varias); si no se pasa, se usa el destino único de la carga
  * @returns {Object} - Resultados de la comparación
  */
-export const compareGuiaSADA = (datosExtraidos, currentCarga) => {
+export const compareGuiaSADA = (datosExtraidos, currentCarga, guiaIndex) => {
   const resultados = {};
 
-  // Comparar número de guía (estricto: debe ser el mismo número)
+  // Comparar número de guía (estricto: debe ser exactamente el mismo número)
   const codigosGuias = currentCarga.codigos_guias || [];
   const numeroGuiaExtraido = String(datosExtraidos.numeroGuia ?? "").trim();
   const existeEnArreglo = codigosGuias.some((codigo) =>
     compareStrict(codigo, numeroGuiaExtraido)
   );
 
+  // Determinar índice de guía para destino: el pasado o el que coincide con el número escaneado
+  const indexParaDestino =
+    guiaIndex !== undefined && guiaIndex !== null
+      ? guiaIndex
+      : codigosGuias.findIndex((c) => compareStrict(c, numeroGuiaExtraido));
+  const destinoGuia =
+    indexParaDestino >= 0
+      ? getDestinoForGuia(currentCarga, indexParaDestino)
+      : getDestinoForGuia(currentCarga, 0);
+
+  // Coincide solo si el número extraído es exactamente igual al de la guía comparada (seleccionada o única)
+  const codigoManualComparar =
+    indexParaDestino >= 0 && codigosGuias[indexParaDestino] !== undefined
+      ? codigosGuias[indexParaDestino]
+      : codigosGuias[0];
+  const numeroGuiaCoincide =
+    codigoManualComparar !== undefined
+      ? compareStrict(codigoManualComparar, numeroGuiaExtraido)
+      : false;
+
   resultados.numeroGuia = {
-    coincide: existeEnArreglo,
+    coincide: numeroGuiaCoincide,
     valorExtraido: datosExtraidos.numeroGuia || "",
-    valorManual: codigosGuias.length > 0 ? codigosGuias : "",
+    valorManual:
+      indexParaDestino >= 0 && codigosGuias[indexParaDestino] !== undefined
+        ? codigosGuias[indexParaDestino]
+        : codigosGuias.length > 0
+          ? codigosGuias
+          : "",
     existeEnArreglo,
   };
 
@@ -209,12 +236,12 @@ export const compareGuiaSADA = (datosExtraidos, currentCarga) => {
     valorManual: currentCarga.placa || "",
   };
 
-  // Comparar empresa destino (razón social)
+  // Comparar empresa destino (razón social) usando destino de la guía correspondiente
   const razonSocialExtraida = datosExtraidos.empresaDestino?.razonSocial || "";
   resultados.empresaDestino = {
-    coincide: compareText(razonSocialExtraida, currentCarga.destino || ""),
+    coincide: compareText(razonSocialExtraida, destinoGuia.destino || ""),
     valorExtraido: razonSocialExtraida,
-    valorManual: currentCarga.destino || "",
+    valorManual: destinoGuia.destino || "",
   };
 
   // Comparar código espejo (estricto: debe ser el mismo número)
@@ -222,18 +249,18 @@ export const compareGuiaSADA = (datosExtraidos, currentCarga) => {
   resultados.codigo_espejo = {
     coincide: compareStrictNumber(
       codigoExtraido,
-      currentCarga.codigo_espejo || ""
+      destinoGuia.codigo_espejo || ""
     ),
     valorExtraido: codigoExtraido,
-    valorManual: currentCarga.codigo_espejo || "",
+    valorManual: destinoGuia.codigo_espejo || "",
   };
 
   // Comparar estado
   const estadoExtraido = datosExtraidos.empresaDestino?.estado || "";
   resultados.estado = {
-    coincide: compareText(estadoExtraido, currentCarga.estadoDestino || ""),
+    coincide: compareText(estadoExtraido, destinoGuia.estadoDestino || ""),
     valorExtraido: estadoExtraido,
-    valorManual: currentCarga.estadoDestino || "",
+    valorManual: destinoGuia.estadoDestino || "",
   };
 
   // Comparar fecha
@@ -246,25 +273,30 @@ export const compareGuiaSADA = (datosExtraidos, currentCarga) => {
     valorManual: currentCarga.fecha_guia_sada || currentCarga.fecha || "",
   };
 
-  // Comparar cantidad de rubros
+  // Comparar cantidad de rubros (según la guía seleccionada o la que coincida con el número escaneado)
   const pesosGuias = currentCarga.pesos_guias || [];
   const cantidadRubrosExtraida = datosExtraidos.cantidadRubros || 0;
 
-  // Filtrar elementos vacíos, null, undefined o 0 del array
-  const pesosGuiasValidos = pesosGuias.filter(peso => {
-    const pesoParseado = parsePeso(peso);
-    return pesoParseado > 0;
-  });
+  const pesosGuiasValidos = pesosGuias
+    .map((p, i) => ({ peso: p, index: i }))
+    .filter(({ peso }) => parsePeso(peso) > 0);
 
-  // Si hay múltiples guías válidas, comparar con todas
   let coincidePeso = false;
   let valorManualPeso = null;
   let valorManualFormateado = null;
 
-  if (pesosGuiasValidos.length > 0) {
-    // Buscar coincidencia con alguna guía existente
+  // Si tenemos un índice de guía definido, comparar solo con el peso de esa guía
+  if (indexParaDestino >= 0 && pesosGuias[indexParaDestino] !== undefined) {
+    const pesoManual = parsePeso(pesosGuias[indexParaDestino]);
+    valorManualFormateado = formatPesoAplicacion(pesoManual);
+    if (pesoManual > 0) {
+      valorManualPeso = pesoManual;
+      coincidePeso = comparePesos(cantidadRubrosExtraida, pesoManual);
+    }
+  } else if (pesosGuiasValidos.length > 0) {
+    // Sin índice: buscar coincidencia con alguna guía existente
     for (let i = 0; i < pesosGuiasValidos.length; i++) {
-      const pesoManual = parsePeso(pesosGuiasValidos[i]);
+      const pesoManual = parsePeso(pesosGuiasValidos[i].peso);
       if (comparePesos(cantidadRubrosExtraida, pesoManual)) {
         coincidePeso = true;
         valorManualPeso = pesoManual;
@@ -272,10 +304,8 @@ export const compareGuiaSADA = (datosExtraidos, currentCarga) => {
         break;
       }
     }
-
-    // Si no hay coincidencia, usar el primer valor para mostrar
     if (!coincidePeso && pesosGuiasValidos.length > 0) {
-      valorManualPeso = parsePeso(pesosGuiasValidos[0]);
+      valorManualPeso = parsePeso(pesosGuiasValidos[0].peso);
       valorManualFormateado = formatPesoAplicacion(valorManualPeso);
     }
   } else {

@@ -229,7 +229,6 @@ const DatosG2 = () => {
       <div className="menu">
         <form onSubmit={handleSubmit}>
           <h2>Comercializadora: </h2>
-
           {/****** Entidad destino *****/}
           <div className="empresa-input-container">
             <div className="dropdown-container">

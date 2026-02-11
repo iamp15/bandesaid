@@ -94,6 +94,13 @@
   }
 }
 
+/* Líneas divisorias tenues entre secciones */
+.section-divider {
+  border: none;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  margin: 28px 0 24px;
+}
+
 /* Secciones de guías y precintos */
 .section-g4 {
   margin-bottom: 24px;
@@ -109,9 +116,24 @@
   margin-bottom: 16px;
 }
 
-.lista-item {
+.checkbox-destinos-guias {
+  margin-bottom: 12px;
+}
+.checkbox-destinos-guias label {
   display: flex;
   align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 14px;
+}
+.checkbox-destinos-guias input[type="checkbox"] {
+  width: auto;
+}
+
+.lista-item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
   justify-content: space-between;
   padding: 10px 12px;
   margin-bottom: 8px;
@@ -119,6 +141,59 @@
   border: 1px solid #e0e0e0;
   border-radius: 6px;
   gap: 12px;
+}
+
+.destino-guia-fields {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid #e0e0e0;
+}
+.destino-guia-input-wrap {
+  flex: 1;
+  min-width: 180px;
+  position: relative;
+}
+.destino-guia-input-wrap label {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 13px;
+  font-weight: 500;
+}
+.destino-guia-input-wrap input {
+  width: 100%;
+  padding: 6px 10px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+.destino-suggestions {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 10;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+.destino-suggestions li {
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 14px;
+}
+.destino-suggestions li:hover {
+  background-color: #f0f0f0;
 }
 
 .lista-item-text {

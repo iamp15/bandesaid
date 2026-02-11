@@ -178,6 +178,22 @@ const DatosG1 = () => {
             })}
           />
 
+          {/****** ID de unidad ******/}
+          <EditableField
+            {...editableFieldProps({
+              fieldName: "id_unidad",
+              label: "ID de unidad",
+              value: currentCarga?.id_unidad,
+              placeholder: "Ingrese el ID de la unidad",
+              onSave: handleFieldSave,
+              currentUser,
+              editHistory: currentCarga?.editHistory,
+              setShowSuggestions,
+              setOnEdit,
+              onEdit,
+            })}
+          />
+
           {/****** Therno King ******/}
           <label htmlFor="tk" className="label-bold">
             Therno King:{" "}

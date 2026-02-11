@@ -10,6 +10,10 @@ import "../../styles/guias/formulariosGuia.css";
 import { formatNumber } from "../../utils/FormatNumber";
 import LoadingSpinner from "../LoadingSpinner";
 import { useEstados } from "../../contexts/EstadosContext";
+import {
+  getDestinoForGuia,
+  getDestinosUnicosParaSaliendoPlanta,
+} from "../../utils/destinoPorGuia";
 
 const FormulariosGuia = () => {
   const { cargaActual, setCargaActual, proveedor, currentCarga } = useEstados();
@@ -87,8 +91,8 @@ const FormulariosGuia = () => {
       `**Temperatura Promedio:** ${currentCarga.t_promedio} ºC\n` +
       `**CND o CPE:** ${currentCarga.cnd}\n` +
       `**Permiso Sanitario:** ${PERMISO_SANITARIO}\n` +
-      `**Estado destino:** ${currentCarga.estadoDestino}\n` +
-      `**Entidad destino:** ${currentCarga.destino}\n` +
+      `**Estado destino:** ${getDestinoForGuia(currentCarga, index).estadoDestino}\n` +
+      `**Entidad destino:** ${getDestinoForGuia(currentCarga, index).destino}\n` +
       `**🆔 del Despacho:** ${currentCarga.id_despacho}`
     );
   };
@@ -160,6 +164,12 @@ const FormulariosGuia = () => {
       if (cargaActual < 10) return `0${cargaActual}`;
       else return `${cargaActual}`;
     };
+    const destinosUnicos = getDestinosUnicosParaSaliendoPlanta(
+      currentCarga,
+      numGuias
+    );
+    const destinoTexto =
+      destinosUnicos.length > 0 ? destinosUnicos.join(" / ") : "";
     return (
       "**SALIENDO DE PLANTA**\n" +
       `**CARGA Nº ${numeracion()}**\n` +
@@ -167,7 +177,7 @@ const FormulariosGuia = () => {
       `**Galpón:** ${GALPON}\n` +
       `**Producto:** ${RUBRO}\n` +
       `**Fecha:** ${currentCarga.fecha}\n` +
-      `**Destino:** ${currentCarga.destino}\n`
+      `**Destino:** ${destinoTexto}\n`
     );
   };
 

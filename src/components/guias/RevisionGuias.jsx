@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { RUBRO } from "../../constants/constants";
 import { validarDatosParaAnclajes } from "../../utils/validarDatosAnclajes";
+import { getDestinoForGuia } from "../../utils/destinoPorGuia";
 import "../../styles/guias/revisionGuias.css";
 import LoadingSpinner from "../LoadingSpinner";
 import { useEstados } from "../../contexts/EstadosContext";
@@ -48,27 +49,79 @@ const RevisionGuias = () => {
           <p>
             Placa: <span className="value">{currentCarga.placa}</span>{" "}
           </p>
+          <p>
+            ID de unidad:{" "}
+            <span className="value">{currentCarga.id_unidad || "—"}</span>
+          </p>
           <button onClick={() => navigate("/datosg1")}>Editar</button>
         </div>
 
         <div className="section">
           <h3>Comercializadora</h3>
-          <p>
-            Entidad destino:{" "}
-            <span className="value">{currentCarga.destino}</span>
-          </p>
-          <p>
-            Código espejo:{" "}
-            <span className="value">{currentCarga.codigo_espejo}</span>
-          </p>
-          <p>
-            Estado destino:{" "}
-            <span className="value">{currentCarga.estadoDestino}</span>
-          </p>
-          <p>
-            Transporte: <span className="value">{currentCarga.transporte}</span>
-          </p>
-          <button onClick={() => navigate("/datosg2")}>Editar</button>
+          {Array.isArray(currentCarga.codigos_guias) &&
+          currentCarga.codigos_guias.length > 1 ? (
+            <>
+              {currentCarga.codigos_guias.map((codigo, index) => {
+                const d = getDestinoForGuia(currentCarga, index);
+                return (
+                  <div key={index} className="comercializadora-guia-block">
+                    <p className="comercializadora-guia-title">
+                      Guía {index + 1} ({codigo})
+                    </p>
+                    <p>
+                      Entidad destino:{" "}
+                      <span className="value">{d.destino}</span>
+                    </p>
+                    <p>
+                      Código espejo:{" "}
+                      <span className="value">{d.codigo_espejo}</span>
+                    </p>
+                    <p>
+                      Estado destino:{" "}
+                      <span className="value">{d.estadoDestino}</span>
+                    </p>
+                    <p>
+                      Transporte:{" "}
+                      <span className="value">{d.transporte}</span>
+                    </p>
+                  </div>
+                );
+              })}
+              <button onClick={() => navigate("/datosg2")}>
+                Editar destino por defecto
+              </button>
+              <button onClick={() => navigate("/datosg4")}>
+                Editar destinos por guía
+              </button>
+            </>
+          ) : (
+            <>
+              {(() => {
+                const d = getDestinoForGuia(currentCarga, 0);
+                return (
+                  <>
+                    <p>
+                      Entidad destino:{" "}
+                      <span className="value">{d.destino}</span>
+                    </p>
+                    <p>
+                      Código espejo:{" "}
+                      <span className="value">{d.codigo_espejo}</span>
+                    </p>
+                    <p>
+                      Estado destino:{" "}
+                      <span className="value">{d.estadoDestino}</span>
+                    </p>
+                    <p>
+                      Transporte:{" "}
+                      <span className="value">{d.transporte}</span>
+                    </p>
+                  </>
+                );
+              })()}
+              <button onClick={() => navigate("/datosg2")}>Editar</button>
+            </>
+          )}
         </div>
 
         <div className="section">

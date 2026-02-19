@@ -1,0 +1,12 @@
+{
+  "projects": {
+    "default": "bandesaid-221ac"
+  },
+  "targets": {
+    "bandesaid-221ac": {
+      "hosting": {
+        "production": ["bandesaid-221ac"]
+      }
+    }
+  }
+}

@@ -9,13 +9,17 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d dist"
+    "deploy": "gh-pages -d dist",
+    "deploy-firebase": "npm run build && firebase deploy --only hosting:production",
+    "deploy-beta": "npm run build && firebase hosting:channel:deploy beta"
   },
   "dependencies": {
+    "firebase": "^11.0.1",
     "react": "^18.3.1",
     "react-copy-to-clipboard": "^5.1.0",
     "react-dom": "^18.3.1",
-    "react-router-dom": "^6.26.1"
+    "react-router-dom": "^6.26.1",
+    "winston": "^3.17.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.0",

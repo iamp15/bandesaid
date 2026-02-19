@@ -1,4 +1,3 @@
-import { useState, useEffect } from "react";
 import "./App.css";
 import { Route, Routes } from "react-router-dom";
 import ControlPesaje from "./components/controlPesaje/ControlPesaje";
@@ -19,261 +18,199 @@ import Menu from "./components/Menu";
 import ControlCalidad2 from "./components/controlCalidad/ControlCalidad2";
 import ControlCalidad3 from "./components/controlCalidad/ControlCalidad3";
 import ControlCalidad4 from "./components/controlCalidad/ControlCalidad4";
+import LoginPage from "./components/login/LoginPage";
+import ProtectedRoute from "./components/login/ProtectedRoute";
+import UnderConstruction from "./components/UnderConstruction";
+import Sistemas1 from "./components/sistemas/Sistemas1";
+import Sistemas2 from "./components/sistemas/Sistemas2";
+import Distribucion from "./components/formatos/Distribucion";
+import SelectorFormatos from "./components/formatos/SelectorFormatos";
+import MenuConfiguracion from "./components/configuracion/MenuConfiguracion";
+import LogViewer from "./components/configuracion/logs/LogViewer";
+import Pruebas from "./components/configuracion/Pruebas";
+import ScannerGuiaSADA from "./components/qr/ScannerGuiaSADA";
 
 function App() {
-  const [rol, setRol] = useState(() => {
-    const savedRol = localStorage.getItem("rol");
-    return savedRol ? savedRol : "";
-  });
-  const [proveedor, setProveedor] = useState(() => {
-    const savedProveedor = localStorage.getItem("proveedor");
-    return savedProveedor ? savedProveedor : "";
-  });
-  const [cargas, setCargas] = useState(() => {
-    // Initialize cargas from localStorage or use default value
-    const savedCargas = localStorage.getItem("cargas");
-    return savedCargas
-      ? JSON.parse(savedCargas)
-      : {
-          tr: [],
-          tg: [],
-          al: [],
-          av: [],
-          an: [],
-        };
-  });
-  const [cargaActual, setCargaActual] = useState(() => {
-    // Initialize cargaActual from localStorage or use default value
-    const savedCargaActual = localStorage.getItem("cargaActual");
-    return savedCargaActual ? parseInt(savedCargaActual) : 0;
-  });
-  const [guias_precintos, setGuias_precintos] = useState(() => {
-    const savedGuias_precintos = localStorage.getItem("guias_precintos");
-    return savedGuias_precintos
-      ? JSON.parse(savedGuias_precintos)
-      : {
-          guias: "",
-          precintos: "",
-        };
-  });
-
-  // Save cargas to localStorage whenever it changes
-  useEffect(() => {
-    localStorage.setItem("cargas", JSON.stringify(cargas));
-  }, [cargas]);
-
-  // Save cargaActual to localStorage whenever it changes
-  useEffect(() => {
-    localStorage.setItem("cargaActual", cargaActual.toString());
-  }, [cargaActual]);
-
-  useEffect(() => {
-    localStorage.setItem("rol", rol);
-  }, [rol]);
-
-  useEffect(() => {
-    localStorage.setItem("proveedor", proveedor);
-  }, [proveedor]);
-
-  useEffect(() => {
-    localStorage.setItem("guias_precintos", JSON.stringify(guias_precintos));
-  }, [guias_precintos]);
-
-  console.log(cargas);
-
   return (
     <>
-      <Navbar
-        rol={rol}
-        setRol={setRol}
-        proveedor={proveedor}
-        setProveedor={setProveedor}
-        cargaActual={cargaActual}
-        setCargaActual={setCargaActual}
-      />
+      <Navbar />
       <div className="content-wrapper">
         <Routes>
-          <Route path="/" element={<Menu />} />
           <Route
-            path="/despachos"
+            path="/menu"
             element={
-              <Rol
-                setRol={setRol}
-                cargas={cargas}
-                setCargas={setCargas}
-                setProveedor={setProveedor}
-                setCargaActual={setCargaActual}
-                rol={rol}
-                proveedor={proveedor}
-                cargaActual={cargaActual}
-              />
+              <ProtectedRoute>
+                <Menu />
+              </ProtectedRoute>
             }
           />
+          <Route path="/" element={<LoginPage />} />
+          <Route path="/despachos" element={<Rol />} />
           <Route
             path="/proveedor"
-            element={<Proveedor setProveedor={setProveedor} rol={rol} />}
+            element={
+              <ProtectedRoute>
+                <Proveedor />
+              </ProtectedRoute>
+            }
           />
           <Route
             path="/carga"
             element={
-              <Carga
-                cargas={cargas}
-                setCargas={setCargas}
-                rol={rol}
-                proveedor={proveedor}
-                cargaActual={cargaActual}
-                setCargaActual={setCargaActual}
-              />
+              <ProtectedRoute>
+                <Carga />
+              </ProtectedRoute>
             }
           />
           <Route
             path="/pesaje1"
             element={
-              <ControlPesaje
-                cargas={cargas}
-                setCargas={setCargas}
-                proveedor={proveedor}
-                cargaActual={cargaActual}
-                setCargaActual={setCargaActual}
-              />
+              <ProtectedRoute>
+                <ControlPesaje />
+              </ProtectedRoute>
             }
           />
           <Route
             path="/pesaje2"
             element={
-              <ControlPesaje2
-                cargas={cargas}
-                setCargas={setCargas}
-                proveedor={proveedor}
-                cargaActual={cargaActual}
-              />
+              <ProtectedRoute>
+                <ControlPesaje2 />
+              </ProtectedRoute>
             }
           />
           <Route
             path="/pesaje3"
             element={
-              <ControlPesaje3
-                cargas={cargas}
-                proveedor={proveedor}
-                cargaActual={cargaActual}
-                setCargaActual={setCargaActual}
-              />
+              <ProtectedRoute>
+                <ControlPesaje3 />
+              </ProtectedRoute>
             }
           />
           <Route
             path="/cc1"
             element={
-              <ControlCalidad1
-                cargas={cargas}
-                setCargas={setCargas}
-                proveedor={proveedor}
-                cargaActual={cargaActual}
-                setCargaActual={setCargaActual}
-              />
+              <ProtectedRoute>
+                <ControlCalidad1 />
+              </ProtectedRoute>
             }
           />
           <Route
             path="/cc2"
             element={
-              <ControlCalidad2
-                cargas={cargas}
-                proveedor={proveedor}
-                cargaActual={cargaActual}
-              />
+              <ProtectedRoute>
+                <ControlCalidad2 />
+              </ProtectedRoute>
             }
           />
           <Route
             path="/cc3"
             element={
-              <ControlCalidad3
-                cargas={cargas}
-                setCargas={setCargas}
-                proveedor={proveedor}
-                cargaActual={cargaActual}
-              />
+              <ProtectedRoute>
+                <ControlCalidad3 />
+              </ProtectedRoute>
             }
           />
           <Route
             path="/cc4"
             element={
-              <ControlCalidad4
-                cargas={cargas}
-                setCargas={setCargas}
-                proveedor={proveedor}
-                cargaActual={cargaActual}
-                setCargaActual={setCargaActual}
-              />
+              <ProtectedRoute>
+                <ControlCalidad4 />
+              </ProtectedRoute>
             }
           />
           <Route
             path="/datosg1"
             element={
-              <DatosG1
-                cargaActual={cargaActual}
-                setCargaActual={setCargaActual}
-                proveedor={proveedor}
-                cargas={cargas}
-                setCargas={setCargas}
-              />
+              <ProtectedRoute>
+                <DatosG1 />
+              </ProtectedRoute>
             }
           />
           <Route
             path="/datosg2"
             element={
-              <DatosG2
-                cargaActual={cargaActual}
-                proveedor={proveedor}
-                cargas={cargas}
-                setCargas={setCargas}
-              />
+              <ProtectedRoute>
+                <DatosG2 />
+              </ProtectedRoute>
             }
           />
           <Route
             path="/datosg3"
             element={
-              <DatosG3
-                cargaActual={cargaActual}
-                proveedor={proveedor}
-                cargas={cargas}
-                setCargas={setCargas}
-              />
+              <ProtectedRoute>
+                <DatosG3 />
+              </ProtectedRoute>
             }
           />
           <Route
             path="/datosg4"
             element={
-              <DatosG4
-                cargaActual={cargaActual}
-                proveedor={proveedor}
-                cargas={cargas}
-                setCargas={setCargas}
-                guias_precintos={guias_precintos}
-                setGuias_precintos={setGuias_precintos}
-              />
+              <ProtectedRoute>
+                <DatosG4 />
+              </ProtectedRoute>
             }
           />
           <Route
             path="/revisionguias"
             element={
-              <RevisionGuias
-                cargas={cargas}
-                proveedor={proveedor}
-                cargaActual={cargaActual}
-              />
+              <ProtectedRoute>
+                <RevisionGuias />
+              </ProtectedRoute>
             }
           />
           <Route
             path="/formulariosguia"
             element={
-              <FormulariosGuia
-                cargaActual={cargaActual}
-                setCargaActual={setCargaActual}
-                proveedor={proveedor}
-                cargas={cargas}
-              />
+              <ProtectedRoute>
+                <FormulariosGuia />
+              </ProtectedRoute>
             }
           />
+          <Route
+            path="/sist1"
+            element={
+              <ProtectedRoute>
+                <Sistemas1 />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/sist2"
+            element={
+              <ProtectedRoute>
+                <Sistemas2 />
+              </ProtectedRoute>
+            }
+          />
+          <Route path="/distribucion" element={<Distribucion />} />
+          <Route path="/underconstruction" element={<UnderConstruction />} />
           <Route path="*" element={<h1>Not Found</h1>} />
+          <Route path="/selectorformatos" element={<SelectorFormatos />} />
+          <Route
+            path="/menuConfiguracion"
+            element={
+              <ProtectedRoute>
+                <MenuConfiguracion />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/logviewer"
+            element={
+              <ProtectedRoute>
+                <LogViewer />
+              </ProtectedRoute>
+            }
+          />
+          <Route path="/pruebas" element={<Pruebas />} />
+          <Route
+            path="/scanner-guia-sada"
+            element={
+              <ProtectedRoute>
+                <ScannerGuiaSADA />
+              </ProtectedRoute>
+            }
+          />
         </Routes>
         <footer>Creado por ©iamp15 2024. Todos los derechos reservados.</footer>
       </div>

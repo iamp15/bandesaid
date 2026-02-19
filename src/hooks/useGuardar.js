@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
-import { PROVIDER_MAP } from "../constants";
+import { PROVIDER_MAP } from "../constants/constants";
+import { saveLog } from "../utils/LogSystem";
 
 export const useGuardar = (setCargas) => {
   const navigate = useNavigate();
@@ -13,7 +14,15 @@ export const useGuardar = (setCargas) => {
         carga.id === cargaActual ? { ...carga, ...newData } : carga
       ),
     }));
-
+    const filteredData = Object.entries(newData).filter(
+      ([key]) => key !== "editHistory"
+    );
+    saveLog(
+      `Carga ${cargaActual} of ${proveedor} updated with data: ${JSON.stringify(
+        Object.fromEntries(filteredData)
+      )}`
+    );
+    console.log("carga local actualizada");
     navigate(nextRoute);
   };
 

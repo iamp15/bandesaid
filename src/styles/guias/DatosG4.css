@@ -5,6 +5,43 @@
   margin-top: 20px;
 }
 
+/* Botones: tamaño unificado en toda la página */
+.menu button,
+.btn-agregar-guia-precinto,
+.btn-eliminar,
+.btn-editar,
+.btn-agregar,
+.btn-cancelar {
+  padding: 6px 12px;
+  font-size: 13px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.button-group {
+  position: relative;
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.notificacion {
+  position: absolute;
+  bottom: 100%;
+  left: 70%;
+  transform: translateX(-50%);
+  background-color: #4caf50;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 14px;
+  white-space: nowrap;
+  opacity: 0;
+  animation: fadeInOut 2s ease-in-out;
+}
+
 .number-input-container {
   margin-bottom: 15px;
 }
@@ -44,4 +81,232 @@
 /* Remove spinner buttons for Firefox */
 .number-input-container input[type="number"] {
   -moz-appearance: textfield;
+}
+
+@keyframes fadeInOut {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  10%,
+  90% {
+    opacity: 1;
+  }
+}
+
+/* Líneas divisorias tenues entre secciones */
+.section-divider {
+  border: none;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  margin: 28px 0 24px;
+}
+
+/* Secciones de guías y precintos */
+.section-g4 {
+  margin-bottom: 24px;
+}
+
+.section-g4 h2 {
+  margin-bottom: 12px;
+}
+
+/* Lista de guías/precintos agregados */
+.lista-guias,
+.lista-precintos {
+  margin-bottom: 16px;
+}
+
+.checkbox-destinos-guias {
+  margin-bottom: 12px;
+}
+.checkbox-destinos-guias label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 14px;
+}
+.checkbox-destinos-guias input[type="checkbox"] {
+  width: auto;
+}
+
+.lista-item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  background-color: #f8f8f8;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  gap: 12px;
+}
+
+.destino-guia-fields {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid #e0e0e0;
+}
+.destino-guia-input-wrap {
+  flex: 1;
+  min-width: 180px;
+  position: relative;
+}
+.destino-guia-input-wrap label {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 13px;
+  font-weight: 500;
+}
+.destino-guia-input-wrap input {
+  width: 100%;
+  padding: 6px 10px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+.destino-suggestions {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 10;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+.destino-suggestions li {
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 14px;
+}
+.destino-suggestions li:hover {
+  background-color: #f0f0f0;
+}
+
+.lista-item-text {
+  flex: 1;
+  font-size: 15px;
+}
+
+.lista-item-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.btn-editar {
+  background-color: var(--primary-color, #007bff);
+  color: white;
+  border: none;
+}
+
+.btn-editar:hover {
+  background-color: var(--primary-color-hover, #0056b3);
+}
+
+.btn-eliminar {
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+}
+
+.btn-eliminar:hover {
+  background-color: #c0392b;
+}
+
+/* Botón agregar guía/precinto (mismo tamaño que el resto) */
+.btn-agregar-guia-precinto {
+  background-color: var(--primary-color, #007bff);
+  color: white;
+  border: none;
+}
+
+.btn-agregar-guia-precinto:hover {
+  background-color: var(--primary-color-hover, #0056b3);
+}
+
+/* Botones Atras / Continuar (solo el button-group principal del form) */
+.menu form > .button-group button {
+  background-color: var(--primary-color, #007bff);
+  color: white;
+  border: none;
+  min-width: 80px;
+}
+
+.menu form > .button-group button:hover {
+  background-color: var(--primary-color-hover, #0056b3);
+}
+
+/* Formulario inline para agregar */
+.inline-add-form {
+  padding: 16px;
+  margin-bottom: 12px;
+  background-color: #fafafa;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+}
+
+.inline-add-form label {
+  display: block;
+  margin-top: 12px;
+  margin-bottom: 4px;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.inline-add-form label:first-child {
+  margin-top: 0;
+}
+
+.inline-add-form input {
+  width: 100%;
+  padding: 8px 12px;
+  font-size: 15px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+.inline-add-form input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+}
+
+.inline-add-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.btn-agregar {
+  background-color: #28a745;
+  color: white;
+  border: none;
+}
+
+.btn-agregar:hover {
+  background-color: #218838;
+}
+
+.btn-cancelar {
+  background-color: #6c757d;
+  color: white;
+  border: none;
+}
+
+.btn-cancelar:hover {
+  background-color: #5a6268;
 }

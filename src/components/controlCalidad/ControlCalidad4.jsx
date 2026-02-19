@@ -1,52 +1,18 @@
-/* eslint-disable react/prop-types */
 import { useNavigate } from "react-router-dom";
-import {
-  PROVIDER_MAP,
-  RUBRO,
-  GALPON,
-  PERMISO_SANITARIO,
-  MARCA,
-} from "../../constants";
-import { useEffect } from "react";
-import { useGuardar } from "../../hooks/useGuardar";
-import { decimalComma, decimalPeriod } from "../../utils/FormatDecimal";
+import { RUBRO, GALPON, PERMISO_SANITARIO } from "../../constants/constants";
 import BotonCopiar from "../BotonCopiar";
+import LoadingSpinner from "../LoadingSpinner";
+import { useEstados } from "../../contexts/EstadosContext";
 
-const ControlCalidad4 = ({
-  cargas,
-  setCargas,
-  proveedor,
-  cargaActual,
-  setCargaActual,
-}) => {
+const ControlCalidad4 = () => {
+  const { setCargaActual, cargaActual, proveedor, currentCarga } = useEstados();
   const navigate = useNavigate();
-  const mapeo = PROVIDER_MAP[proveedor];
-  const infoCarga = cargas[mapeo]?.[cargaActual - 1];
-  const guardar = useGuardar(setCargas);
 
-  const promedio = (valores) => {
-    const sum = valores.reduce((acc, temp) => acc + temp, 0);
-    return sum / valores.length;
-  };
+  if (!proveedor || !cargaActual) {
+    navigate("/despachos");
+  }
 
-  const getCnd = (brandName) => {
-    const brand = Object.values(MARCA).find(
-      (brand) => brand.nombre === brandName
-    );
-    return brand ? brand.CND : null;
-  };
-
-  const t_promedio = promedio(infoCarga.temperaturas);
-  const p_promedio = promedio(infoCarga.pesos).toFixed(2);
-
-  useEffect(() => {
-    const newData = {
-      t_promedio: parseFloat(decimalPeriod(t_promedio)).toFixed(1),
-      p_promedio: decimalComma(p_promedio),
-      cnd: getCnd(infoCarga.marca_rubro),
-    };
-    guardar(proveedor, cargaActual, "", newData);
-  }, []);
+  if (!currentCarga || !currentCarga.id) return <LoadingSpinner />;
 
   const numeracion = () => {
     if (cargaActual < 10) {
@@ -58,40 +24,42 @@ const ControlCalidad4 = ({
 
   const genTextCC = () => {
     return (
-      `*CARGA Nº ${numeracion()}*\n` +
-      `*Proveedor:* ${proveedor}\n` +
-      `*Galpón:* ${GALPON}\n` +
-      `*Rubro:* ${RUBRO}\n` +
-      `*Fecha:* ${infoCarga.fecha}\n` +
-      "\n✓ Control de Calidad"
+      "**CONTROL DE CALIDAD 1/1**\n" +
+      `**CARGA Nº ${numeracion()}**\n` +
+      `**Proveedor:** ${proveedor}\n` +
+      `**Galpón:** ${GALPON}\n` +
+      `**Rubro:** ${RUBRO}\n` +
+      `**Fecha:** ${currentCarga.fecha}\n`
     );
   };
 
   const genTextTyP = () => {
     return (
-      `*CARGA Nº ${numeracion()}*\n` +
-      `*Proveedor:* ${proveedor}\n` +
-      `*Galpón:* ${GALPON}\n` +
-      `*Rubro:* ${RUBRO}\n` +
-      `*Fecha:* ${infoCarga.fecha}\n` +
-      "\n✓ *Fecha Elaboración:* N/A\n" +
-      "✓ *Fecha Vencimiento:* N/A\n" +
-      `✓ *Nº Lote:* ${infoCarga.lote || "N/A"}\n` +
-      `✓ *Peso promedio:* ${infoCarga.p_promedio} kg\n` +
-      `✓ *Temperatura promedio:* ${infoCarga.t_promedio} ºC\n` +
-      `✓ *Permiso sanitario:* ${PERMISO_SANITARIO}\n` +
-      `✓ *CND o CPE:* ${infoCarga.cnd}`
+      "**RESULTADOS DE MUESTRAS VERIFICADAS**\n" +
+      `**CARGA Nº ${numeracion()}**\n` +
+      `**Proveedor:** ${proveedor}\n` +
+      `**Galpón:** ${GALPON}\n` +
+      `**Rubro:** ${RUBRO}\n` +
+      `**Fecha:** ${currentCarga.fecha}\n` +
+      `\n**✓ Marca del rubro:** ${currentCarga.marca_rubro}\n` +
+      "✓ **Fecha Elaboración:** N/A\n" +
+      "✓ **Fecha Vencimiento:** N/A\n" +
+      `✓ **Nº Lote:** ${currentCarga.lote || "N/A"}\n` +
+      `✓ **Peso promedio:** ${currentCarga.p_promedio} kg\n` +
+      `✓ **Temperatura promedio:** ${currentCarga.t_promedio} ºC\n` +
+      `✓ **Permiso sanitario:** ${PERMISO_SANITARIO}\n` +
+      `✓ **CND o CPE:** ${currentCarga.cnd}`
     );
   };
 
   const genTextMuestras = () => {
     return (
-      `*CARGA Nº ${numeracion()}*\n` +
-      `*Proveedor:* ${proveedor}\n` +
-      `*Galpón:* ${GALPON}\n` +
-      `*Rubro:* ${RUBRO}\n` +
-      `*Fecha:* ${infoCarga.fecha}\n` +
-      "\n✓ Muestras verificadas"
+      "**MUESTRAS VERIFICADAS**\n" +
+      `**CARGA Nº ${numeracion()}**\n` +
+      `**Proveedor:** ${proveedor}\n` +
+      `**Galpón:** ${GALPON}\n` +
+      `**Rubro:** ${RUBRO}\n` +
+      `**Fecha:** ${currentCarga.fecha}\n`
     );
   };
 
@@ -100,14 +68,26 @@ const ControlCalidad4 = ({
       <div className="menu">
         <h2>Control de calidad</h2>
         <div className="section">
-          <p>Rubro: {RUBRO}</p>
-          <p>Marca: {infoCarga.marca_rubro}</p>
-          <p>Lote: {infoCarga.lote || "N/A"}</p>
+          <p>
+            Rubro: <span className="value">{RUBRO}</span>
+          </p>
+          <p>
+            Marca: <span className="value">{currentCarga.marca_rubro}</span>
+          </p>
+          <p>
+            CND: <span className="value">{currentCarga.cnd}</span>
+          </p>
+          <p>
+            Lote: <span className="value">{currentCarga.lote || "N/A"}</span>
+          </p>
+          <p>
+            Peso promedio:{" "}
+            <span className="value">{currentCarga.p_promedio} Kg</span>
+          </p>
           <p>
             Temperatura promedio:{" "}
-            {parseFloat(decimalPeriod(t_promedio)).toFixed(1)} ºC
+            <span className="value">{currentCarga.t_promedio} ºC</span>
           </p>
-          <p>Peso promedio: {decimalComma(p_promedio)} kg</p>
         </div>
         <h2>Formatos</h2>
         <BotonCopiar text1={genTextCC()} text2={"Control de calidad"} />

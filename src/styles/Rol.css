@@ -16,7 +16,8 @@
   border-radius: 10px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   min-height: 80vh;
-  width: 400px;
+  width: min(90%, 720px); /* Más ancho en PC (hasta 720px), 90% en pantallas pequeñas */
+  min-width: 320px;
   height: calc(
     100vh - 50px
   ); /* Adjust 100px to match your header/footer height */
@@ -29,11 +30,42 @@
   font-size: 1.8rem;
 }
 
+/* Botones de proveedores/roles: en columna, uno debajo de otro */
 .buttons-container {
   display: flex;
   flex-direction: column;
+  align-items: center;
   text-align: center;
   width: 80%;
+}
+
+/* Cada Link envuelve solo un botón: width fit-content para que solo el botón sea clickeable */
+.buttons-container .role-link {
+  display: block;
+  width: fit-content;
+  text-decoration: none;
+}
+
+/* Ancho y altura unificados solo para los botones de roles */
+.buttons-container .role-link button {
+  width: 260px;
+  min-width: 260px;
+  max-width: 260px;
+  height: 48px;
+  min-height: 48px;
+  max-height: 48px;
+  box-sizing: border-box;
+}
+
+/* Botones de navegación: separados del grupo de arriba, en fila */
+.button-group {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 2rem;
+  width: 100%;
 }
 
 .menu button {
@@ -53,10 +85,6 @@
   background-color: var(--hover-color);
 }
 
-.menu p {
-  margin-bottom: 20px;
-}
-
 @media (max-width: 480px) {
   .menu {
     width: 90%;
@@ -64,57 +92,10 @@
   }
 }
 
-.previous-info-message {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-top: 60px;
-  padding: 15px;
-  background-color: #fff3cd;
-  border: 1px solid #ffeeba;
-  border-radius: 5px;
-  color: #856404;
-}
-
 .warning-icon {
   font-size: 1.2em;
   margin-right: 8px;
   vertical-align: middle;
-}
-
-.previous-info-message p {
-  display: flex;
-  align-items: center;
-  margin-bottom: 10px;
-  font-weight: bold;
-}
-
-.previous-info-message button {
-  background-color: #dc3545;
-  color: white;
-  border: none;
-  padding: 10px 15px;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-.previous-info-message button:hover {
-  background-color: #c82333;
-}
-
-.cleared-message {
-  position: fixed;
-  top: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  background-color: #28a745;
-  color: white;
-  padding: 10px 20px;
-  border-radius: 5px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-  z-index: 1000;
-  animation: fadeInOut 3s ease-in-out;
 }
 
 @keyframes fadeInOut {

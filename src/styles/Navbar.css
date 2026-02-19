@@ -7,6 +7,7 @@
   background-color: var(--primary-color);
   padding: 10px 20px;
   display: flex;
+  justify-content: space-between;
   align-items: center;
   z-index: 1000;
 }
@@ -22,8 +23,8 @@
 
 .navbar a:not(:last-child) {
   border-right: 1px solid #fff; /* Light separator */
-  padding-right: 15px;
-  margin-right: 15px;
+  padding-right: 10px;
+  margin-right: 10px;
 }
 
 .navbar p {
@@ -31,6 +32,23 @@
   display: inline;
   color: white;
   transition: color 0.3s ease;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  padding: 8px 1px;
+  color: white;
+  font-size: 0.9rem;
+  border-radius: 4px;
+  margin-left: auto;
+}
+
+.user-info .username {
+  margin-right: 8px;
+  font-weight: 500;
+  border-left: 1px solid #fff; /* Light separator */
+  padding-left: 10px;
 }
 
 .navbar p:hover {

@@ -1,127 +1,234 @@
 /* eslint-disable react/prop-types */
 import { Link } from "react-router-dom";
-import { PROVIDER_MAP } from "../../../constants";
-import { useGuardar } from "../../../hooks/useGuardar";
+import { PROVIDER_MAP } from "../../../constants/constants";
 import { capitalizeWords } from "../../../utils/Capitalizer";
 import "../../../styles/guias/DatosG1.css";
+import { useAuth } from "../../login/AuthContext";
+import EditableField from "../../EditableField";
+import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import LoadingSpinner from "../../LoadingSpinner";
+import { checkOnlineStatus } from "../../../utils/OnlineStatus";
+import { useAlert } from "../../alert/AlertContext";
+import { useEstados } from "../../../contexts/EstadosContext";
+import { editableFieldProps } from "../../../utils/editableFieldProps";
 
-const DatosG1 = ({
-  setCargaActual,
-  cargaActual,
-  proveedor,
-  cargas,
-  setCargas,
-}) => {
-  const guardar = useGuardar(setCargas);
+const DatosG1 = () => {
+  const {
+    updateCargaField,
+    cargaActual,
+    setCargaActual,
+    proveedor,
+    currentCarga,
+  } = useEstados();
+  const { currentUser, loading } = useAuth();
+  const navigate = useNavigate();
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [onEdit, setOnEdit] = useState(null);
+  const { addAlert } = useAlert();
+  const key_prov = PROVIDER_MAP[proveedor];
 
-  if (!proveedor)
-    return (
-      <div className="error">
-        <span>���️</span>
-        <p>Aun no has seleccionado un proveedor</p>
-        <div className="button-group">
-          <Link to="/proveedor">
-            <button>Volver</button>
-          </Link>
-        </div>
-      </div>
-    );
+  // Navigation side effect
+  useEffect(() => {
+    if (!proveedor || !cargaActual) {
+      navigate("/despachos");
+    }
+  }, [proveedor, cargaActual, navigate]);
 
-  const key = PROVIDER_MAP[proveedor];
+  // Single check for loading state
+  if (loading || !currentCarga || !currentCarga.id) return <LoadingSpinner />;
 
-  if (!cargaActual)
-    return (
-      <div className="error">
-        <span>���️</span>
-        <p>Aun no has seleccionado una carga</p>
-        <div className="button-group">
-          <Link to="/carga">
-            <button>Volver</button>
-          </Link>
-        </div>
-      </div>
-    );
-
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    const formatCedula = (cedula) => {
-      // Remove any existing non-digit characters
-      const cleanedCedula = cedula.replace(/\D/g, "");
-
-      // Add dots to the cleaned cedula
-      const parts = [];
-      for (let i = cleanedCedula.length; i > 0; i -= 3) {
-        parts.unshift(cleanedCedula.slice(Math.max(0, i - 3), i));
-      }
-
-      return parts.join(".");
-    };
-
-    const newData = {
-      chofer: capitalizeWords(event.target.nombre.value),
-      cedula: formatCedula(event.target.cedula.value),
-      marcaVehiculo: capitalizeWords(event.target.marca.value),
-      placa: event.target.placa.value.toUpperCase(),
-      tk: event.target.tk.value,
-    };
-
-    guardar(proveedor, cargaActual, "/datosG2", newData);
+  // Helper for online status check
+  const requireOnline = () => {
+    if (!checkOnlineStatus()) {
+      addAlert(
+        "No hay conexión a internet. No se puede guardar la información.",
+        "error"
+      );
+      return false;
+    }
+    return true;
   };
 
-  // Get the current carga based on cargaActual and proveedor
-  const currentCarga = cargas[key]?.[cargaActual - 1] || {};
+  const handleFieldSave = async (name, value) => {
+    if (!requireOnline()) return;
+    const updatedData = {
+      ...currentCarga,
+      [name]: value,
+      editHistory: {
+        ...currentCarga.editHistory,
+        [name]: {
+          value,
+          editedBy: currentUser.name,
+          editedAt: new Date().toISOString(),
+        },
+      },
+    };
+    await updateCargaField(key_prov, currentCarga.id, updatedData);
+  };
+
+  const handleContinue = () => {
+    if (onEdit !== null) {
+      alert("Por favor, guarda los cambios antes de continuar");
+      return;
+    } else navigate("/datosg2");
+  };
+
+  const handleTkChange = async (e) => {
+    if (!requireOnline()) return;
+    const value = e.target.value;
+    const updatedData = {
+      ...currentCarga,
+      tk: value,
+      editHistory: {
+        ...currentCarga.editHistory,
+        tk: {
+          value,
+          editedBy: currentUser.name,
+          editedAt: new Date().toISOString(),
+        },
+      },
+    };
+    await updateCargaField(key_prov, currentCarga.id, {
+      tk: value,
+      editHistory: updatedData.editHistory,
+    });
+  };
 
   return (
     <div className="wrap-container">
       <div className="menu">
-        <form onSubmit={handleSubmit}>
-          {/****** Chofer ******/}
+        <form>
           <h2>Chofer:</h2>
-          <label htmlFor="nombre">Nombre: </label>
-          <input
-            type="text"
-            id="nombre"
-            defaultValue={currentCarga?.chofer || ""}
-            placeholder="Ingrese el nombre del chofer"
-          />
-          <label htmlFor="placa">Cédula: </label>
-          <input
-            type="text"
-            id="cedula"
-            defaultValue={currentCarga?.cedula || ""}
-            placeholder="Ingrese la cédula del chofer"
+
+          {/*****nombre*****/}
+          <EditableField
+            {...editableFieldProps({
+              fieldName: "chofer",
+              label: "Nombre",
+              value: currentCarga?.chofer,
+              placeholder: "Ingrese el nombre del chofer",
+              onSave: handleFieldSave,
+              currentUser,
+              editHistory: currentCarga?.editHistory,
+              setShowSuggestions,
+              setOnEdit,
+              onEdit,
+              formatValue: capitalizeWords,
+            })}
           />
 
-          {/****** Vehículo ******/}
-          <h2>Vehículo:</h2>
-          <label htmlFor="marca">Marca: </label>
-          <input
-            type="text"
-            id="marca"
-            defaultValue={currentCarga?.marcaVehiculo || ""}
-            placeholder="Ej.: Jac"
+          {/****** Cédula ******/}
+          <EditableField
+            {...editableFieldProps({
+              fieldName: "cedula",
+              label: "Cédula",
+              value: currentCarga?.cedula,
+              placeholder: "Ingrese la cédula del chofer",
+              onSave: handleFieldSave,
+              currentUser,
+              editHistory: currentCarga?.editHistory,
+              setShowSuggestions,
+              setOnEdit,
+              onEdit,
+              formatValue: (cedula) => {
+                const cleanedCedula = cedula.replace(/\D/g, "");
+                const parts = [];
+                for (let i = cleanedCedula.length; i > 0; i -= 3) {
+                  parts.unshift(cleanedCedula.slice(Math.max(0, i - 3), i));
+                }
+                return parts.join(".");
+              },
+            })}
           />
-          <label htmlFor="placa">Placa: </label>
-          <input
-            type="text"
-            id="placa"
-            defaultValue={currentCarga?.placa || ""}
-            placeholder="Ej.: ABC123"
+
+          <h2>Vehículo:</h2>
+
+          {/****** Placa ******/}
+          <EditableField
+            {...editableFieldProps({
+              fieldName: "placa",
+              label: "Placa",
+              value: currentCarga?.placa,
+              placeholder: "Ingrese la placa del vehículo",
+              onSave: handleFieldSave,
+              currentUser,
+              editHistory: currentCarga?.editHistory,
+              setShowSuggestions,
+              setOnEdit,
+              onEdit,
+              formatValue: (placa) => placa.toUpperCase(),
+            })}
+          />
+
+          {/****** Marca ******/}
+          <EditableField
+            {...editableFieldProps({
+              fieldName: "marcaVehiculo",
+              label: "Marca",
+              value: currentCarga?.marcaVehiculo,
+              placeholder: "Ingrese la marca del vehículo",
+              onSave: handleFieldSave,
+              currentUser,
+              editHistory: currentCarga?.editHistory,
+              setShowSuggestions,
+              setOnEdit,
+              onEdit,
+              formatValue: capitalizeWords,
+            })}
+          />
+
+          {/****** ID de unidad ******/}
+          <EditableField
+            {...editableFieldProps({
+              fieldName: "id_unidad",
+              label: "ID de unidad",
+              value: currentCarga?.id_unidad,
+              placeholder: "Ingrese el ID de la unidad",
+              onSave: handleFieldSave,
+              currentUser,
+              editHistory: currentCarga?.editHistory,
+              setShowSuggestions,
+              setOnEdit,
+              onEdit,
+            })}
           />
 
           {/****** Therno King ******/}
-          <label htmlFor="tk">Therno King: </label>
-          <select name="tk" id="tk" defaultValue={currentCarga?.tk || "si"}>
+          <label htmlFor="tk" className="label-bold">
+            Therno King:{" "}
+          </label>
+          <select
+            name="tk"
+            id="tk"
+            value={currentCarga?.tk === "Si" ? "Si" : "No"}
+            onChange={handleTkChange}
+          >
             <option value="Si">Sí</option>
             <option value="No">No</option>
           </select>
+          {currentCarga.editHistory?.tk && (
+            <p className="autor">
+              Editado por: {currentCarga.editHistory.tk.editedBy}
+              {" a las "}
+              {new Date(
+                currentCarga.editHistory.tk.editedAt
+              ).toLocaleTimeString("es-ES", {
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: true, // This ensures 24-hour format
+              })}
+            </p>
+          )}
 
           {/****** Botones ******/}
           <div className="button-group">
             <Link to={"/carga"}>
               <button onClick={() => setCargaActual(0)}>Atras</button>
             </Link>
-            <button type="submit">Continuar</button>
+            <button type="button" onClick={handleContinue}>
+              Continuar
+            </button>
           </div>
         </form>
       </div>

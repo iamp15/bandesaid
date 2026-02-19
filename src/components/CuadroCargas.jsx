@@ -2,11 +2,15 @@
 import { Link } from "react-router-dom";
 import "./../styles/guias/CuadroCargas.css";
 import { useEffect, useRef } from "react";
+import { useEstados } from "../contexts/EstadosContext";
 
-const CuadroCargas = ({ cargas, rol, setCargaActual, eliminarCarga }) => {
+const CuadroCargas = ({ cargas, eliminarCarga }) => {
+  const { rol, setCargaActual } = useEstados();
   const ruta = () => {
+    if (rol === "Inspección de Vehículos") return "/cc1";
     if (rol === "Control Pesaje") return "/pesaje1";
-    if (rol === "Control de Calidad") return "/cc1";
+    if (rol === "Control de Calidad") return "/cc3";
+    if (rol === "Sistemas") return "/sist1";
     else return "/datosg1";
   };
 
@@ -26,13 +30,13 @@ const CuadroCargas = ({ cargas, rol, setCargaActual, eliminarCarga }) => {
           {cargas.map((carga, index) => (
             <div key={carga.id || index} className="carga-button-group">
               <Link to={ruta()}>
-                <button onClick={() => setCargaActual(carga.id || index + 1)}>
-                  Carga #{carga.id || index + 1}
+                <button onClick={() => setCargaActual(carga.cargaNumber)}>
+                  Carga #{carga.cargaNumber}
                 </button>
               </Link>
               <button
                 className="eliminar-button"
-                onClick={() => eliminarCarga(carga.id || index)}
+                onClick={() => eliminarCarga(carga.id)}
               >
                 x
               </button>

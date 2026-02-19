@@ -1,22 +1,62 @@
-/* eslint-disable react/prop-types */
 import BotonCopiar from "../BotonCopiar";
-import { useGuardar } from "../../hooks/useGuardar";
-import { PROVIDER_MAP, GALPON, RUBRO } from "../../constants";
+import { PROVIDER_MAP, GALPON, RUBRO } from "../../constants/constants";
 import { formatNumber } from "../../utils/FormatNumber";
 import { Link } from "react-router-dom";
+import EditableField from "../EditableField";
+import { useAuth } from "../login/AuthContext";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { checkOnlineStatus } from "../../utils/OnlineStatus";
+import { useAlert } from "../alert/AlertContext";
 import "../../styles/pesaje/ControlPesaje2.css";
+import { useEstados } from "../../contexts/EstadosContext";
+import LoadingSpinner from "../LoadingSpinner";
 
-const ControlPesaje2 = ({ cargas, setCargas, proveedor, cargaActual }) => {
+const ControlPesaje2 = () => {
+  const { cargaActual, proveedor, currentCarga, updateCargaField } =
+    useEstados();
   const key = PROVIDER_MAP[proveedor];
-  const currentCarga = cargas[key]?.[cargaActual - 1] || {};
-  const guardar = useGuardar(setCargas);
+  const { currentUser } = useAuth();
+  const [onEdit, setOnEdit] = useState(null);
+  const navigate = useNavigate();
+  const { addAlert } = useAlert();
+  const [showSuggestions, setShowSuggestions] = useState(false);
+
+  if (!proveedor || !cargaActual) {
+    navigate("/despachos");
+  }
+
+  if (!currentCarga || !currentCarga.id) return <LoadingSpinner />;
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const newValue = e.target.pVerificado.value;
-    const peso = formatNumber(newValue);
-    const updatedCarga = { p_verificado: peso };
-    guardar(proveedor, cargaActual, "/pesaje3", updatedCarga);
+    if (onEdit) {
+      alert("Por favor, guarda los cambios antes de continuar");
+      return;
+    }
+
+    // Warn if difference between p_total and p_verificado is greater than 5
+    const parseNumber = (val) => {
+      if (typeof val === "string") {
+        return Number(val.replace(/\./g, "").replace(",", "."));
+      }
+      return Number(val);
+    };
+    const pTotal = parseNumber(currentCarga?.p_total);
+    const pVerificado = parseNumber(currentCarga?.p_verificado);
+    if (
+      !isNaN(pTotal) &&
+      !isNaN(pVerificado) &&
+      Math.abs(pTotal - pVerificado) > 5
+    ) {
+      addAlert(
+        "La diferencia entre el peso total y el peso verificado es mayor a 5 kg. Por favor, revisa los valores.",
+        "warning"
+      );
+      return;
+    }
+
+    navigate("/pesaje3");
   };
 
   const inicioCargaText = () => {
@@ -28,13 +68,13 @@ const ControlPesaje2 = ({ cargas, setCargas, proveedor, cargaActual }) => {
       }
     };
     return (
-      "*INICIO DE CARGA  👀*\n" +
-      `*CARGA Nº ${numeracion()}*\n` +
-      `*Proveedor:* ${proveedor}\n` +
-      `*Galpón:* ${GALPON}\n` +
-      `*Rubro:* ${RUBRO}\n` +
-      `*Thermo King:* ${currentCarga.tk}\n` +
-      `*Fecha:* ${currentCarga.fecha}\n`
+      "**INICIO DE CARGA  👀**\n" +
+      `**CARGA Nº ${numeracion()}**\n` +
+      `**Proveedor:** ${proveedor}\n` +
+      `**Galpón:** ${GALPON}\n` +
+      `**Rubro:** ${RUBRO}\n` +
+      `**Thermo King:** ${currentCarga.tk}\n` +
+      `**Fecha:** ${currentCarga.fecha}\n`
     );
   };
 
@@ -47,14 +87,37 @@ const ControlPesaje2 = ({ cargas, setCargas, proveedor, cargaActual }) => {
       }
     };
     return (
-      `*CARGA Nº ${numeracion()}*\n` +
-      `*Proveedor:* ${proveedor}\n` +
-      `*Galpón:* ${GALPON}\n` +
-      `*Rubro:* ${RUBRO}\n` +
-      `*Fecha:* ${currentCarga.fecha}\n` +
-      "\n✓ Carga finalizada.\n" +
-      `🆔: ${currentCarga.id_unidad}`
+      "**CARGA CULMINADA**\n" +
+      `**CARGA Nº ${numeracion()}**\n` +
+      `**Proveedor:** ${proveedor}\n` +
+      `**Galpón:** ${GALPON}\n` +
+      `**Rubro:** ${RUBRO}\n` +
+      `**Fecha:** ${currentCarga.fecha}\n` +
+      `**🆔 de la unidad:** ${currentCarga.id_unidad}`
     );
+  };
+
+  const handleFieldSave = (fieldName, newValue) => {
+    if (!checkOnlineStatus()) {
+      addAlert(
+        "No hay conexión a internet. No se puede guardar la información.",
+        "error"
+      );
+      return;
+    }
+    const newData = {
+      ...currentCarga,
+      [fieldName]: newValue,
+      editHistory: {
+        ...currentCarga?.editHistory,
+        [fieldName]: {
+          value: newValue,
+          editedBy: currentUser.name,
+          editedAt: new Date().toISOString(),
+        },
+      },
+    };
+    updateCargaField(key, currentCarga.id, newData);
   };
 
   return (
@@ -63,7 +126,19 @@ const ControlPesaje2 = ({ cargas, setCargas, proveedor, cargaActual }) => {
         <form onSubmit={handleSubmit}>
           <h2>Formatos iniciales:</h2>
 
-          <p>ID de la unidad: {currentCarga.id_unidad || "no registrado"}</p>
+          {/*****ID unidad******/}
+          <EditableField
+            fieldName="id_unidad"
+            label="ID Unidad"
+            value={currentCarga.id_unidad}
+            onSave={handleFieldSave}
+            placeholder={"Ingresa el ID de la unidad"}
+            currentUser={currentUser}
+            editHistory={currentCarga.editHistory}
+            setOnEdit={setOnEdit}
+            onEdit={onEdit}
+            setShowSuggestions={setShowSuggestions}
+          />
 
           <div className="copy-buttons">
             <BotonCopiar text1={inicioCargaText()} text2="Inicio de carga" />
@@ -74,13 +149,35 @@ const ControlPesaje2 = ({ cargas, setCargas, proveedor, cargaActual }) => {
           </div>
 
           <h2>Pesaje:</h2>
-          <label htmlFor="pVerificado">Peso verificado:</label>
-          <input
-            type="text"
-            id="pVerificado"
-            defaultValue={currentCarga?.p_verificado || ""}
-            required
+
+          <EditableField
+            fieldName="p_total"
+            label="Peso total de la carga"
+            value={currentCarga?.p_total}
+            placeholder={"Ej: 10000"}
+            onSave={handleFieldSave}
+            currentUser={currentUser}
+            editHistory={currentCarga?.editHistory}
+            formatValue={formatNumber}
+            setOnEdit={setOnEdit}
+            onEdit={onEdit}
+            setShowSuggestions={setShowSuggestions}
           />
+
+          <EditableField
+            fieldName="p_verificado"
+            label="Peso verificado"
+            value={currentCarga?.p_verificado}
+            placeholder={"Ej: 10000,42"}
+            onSave={handleFieldSave}
+            currentUser={currentUser}
+            editHistory={currentCarga?.editHistory}
+            formatValue={formatNumber}
+            setOnEdit={setOnEdit}
+            onEdit={onEdit}
+            setShowSuggestions={setShowSuggestions}
+          />
+
           <div className="button-group">
             <Link to={"/pesaje1"}>
               <button>Atras</button>

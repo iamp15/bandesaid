@@ -4,8 +4,17 @@ import despachoIcon from "../media/iconos/despachos.png";
 import inventarioIcon from "../media/iconos/baul-inventario.png";
 import formatoIcon from "../media/iconos/formato.png";
 import configIcon from "../media/iconos/config.png";
+import { useAuth } from "./login/AuthContext";
+import LoadingSpinner from "./LoadingSpinner";
 
 const Menu = () => {
+  const { currentUser, loading } = useAuth();
+
+  // If loading, show loading state
+  if (loading) {
+    return <LoadingSpinner />;
+  }
+
   const menuItems = [
     {
       id: 1,
@@ -17,60 +26,30 @@ const Menu = () => {
       id: 2,
       title: "Inventario",
       image: inventarioIcon,
-      link: "",
+      link: "/underconstruction",
     },
     {
       id: 3,
       title: "Otros formatos",
       image: formatoIcon,
-      link: "",
+      link: "/selectorformatos",
     },
     {
       id: 4,
       title: "Configuración",
       image: configIcon,
-      link: "",
+      link: "/menuConfiguracion",
     },
   ];
-
-  const getCurrentDate = () => {
-    const days = [
-      "Domingo",
-      "Lunes",
-      "Martes",
-      "Miércoles",
-      "Jueves",
-      "Viernes",
-      "Sábado",
-    ];
-    const months = [
-      "enero",
-      "febrero",
-      "marzo",
-      "abril",
-      "mayo",
-      "junio",
-      "julio",
-      "agosto",
-      "septiembre",
-      "octubre",
-      "noviembre",
-      "diciembre",
-    ];
-
-    const now = new Date();
-    const dayOfWeek = days[now.getDay()];
-    const dayOfMonth = now.getDate();
-    const month = months[now.getMonth()];
-    const year = now.getFullYear();
-
-    return `${dayOfWeek}, ${dayOfMonth} de ${month} de ${year}`;
-  };
 
   return (
     <div className="menu-wrapper">
       <div className="menu-header">
-        <p className="menu-date">{getCurrentDate()}</p>
+        <p className="menu-date">
+          {currentUser
+            ? `Bienvenid@, ${currentUser.name} ${currentUser.lastname}.`
+            : "Cargando..."}
+        </p>
         <p className="menu-description">Seleccione una opción para comenzar:</p>
       </div>
       <div className="menu-container">

@@ -128,6 +128,9 @@ const ScannerGuiaSADA = () => {
         cantidadRubros: datos.cantidadRubrosFormateado,
         url: "HTML manual",
         timestamp: new Date().toISOString(),
+        datos: datos, // Guardar datos extraídos
+        comparacion: comparacionResult, // Guardar resultado de comparación
+        indiceGuia: indiceGuia, // Guardar índice de guía usado para comparación
       };
       setGuiasEscaneadas((prev) => [...prev, nuevaGuia]);
 
@@ -140,6 +143,14 @@ const ScannerGuiaSADA = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Función para restaurar la comparación de una guía escaneada
+  const handleVerComparacion = (guia) => {
+    setDatosExtraidos(guia.datos);
+    setComparacion(guia.comparacion);
+    setGuiaSeleccionada(guia.indiceGuia);
+    setMostrarComparacion(true);
   };
 
 
@@ -275,12 +286,24 @@ const ScannerGuiaSADA = () => {
                 <div className="guias-escaneadas">
                   <h3>Guías escaneadas en esta sesión:</h3>
                   <ul>
-                    {guiasEscaneadas.map((guia, index) => (
-                      <li key={index}>
-                        Guía: {guia.numeroGuia} - Peso: {guia.cantidadRubros} Kg
-                      </li>
-                    ))}
-                  </ul>
+                     {guiasEscaneadas.map((guia, index) => (
+                       <li 
+                         key={index}
+                         onClick={() => handleVerComparacion(guia)}
+                         className="clickable"
+                       >
+                         Guía: {guia.numeroGuia} - Peso: {guia.cantidadRubros} Kg
+                         <span style={{ 
+                           float: 'right', 
+                           fontSize: '12px', 
+                           color: '#666',
+                           fontStyle: 'italic'
+                         }}>
+                           (click para ver comparación)
+                         </span>
+                       </li>
+                     ))}
+                   </ul>
                   <button
                     onClick={() => {
                       setMostrarComparacion(false);

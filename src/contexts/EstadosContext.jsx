@@ -15,6 +15,19 @@ import {
 import { db } from "../firebase/config";
 import { formatDate2 } from "../utils/FormatDate";
 import { PROVIDER_MAP, PLANTAS, PLANTA_DEFAULT } from "../constants/constants";
+// Funciones de Firestore para choferes y camiones
+import {
+  subscribeToChoferes,
+  addChofer as addChoferToFirestore,
+  updateChofer as updateChoferInFirestore,
+  deleteChofer as deleteChoferFromFirestore,
+} from "../firebase/choferes";
+import {
+  subscribeToCamiones,
+  addCamion as addCamionToFirestore,
+  updateCamion as updateCamionInFirestore,
+  deleteCamion as deleteCamionFromFirestore,
+} from "../firebase/camiones";
 
 export const EstadosContext = createContext();
 
@@ -69,6 +82,14 @@ export const EstadosProvider = ({ children }) => {
     an: false,
   });
 
+  // Estados para catálogo de choferes (global)
+  const [choferes, setChoferes] = useState([]);
+  const [choferesLoaded, setChoferesLoaded] = useState(false);
+
+  // Estados para catálogo de camiones (global)
+  const [camiones, setCamiones] = useState([]);
+  const [camionesLoaded, setCamionesLoaded] = useState(false);
+
   // Monitor de conectividad
   useEffect(() => {
     const handleOnline = () => {
@@ -87,6 +108,56 @@ export const EstadosProvider = ({ children }) => {
     return () => {
       window.removeEventListener("online", handleOnline);
       window.removeEventListener("offline", handleOffline);
+    };
+  }, []);
+
+  // Subscribe a cambios en tiempo real de la colección de choferes
+  useEffect(() => {
+    let loaded = false;
+    
+    // Timeout de seguridad: si no hay datos en 5 segundos, mostrar interfaz vacía
+    const timeoutId = setTimeout(() => {
+      if (!loaded) {
+        console.log("Timeout: No se recibieron datos de choferes, mostrando interfaz vacía");
+        setChoferesLoaded(true);
+      }
+    }, 5000);
+
+    const unsubscribe = subscribeToChoferes((choferesData) => {
+      loaded = true;
+      clearTimeout(timeoutId);
+      setChoferes(choferesData);
+      setChoferesLoaded(true);
+    });
+
+    return () => {
+      clearTimeout(timeoutId);
+      unsubscribe();
+    };
+  }, []);
+
+  // Subscribe a cambios en tiempo real de la colección de camiones
+  useEffect(() => {
+    let loaded = false;
+    
+    // Timeout de seguridad: si no hay datos en 5 segundos, mostrar interfaz vacía
+    const timeoutId = setTimeout(() => {
+      if (!loaded) {
+        console.log("Timeout: No se recibieron datos de camiones, mostrando interfaz vacía");
+        setCamionesLoaded(true);
+      }
+    }, 5000);
+
+    const unsubscribe = subscribeToCamiones((camionesData) => {
+      loaded = true;
+      clearTimeout(timeoutId);
+      setCamiones(camionesData);
+      setCamionesLoaded(true);
+    });
+
+    return () => {
+      clearTimeout(timeoutId);
+      unsubscribe();
     };
   }, []);
 
@@ -287,6 +358,62 @@ export const EstadosProvider = ({ children }) => {
     }
   };
 
+  // ==================== FUNCIONES PARA CHOFERES ====================
+
+  /**
+   * Agregar un nuevo chofer al catálogo global
+   * @param {Object} choferData - Datos del chofer { nombre, cedula }
+   * @returns {Promise<string>} ID del chofer creado
+   */
+  const addChofer = async (choferData) => {
+    return await addChoferToFirestore(choferData);
+  };
+
+  /**
+   * Actualizar un chofer existente
+   * @param {string} choferId - ID del chofer
+   * @param {Object} choferData - Datos actualizados { nombre, cedula }
+   */
+  const updateChofer = async (choferId, choferData) => {
+    return await updateChoferInFirestore(choferId, choferData);
+  };
+
+  /**
+   * Eliminar un chofer del catálogo
+   * @param {string} choferId - ID del chofer a eliminar
+   */
+  const deleteChofer = async (choferId) => {
+    return await deleteChoferFromFirestore(choferId);
+  };
+
+  // ==================== FUNCIONES PARA CAMIONES ====================
+
+  /**
+   * Agregar un nuevo camión al catálogo global
+   * @param {Object} camionData - Datos del camión { placa, marca }
+   * @returns {Promise<string>} ID del camión creado
+   */
+  const addCamion = async (camionData) => {
+    return await addCamionToFirestore(camionData);
+  };
+
+  /**
+   * Actualizar un camión existente
+   * @param {string} camionId - ID del camión
+   * @param {Object} camionData - Datos actualizados { placa, marca }
+   */
+  const updateCamion = async (camionId, camionData) => {
+    return await updateCamionInFirestore(camionId, camionData);
+  };
+
+  /**
+   * Eliminar un camión del catálogo
+   * @param {string} camionId - ID del camión a eliminar
+   */
+  const deleteCamion = async (camionId) => {
+    return await deleteCamionFromFirestore(camionId);
+  };
+
   const [rol, setRol] = useState(() => {
     const savedRol = localStorage.getItem("rol");
     return savedRol ? savedRol : "";
@@ -364,6 +491,18 @@ export const EstadosProvider = ({ children }) => {
     isOnline,
     syncStatus,
     providerSnapshotReceived,
+    // Catálogo de choferes (global)
+    choferes,
+    choferesLoaded,
+    addChofer,
+    updateChofer,
+    deleteChofer,
+    // Catálogo de camiones (global)
+    camiones,
+    camionesLoaded,
+    addCamion,
+    updateCamion,
+    deleteCamion,
   };
 
   return (

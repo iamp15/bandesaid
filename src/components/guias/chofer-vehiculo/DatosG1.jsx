@@ -12,6 +12,8 @@ import { checkOnlineStatus } from "../../../utils/OnlineStatus";
 import { useAlert } from "../../alert/AlertContext";
 import { useEstados } from "../../../contexts/EstadosContext";
 import { editableFieldProps } from "../../../utils/editableFieldProps";
+import SelectorChofer from "../../configuracion/SelectorChofer";
+import SelectorCamion from "../../configuracion/SelectorCamion";
 
 const DatosG1 = () => {
   const {
@@ -27,6 +29,28 @@ const DatosG1 = () => {
   const [onEdit, setOnEdit] = useState(null);
   const { addAlert } = useAlert();
   const key_prov = PROVIDER_MAP[proveedor];
+
+  // Estados para los selectores de chofer y camión
+  const [selectedChofer, setSelectedChofer] = useState(null);
+  const [selectedCamion, setSelectedCamion] = useState(null);
+
+  // Inicializar selectores con datos existentes de la carga
+  useEffect(() => {
+    if (currentCarga?.choferId || currentCarga?.choferNombre) {
+      setSelectedChofer({
+        id: currentCarga.choferId,
+        nombre: currentCarga.choferNombre || currentCarga.chofer,
+        cedula: currentCarga.cedula,
+      });
+    }
+    if (currentCarga?.camionId || currentCarga?.placa) {
+      setSelectedCamion({
+        id: currentCarga.camionId,
+        placa: currentCarga.placa,
+        marca: currentCarga.marcaVehiculo,
+      });
+    }
+  }, [currentCarga]);
 
   // Navigation side effect
   useEffect(() => {
@@ -58,6 +82,23 @@ const DatosG1 = () => {
       editHistory: {
         ...currentCarga.editHistory,
         [name]: {
+          value,
+          editedBy: currentUser.name,
+          editedAt: new Date().toISOString(),
+        },
+      },
+    };
+    await updateCargaField(key_prov, currentCarga.id, updatedData);
+  };
+
+  // Handler para guardar campos desde los selectores
+  const handleSelectorSave = async (fieldName, value) => {
+    if (!requireOnline()) return;
+    const updatedData = {
+      [fieldName]: value,
+      editHistory: {
+        ...currentCarga.editHistory,
+        [fieldName]: {
           value,
           editedBy: currentUser.name,
           editedAt: new Date().toISOString(),
@@ -101,81 +142,24 @@ const DatosG1 = () => {
         <form>
           <h2>Chofer:</h2>
 
-          {/*****nombre*****/}
-          <EditableField
-            {...editableFieldProps({
-              fieldName: "chofer",
-              label: "Nombre",
-              value: currentCarga?.chofer,
-              placeholder: "Ingrese el nombre del chofer",
-              onSave: handleFieldSave,
-              currentUser,
-              editHistory: currentCarga?.editHistory,
-              setShowSuggestions,
-              setOnEdit,
-              onEdit,
-              formatValue: capitalizeWords,
-            })}
-          />
-
-          {/****** Cédula ******/}
-          <EditableField
-            {...editableFieldProps({
-              fieldName: "cedula",
-              label: "Cédula",
-              value: currentCarga?.cedula,
-              placeholder: "Ingrese la cédula del chofer",
-              onSave: handleFieldSave,
-              currentUser,
-              editHistory: currentCarga?.editHistory,
-              setShowSuggestions,
-              setOnEdit,
-              onEdit,
-              formatValue: (cedula) => {
-                const cleanedCedula = cedula.replace(/\D/g, "");
-                const parts = [];
-                for (let i = cleanedCedula.length; i > 0; i -= 3) {
-                  parts.unshift(cleanedCedula.slice(Math.max(0, i - 3), i));
-                }
-                return parts.join(".");
-              },
-            })}
+          {/***** Selector de Chofer *****/}
+          <label className="label-bold">Seleccionar Chofer:</label>
+          <SelectorChofer
+            value={selectedChofer}
+            onChange={setSelectedChofer}
+            onSave={handleSelectorSave}
+            fieldName="chofer"
           />
 
           <h2>Vehículo:</h2>
 
-          {/****** Placa ******/}
-          <EditableField
-            {...editableFieldProps({
-              fieldName: "placa",
-              label: "Placa",
-              value: currentCarga?.placa,
-              placeholder: "Ingrese la placa del vehículo",
-              onSave: handleFieldSave,
-              currentUser,
-              editHistory: currentCarga?.editHistory,
-              setShowSuggestions,
-              setOnEdit,
-              onEdit,
-              formatValue: (placa) => placa.toUpperCase(),
-            })}
-          />
-
-          {/****** Marca ******/}
-          <EditableField
-            {...editableFieldProps({
-              fieldName: "marcaVehiculo",
-              label: "Marca",
-              value: currentCarga?.marcaVehiculo,
-              placeholder: "Ingrese la marca del vehículo",
-              onSave: handleFieldSave,
-              currentUser,
-              editHistory: currentCarga?.editHistory,
-              setShowSuggestions,
-              setOnEdit,
-              onEdit,
-              formatValue: capitalizeWords,
-            })}
+          {/***** Selector de Camión *****/}
+          <label className="label-bold">Seleccionar Camión:</label>
+          <SelectorCamion
+            value={selectedCamion}
+            onChange={setSelectedCamion}
+            onSave={handleSelectorSave}
+            fieldName="camion"
           />
 
           {/****** ID de unidad ******/}

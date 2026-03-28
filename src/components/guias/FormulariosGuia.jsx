@@ -124,8 +124,8 @@ const FormulariosGuia = () => {
       `**Número de Guía:** ${currentCarga?.codigos_guias.join("/")}\n` +
       `**Thermo King Operativo:** ${checkTk()}\n` +
       `**Transporte:** ${currentCarga.transporte}\n` +
-      `**Nombre del chofer:** ${currentCarga.chofer}\n` +
-      `**Cédula de identidad del chofer:** ${currentCarga.cedula}\n` +
+      `**Nombre del chofer:** ${currentCarga.choferNombre || currentCarga.chofer || "—"}\n` +
+      `**Cédula de identidad del chofer:** ${currentCarga.cedula || "—"}\n` +
       `**Placa del vehículo:** ${currentCarga.placa}\n` +
       `**Número de precintos:** ${
         Array.isArray(currentCarga.precintos) &&

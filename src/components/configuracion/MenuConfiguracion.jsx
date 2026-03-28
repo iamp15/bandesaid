@@ -50,6 +50,12 @@ const MenuConfiguracion = () => {
           <Link to={"/pruebas"}>
             <button>Pruebas</button>
           </Link>
+          <Link to={"/admin-choferes"}>
+            <button>Administrar Choferes</button>
+          </Link>
+          <Link to={"/admin-camiones"}>
+            <button>Administrar Camiones</button>
+          </Link>
           <button onClick={limpiarMemoria}>Limpiar memoria</button>
         </div>
         <div className="button-group">

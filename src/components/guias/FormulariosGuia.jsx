@@ -1,11 +1,6 @@
 import BotonCopiar from "../BotonCopiar";
 import { useNavigate } from "react-router-dom";
-import {
-  GALPON,
-  RUBRO,
-  PERMISO_SANITARIO,
-  LOTE,
-} from "../../constants/constants";
+import { RUBRO, LOTE } from "../../constants/constants";
 import "../../styles/guias/formulariosGuia.css";
 import { formatNumber } from "../../utils/FormatNumber";
 import LoadingSpinner from "../LoadingSpinner";
@@ -16,7 +11,9 @@ import {
 } from "../../utils/destinoPorGuia";
 
 const FormulariosGuia = () => {
-  const { cargaActual, setCargaActual, proveedor, currentCarga } = useEstados();
+  const { cargaActual, setCargaActual, proveedor, currentCarga, plantaConfig } = useEstados();
+  const GALPON = plantaConfig?.GALPON ?? "";
+  const PERMISO_SANITARIO = plantaConfig?.PERMISO_SANITARIO ?? "";
 
   const navigate = useNavigate();
 

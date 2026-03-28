@@ -1,5 +1,5 @@
 import BotonCopiar from "../BotonCopiar";
-import { PROVIDER_MAP, GALPON, RUBRO } from "../../constants/constants";
+import { PROVIDER_MAP, RUBRO } from "../../constants/constants";
 import { formatNumber } from "../../utils/FormatNumber";
 import { Link } from "react-router-dom";
 import EditableField from "../EditableField";
@@ -13,8 +13,9 @@ import { useEstados } from "../../contexts/EstadosContext";
 import LoadingSpinner from "../LoadingSpinner";
 
 const ControlPesaje2 = () => {
-  const { cargaActual, proveedor, currentCarga, updateCargaField } =
+  const { cargaActual, proveedor, currentCarga, updateCargaField, plantaConfig } =
     useEstados();
+  const GALPON = plantaConfig?.GALPON ?? "";
   const key = PROVIDER_MAP[proveedor];
   const { currentUser } = useAuth();
   const [onEdit, setOnEdit] = useState(null);

@@ -18,7 +18,11 @@ const Carga = () => {
     isOnline,
     syncStatus,
     providerSnapshotReceived,
+    plantaConfig,
   } = useEstados();
+  const firstMarca = Object.values(plantaConfig?.MARCA || {})[0];
+  const defaultMarcaNombre = firstMarca?.nombre ?? "San José";
+  const defaultCnd = firstMarca?.CND ?? "072249161";
   const { askConfirmation, addAlert } = useAlert();
   const { currentUser, loading } = useAuth(); // Get current user
   const key = PROVIDER_MAP[proveedor];
@@ -31,8 +35,8 @@ const Carga = () => {
     olor: "fresco",
     paredes: "1",
     puertaLateral: "No",
-    marca_rubro: "San José",
-    cnd: "072249161",
+    marca_rubro: defaultMarcaNombre,
+    cnd: defaultCnd,
     lote: "N/A",
   });
   const [addDisabled, setAddDisabled] = useState(false);
@@ -47,6 +51,15 @@ const Carga = () => {
     const timer = setTimeout(() => setInitialLoading(false), 3000);
     return () => clearTimeout(timer);
   }, []);
+
+  // Sincronizar marca_rubro y cnd por defecto cuando cambia la planta
+  useEffect(() => {
+    setNewCargaData((prev) => ({
+      ...prev,
+      marca_rubro: defaultMarcaNombre,
+      cnd: defaultCnd,
+    }));
+  }, [plantaConfig?.id]);
 
   // Sort providerCargas by cargaNumber before rendering
   const providerCargas = useMemo(() => {
@@ -99,8 +112,8 @@ const Carga = () => {
       olor: "fresco",
       paredes: "1",
       puertaLateral: "No",
-      marca_rubro: "San José",
-      cnd: "072249161",
+      marca_rubro: defaultMarcaNombre,
+      cnd: defaultCnd,
       lote: "N/A",
     });
 

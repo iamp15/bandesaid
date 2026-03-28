@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import PropTypes from "prop-types";
 import "../styles/EditableField.css";
 import { useAlert } from "./alert/AlertContext";
@@ -24,6 +24,7 @@ const EditableField = ({
   const [editValue, setEditValue] = useState("");
   const { addAlert } = useAlert();
   const [showNotification, setShowNotification] = useState(false);
+  const inputRef = useRef(null);
 
   // Added useEffect to set editValue when isEditing becomes true
   useEffect(() => {
@@ -31,6 +32,14 @@ const EditableField = ({
       setEditValue(value);
     }
   }, [onEdit, value]);
+
+  useEffect(() => {
+    if (onEdit === fieldName && inputRef.current) {
+      inputRef.current.focus();
+      const len = inputRef.current.value?.length ?? 0;
+      inputRef.current.setSelectionRange(len, len);
+    }
+  }, [onEdit, fieldName]);
 
   // Check if field is locked before starting edit
   const handleEdit = () => {
@@ -75,6 +84,7 @@ const EditableField = ({
         {onEdit === fieldName ? (
           <>
             <input
+              ref={inputRef}
               className="edit-input"
               type="text"
               id={fieldName}

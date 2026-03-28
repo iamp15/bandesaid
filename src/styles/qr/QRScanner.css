@@ -231,6 +231,15 @@
   border-left: 4px solid #4CAF50;
 }
 
+.guias-escaneadas li.clickable {
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.guias-escaneadas li.clickable:hover {
+  background-color: #e9ecef;
+}
+
 .button-group {
   display: flex;
   gap: 10px;

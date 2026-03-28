@@ -14,7 +14,7 @@ import {
 } from "firebase/firestore";
 import { db } from "../firebase/config";
 import { formatDate2 } from "../utils/FormatDate";
-import { PROVIDER_MAP } from "../constants/constants";
+import { PROVIDER_MAP, PLANTAS, PLANTA_DEFAULT } from "../constants/constants";
 
 export const EstadosContext = createContext();
 
@@ -44,6 +44,13 @@ export const EstadosProvider = ({ children }) => {
     const savedProveedor = localStorage.getItem("proveedor");
     return savedProveedor ? savedProveedor : "";
   });
+
+  const [planta, setPlanta] = useState(() => {
+    const savedPlanta = localStorage.getItem("planta");
+    return savedPlanta || PLANTA_DEFAULT;
+  });
+
+  const plantaConfig = PLANTAS[planta] || PLANTAS[PLANTA_DEFAULT];
 
   // Estados para manejo de conectividad y sincronización
   const [isOnline, setIsOnline] = useState(navigator.onLine);
@@ -83,14 +90,14 @@ export const EstadosProvider = ({ children }) => {
     };
   }, []);
 
-  // Fetch cargas from all provider subcollections for today (real-time)
+  // Fetch cargas from all provider subcollections for today and current plant (real-time)
   useEffect(() => {
     const unsubscribes = [];
     const loadedProviders = new Set();
     const totalProviders = providers.length;
 
     providers.forEach((prov) => {
-      const provColRef = collection(db, "cargas", todayId, prov);
+      const provColRef = collection(db, "cargas", todayId, "plantas", planta, prov);
       const unsubscribe = onSnapshot(
         provColRef,
         (provSnap) => {
@@ -140,7 +147,7 @@ export const EstadosProvider = ({ children }) => {
     return () => {
       unsubscribes.forEach((unsub) => unsub());
     };
-  }, [todayId]);
+  }, [todayId, planta]);
 
   useEffect(() => {
     const key_prov = PROVIDER_MAP[proveedor];
@@ -153,7 +160,7 @@ export const EstadosProvider = ({ children }) => {
   // Migration function to fix existing cargas with timestamp cargaNumbers
   const migrateCargaNumbers = async (provider) => {
     try {
-      const provColRef = collection(db, "cargas", todayId, provider);
+      const provColRef = collection(db, "cargas", todayId, "plantas", planta, provider);
       const existingCargas = await getDocs(provColRef);
 
       const cargasToMigrate = [];
@@ -182,7 +189,7 @@ export const EstadosProvider = ({ children }) => {
           const carga = cargasToMigrate[i];
           const newCargaNumber = i + 1;
 
-          const cargaDocRef = doc(db, "cargas", todayId, provider, carga.id);
+          const cargaDocRef = doc(db, "cargas", todayId, "plantas", planta, provider, carga.id);
           await updateDoc(cargaDocRef, { cargaNumber: newCargaNumber });
         }
 
@@ -211,9 +218,9 @@ export const EstadosProvider = ({ children }) => {
       currentAuthUser.email
     );
 
-    const provColRef = collection(db, "cargas", todayId, provider);
-    // Contador atómico por proveedor (transaction.get() solo acepta DocumentReference, no Query)
-    const counterRef = doc(db, "cargas", todayId, "_counters", provider);
+    const provColRef = collection(db, "cargas", todayId, "plantas", planta, provider);
+    // Contador atómico por proveedor y planta
+    const counterRef = doc(db, "cargas", todayId, "plantas", planta, "_counters", provider);
 
     // Refs de cargas existentes para inicializar el contador si no existe (solo lectura, se usa dentro de la transacción)
     const existingSnap = await getDocs(provColRef);
@@ -263,7 +270,7 @@ export const EstadosProvider = ({ children }) => {
       `Updating carga ${cargaId} for provider ${provider} with fields:`,
       updatedFields
     );
-    const cargaDocRef = doc(db, "cargas", todayId, provider, cargaId);
+    const cargaDocRef = doc(db, "cargas", todayId, "plantas", planta, provider, cargaId);
     await updateDoc(cargaDocRef, updatedFields);
     // Do not update local state here; let onSnapshot handle it
   };
@@ -271,7 +278,7 @@ export const EstadosProvider = ({ children }) => {
   // Delete a carga (simplified version)
   const deleteCarga = async (provider, cargaId) => {
     try {
-      const cargaDocRef = doc(db, "cargas", todayId, provider, cargaId);
+      const cargaDocRef = doc(db, "cargas", todayId, "plantas", planta, provider, cargaId);
       await deleteDoc(cargaDocRef);
       // Do not update local state here; let onSnapshot handle it
     } catch (error) {
@@ -309,6 +316,10 @@ export const EstadosProvider = ({ children }) => {
   }, [proveedor]);
 
   useEffect(() => {
+    localStorage.setItem("planta", planta);
+  }, [planta]);
+
+  useEffect(() => {
     localStorage.setItem("guias_precintos", JSON.stringify(guias_precintos));
   }, [guias_precintos]);
 
@@ -344,6 +355,9 @@ export const EstadosProvider = ({ children }) => {
     setRol,
     proveedor,
     setProveedor,
+    planta,
+    setPlanta,
+    plantaConfig,
     guias_precintos,
     setGuias_precintos,
     // Estados de conectividad

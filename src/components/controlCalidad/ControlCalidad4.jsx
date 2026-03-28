@@ -1,11 +1,13 @@
 import { useNavigate } from "react-router-dom";
-import { RUBRO, GALPON, PERMISO_SANITARIO } from "../../constants/constants";
+import { RUBRO } from "../../constants/constants";
 import BotonCopiar from "../BotonCopiar";
 import LoadingSpinner from "../LoadingSpinner";
 import { useEstados } from "../../contexts/EstadosContext";
 
 const ControlCalidad4 = () => {
-  const { setCargaActual, cargaActual, proveedor, currentCarga } = useEstados();
+  const { setCargaActual, cargaActual, proveedor, currentCarga, plantaConfig } = useEstados();
+  const GALPON = plantaConfig?.GALPON ?? "";
+  const PERMISO_SANITARIO = plantaConfig?.PERMISO_SANITARIO ?? "";
   const navigate = useNavigate();
 
   if (!proveedor || !cargaActual) {

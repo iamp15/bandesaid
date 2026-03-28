@@ -1,13 +1,14 @@
 import { Link } from "react-router-dom";
 import BotonCopiar from "../BotonCopiar";
-import { GALPON, RUBRO } from "../../constants/constants";
+import { RUBRO } from "../../constants/constants";
 import "../../styles/pesaje/ControlPesaje3.css";
 import { useNavigate } from "react-router-dom";
 import { useEstados } from "../../contexts/EstadosContext";
 import LoadingSpinner from "../LoadingSpinner";
 
 const ControlPesaje3 = () => {
-  const { setCargaActual, cargaActual, proveedor, currentCarga } = useEstados();
+  const { setCargaActual, cargaActual, proveedor, currentCarga, plantaConfig } = useEstados();
+  const GALPON = plantaConfig?.GALPON ?? "";
   const navigate = useNavigate();
 
   if (!proveedor || !cargaActual) {

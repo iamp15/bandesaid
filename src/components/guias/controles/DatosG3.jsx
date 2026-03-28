@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { PROVIDER_MAP, MARCA } from "../../../constants/constants";
+import { PROVIDER_MAP } from "../../../constants/constants";
 import { useState } from "react";
 import SelectorMarca from "./SelectorMarca";
 import { decimalComma, decimalPeriod } from "../../../utils/FormatDecimal";
@@ -14,9 +14,10 @@ import { useAlert } from "../../alert/AlertContext";
 import { useEstados } from "../../../contexts/EstadosContext";
 
 const DatosG3 = () => {
-  const { cargaActual, proveedor, updateCargaField, currentCarga } =
+  const { cargaActual, proveedor, updateCargaField, currentCarga, plantaConfig } =
     useEstados();
   const key_prov = PROVIDER_MAP[proveedor];
+  const MARCA = plantaConfig?.MARCA || {};
   const { currentUser, loading } = useAuth();
   const [onEdit, setOnEdit] = useState(null);
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -117,7 +118,7 @@ const DatosG3 = () => {
 
           {/****** Marca ******/}
           <SelectorMarca
-            chickenBrand={currentCarga?.marca_rubro || MARCA[0].nombre}
+            chickenBrand={currentCarga?.marca_rubro || Object.values(MARCA)[0]?.nombre}
             onChange={handleChickenBrandChange}
           />
           {currentCarga.editHistory?.marca_rubro && (

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { PROVIDER_MAP, MARCA } from "../../constants/constants";
+import { PROVIDER_MAP } from "../../constants/constants";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../login/AuthContext";
 import { useAlert } from "../alert/AlertContext";
@@ -18,8 +18,11 @@ const ControlCalidad3 = () => {
     proveedor,
     currentCarga,
     updateCargaField,
+    plantaConfig,
   } = useEstados();
   const key_prov = PROVIDER_MAP[proveedor];
+  const MARCA = plantaConfig?.MARCA || {};
+  const defaultMarca = Object.values(MARCA)[0]?.nombre || "";
   const navigate = useNavigate();
   const [muestras, setMuestras] = useState(0);
   const [temperaturas, setTemperaturas] = useState(
@@ -27,7 +30,7 @@ const ControlCalidad3 = () => {
   );
   const [pesos, setPesos] = useState(currentCarga.pesos || []);
   const [chickenBrand, setChickenBrand] = useState(
-    currentCarga.marca_rubro || "San José"
+    currentCarga.marca_rubro || defaultMarca
   );
   const { currentUser } = useAuth();
   const [onEdit, setOnEdit] = useState(null);
@@ -60,7 +63,7 @@ const ControlCalidad3 = () => {
 
   const getCnd = (brandName) => {
     const brand = Object.values(MARCA).find(
-      (brand) => brand.nombre === brandName
+      (b) => b.nombre === brandName
     );
     return brand ? brand.CND : null;
   };

@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Clave de cuenta de servicio (migración Firestore)
+scripts/serviceAccountKey.json

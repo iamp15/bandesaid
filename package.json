@@ -11,7 +11,9 @@
     "predeploy": "npm run build",
     "deploy": "gh-pages -d dist",
     "deploy-firebase": "npm run build && firebase deploy --only hosting:production",
-    "deploy-beta": "npm run build && firebase hosting:channel:deploy beta"
+    "deploy-beta": "npm run build && firebase hosting:channel:deploy beta",
+    "migrate:cargas": "node scripts/migrate-cargas-to-plantas.cjs",
+    "migrate:cargas:dry": "node scripts/migrate-cargas-to-plantas.cjs --dry-run"
   },
   "dependencies": {
     "firebase": "^11.0.1",
@@ -22,6 +24,7 @@
     "winston": "^3.17.0"
   },
   "devDependencies": {
+    "firebase-admin": "^12.0.0",
     "@eslint/js": "^9.9.0",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",

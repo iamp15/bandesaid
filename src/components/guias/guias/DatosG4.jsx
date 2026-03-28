@@ -30,6 +30,10 @@ const DatosG4 = () => {
   const [editingPrecintoIndex, setEditingPrecintoIndex] = useState(null);
   const [draftCodigo, setDraftCodigo] = useState("");
   const [draftPeso, setDraftPeso] = useState("");
+  const [draftDestinoGuia, setDraftDestinoGuia] = useState("");
+  const [draftEstadoDestinoGuia, setDraftEstadoDestinoGuia] = useState("");
+  const [draftCodigoEspejoGuia, setDraftCodigoEspejoGuia] = useState("");
+  const [draftTransporteGuia, setDraftTransporteGuia] = useState("");
   const [draftPrecinto, setDraftPrecinto] = useState("");
   const key_prov = PROVIDER_MAP[proveedor];
 
@@ -178,50 +182,17 @@ const DatosG4 = () => {
     return { score, phraseIndex: indices[0] };
   };
 
-  const handleDestinoInput = (idx, e) => {
-    const value = e.target.value.toLowerCase().trim().replace(/\s+/g, " ");
-    const searchWords = value.split(/\s+/).filter(Boolean);
-    if (searchWords.length === 0) {
-      setSuggestionGuiaIndex(null);
-      setSuggestionsList([]);
-      return;
-    }
-    const allCompanies = [...companyNames.map((c) => ({ ...c })), ...sinCodigo.map((c) => ({ ...c }))];
-    const filtered = allCompanies.filter((company) =>
-      searchWords.every((word) => company.nombre.toLowerCase().includes(word))
+  const handleSelectDestinoDraft = (company) => {
+    setDraftDestinoGuia(company.nombre);
+    setDraftEstadoDestinoGuia(
+      company.estado && String(company.estado).toUpperCase() !== "N/A"
+        ? company.estado
+        : ""
     );
-    const sorted = [...filtered].sort((a, b) => {
-      const dataA = getRelevanceData(a.nombre, value, searchWords);
-      const dataB = getRelevanceData(b.nombre, value, searchWords);
-      if (dataB.score !== dataA.score) return dataB.score - dataA.score;
-      if (dataA.phraseIndex !== dataB.phraseIndex) return dataA.phraseIndex - dataB.phraseIndex;
-      return a.nombre.length - b.nombre.length;
-    });
-    setSuggestionGuiaIndex(idx);
-    setSuggestionsList(sorted.slice(0, 15));
-  };
-
-  const handleSelectDestino = (idx, company) => {
-    const newDestinos = [...destinosGuias];
-    const newEstados = [...estadosDestinoGuias];
-    const newCodigos = [...codigosEspejoGuias];
-    const newTransportes = [...transportesGuias];
-    newDestinos[idx] = company.nombre;
-    newEstados[idx] = company.estado && String(company.estado).toUpperCase() !== "N/A" ? company.estado : "";
-    newCodigos[idx] = company.codigo != null ? String(company.codigo) : "";
-    newTransportes[idx] = company.entidad && company.entidad !== "" ? company.entidad : "";
-    setDestinosGuias(newDestinos);
-    setEstadosDestinoGuias(newEstados);
-    setCodigosEspejoGuias(newCodigos);
-    setTransportesGuias(newTransportes);
+    setDraftCodigoEspejoGuia(company.codigo != null ? String(company.codigo) : "");
+    setDraftTransporteGuia(company.entidad && company.entidad !== "" ? company.entidad : "");
     setSuggestionGuiaIndex(null);
     setSuggestionsList([]);
-    updateCargaField(key_prov, currentCarga.id, {
-      destinos_guias: newDestinos,
-      estados_destino_guias: newEstados,
-      codigos_espejo_guias: newCodigos,
-      transportes_guias: newTransportes,
-    });
   };
 
   const handleDestinosDiferentesChange = async (e) => {
@@ -251,26 +222,28 @@ const DatosG4 = () => {
     }
   };
 
-  const handleDestinoEstadoChange = (idx, field, value) => {
-    if (field === "destino") {
-      const newDestinos = [...destinosGuias];
-      newDestinos[idx] = value;
-      setDestinosGuias(newDestinos);
-    } else {
-      const newEstados = [...estadosDestinoGuias];
-      newEstados[idx] = value;
-      setEstadosDestinoGuias(newEstados);
+  const handleDestinoInputDraft = (e) => {
+    if (editingGuiaIndex === null) return;
+    const value = e.target.value.toLowerCase().trim().replace(/\s+/g, " ");
+    const searchWords = value.split(/\s+/).filter(Boolean);
+    if (searchWords.length === 0) {
+      setSuggestionGuiaIndex(null);
+      setSuggestionsList([]);
+      return;
     }
-  };
-
-  const handleSaveDestinoGuia = (idx) => {
-    if (!checkOnlineStatus()) return;
-    updateCargaField(key_prov, currentCarga.id, {
-      destinos_guias: [...destinosGuias],
-      estados_destino_guias: [...estadosDestinoGuias],
-      codigos_espejo_guias: [...codigosEspejoGuias],
-      transportes_guias: [...transportesGuias],
+    const allCompanies = [...companyNames.map((c) => ({ ...c })), ...sinCodigo.map((c) => ({ ...c }))];
+    const filtered = allCompanies.filter((company) =>
+      searchWords.every((word) => company.nombre.toLowerCase().includes(word))
+    );
+    const sorted = [...filtered].sort((a, b) => {
+      const dataA = getRelevanceData(a.nombre, value, searchWords);
+      const dataB = getRelevanceData(b.nombre, value, searchWords);
+      if (dataB.score !== dataA.score) return dataB.score - dataA.score;
+      if (dataA.phraseIndex !== dataB.phraseIndex) return dataA.phraseIndex - dataB.phraseIndex;
+      return a.nombre.length - b.nombre.length;
     });
+    setSuggestionGuiaIndex(editingGuiaIndex);
+    setSuggestionsList(sorted.slice(0, 15));
   };
 
   const handleConfirmAddGuia = async () => {
@@ -342,12 +315,25 @@ const DatosG4 = () => {
     setEditingGuiaIndex(null);
     setDraftCodigo("");
     setDraftPeso("");
+    setDraftDestinoGuia("");
+    setDraftEstadoDestinoGuia("");
+    setDraftCodigoEspejoGuia("");
+    setDraftTransporteGuia("");
+    setSuggestionGuiaIndex(null);
+    setSuggestionsList([]);
   };
 
   const handleEditGuia = (idx) => {
+    setShowAddGuia(false);
     setEditingGuiaIndex(idx);
     setDraftCodigo(numGuias[idx] || "");
     setDraftPeso(pesosGuias[idx] || "");
+    setDraftDestinoGuia(destinosGuias[idx] ?? "");
+    setDraftEstadoDestinoGuia(estadosDestinoGuias[idx] ?? "");
+    setDraftCodigoEspejoGuia(codigosEspejoGuias[idx] ?? "");
+    setDraftTransporteGuia(transportesGuias[idx] ?? "");
+    setSuggestionGuiaIndex(null);
+    setSuggestionsList([]);
   };
 
   const handleSaveEditGuia = async () => {
@@ -360,6 +346,7 @@ const DatosG4 = () => {
     }
     if (editingGuiaIndex === null) return;
 
+    const idxSave = editingGuiaIndex;
     const codigo = String(draftCodigo).trim();
     const peso = String(draftPeso).trim();
 
@@ -369,7 +356,7 @@ const DatosG4 = () => {
     }
 
     const otroIndexConMismoCodigo = numGuias.findIndex(
-      (c, i) => i !== editingGuiaIndex && String(c).trim() === codigo
+      (c, i) => i !== idxSave && String(c).trim() === codigo
     );
     if (otroIndexConMismoCodigo >= 0) {
       addAlert("Este código de guía ya existe.", "error");
@@ -383,17 +370,15 @@ const DatosG4 = () => {
 
     const newNumGuias = [...numGuias];
     const newPesosGuias = [...pesosGuias];
-    newNumGuias[editingGuiaIndex] = codigo;
-    newPesosGuias[editingGuiaIndex] = formatNumber(peso);
+    newNumGuias[idxSave] = codigo;
+    newPesosGuias[idxSave] = formatNumber(peso);
 
     const prevNumGuias = [...numGuias];
     const prevPesosGuias = [...pesosGuias];
-
-    setNumGuias(newNumGuias);
-    setPesosGuias(newPesosGuias);
-    setEditingGuiaIndex(null);
-    setDraftCodigo("");
-    setDraftPeso("");
+    const prevDestinosGuias = destinosDiferentesPorGuia ? [...destinosGuias] : null;
+    const prevEstadosDestinoGuias = destinosDiferentesPorGuia ? [...estadosDestinoGuias] : null;
+    const prevCodigosEspejoGuias = destinosDiferentesPorGuia ? [...codigosEspejoGuias] : null;
+    const prevTransportesGuias = destinosDiferentesPorGuia ? [...transportesGuias] : null;
 
     let payload = { codigos_guias: newNumGuias, pesos_guias: newPesosGuias };
     if (destinosDiferentesPorGuia) {
@@ -401,22 +386,47 @@ const DatosG4 = () => {
       const newEstados = [...estadosDestinoGuias];
       const newCodigos = [...codigosEspejoGuias];
       const newTransportes = [...transportesGuias];
-      newDestinos[editingGuiaIndex] = (destinosGuias[editingGuiaIndex] ?? currentCarga.destino) || "";
-      newEstados[editingGuiaIndex] = (estadosDestinoGuias[editingGuiaIndex] ?? currentCarga.estadoDestino) || "";
-      newCodigos[editingGuiaIndex] = (codigosEspejoGuias[editingGuiaIndex] ?? currentCarga.codigo_espejo) || "";
-      newTransportes[editingGuiaIndex] = (transportesGuias[editingGuiaIndex] ?? currentCarga.transporte) || "";
-      payload = { ...payload, destinos_guias: newDestinos, estados_destino_guias: newEstados, codigos_espejo_guias: newCodigos, transportes_guias: newTransportes };
+      newDestinos[idxSave] = String(draftDestinoGuia ?? "").trim();
+      newEstados[idxSave] = String(draftEstadoDestinoGuia ?? "").trim();
+      newCodigos[idxSave] = String(draftCodigoEspejoGuia ?? "").trim();
+      newTransportes[idxSave] = String(draftTransporteGuia ?? "").trim();
+      payload = {
+        ...payload,
+        destinos_guias: newDestinos,
+        estados_destino_guias: newEstados,
+        codigos_espejo_guias: newCodigos,
+        transportes_guias: newTransportes,
+      };
       setDestinosGuias(newDestinos);
       setEstadosDestinoGuias(newEstados);
       setCodigosEspejoGuias(newCodigos);
       setTransportesGuias(newTransportes);
     }
+
+    setNumGuias(newNumGuias);
+    setPesosGuias(newPesosGuias);
+    setEditingGuiaIndex(null);
+    setDraftCodigo("");
+    setDraftPeso("");
+    setDraftDestinoGuia("");
+    setDraftEstadoDestinoGuia("");
+    setDraftCodigoEspejoGuia("");
+    setDraftTransporteGuia("");
+    setSuggestionGuiaIndex(null);
+    setSuggestionsList([]);
+
     try {
       await updateCargaField(key_prov, currentCarga.id, payload);
       addAlert("Guía actualizada correctamente.", "success");
     } catch (error) {
       setNumGuias(prevNumGuias);
       setPesosGuias(prevPesosGuias);
+      if (prevDestinosGuias) {
+        setDestinosGuias(prevDestinosGuias);
+        setEstadosDestinoGuias(prevEstadosDestinoGuias);
+        setCodigosEspejoGuias(prevCodigosEspejoGuias);
+        setTransportesGuias(prevTransportesGuias);
+      }
       setEditingGuiaIndex(null);
       addAlert(
         "Error al guardar la guía. Verifique su conexión e intente de nuevo.",
@@ -595,8 +605,6 @@ const DatosG4 = () => {
     }
   };
 
-  if (showSuggestions) true;
-
   return (
     <div className="wrap-container">
       <div className="menu">
@@ -620,69 +628,138 @@ const DatosG4 = () => {
             {numGuias.length > 0 && (
               <div className="lista-guias">
                 {numGuias.map((codigo, idx) => (
-                  <div key={idx} className="lista-item">
-                    <span className="lista-item-text">
-                      Guía {idx + 1}: {codigo}
-                      {pesosGuias[idx] && ` - ${pesosGuias[idx]} kg`}
-                    </span>
-                    <div className="lista-item-actions">
-                      <button
-                        type="button"
-                        className="btn-editar"
-                        onClick={() => handleEditGuia(idx)}
-                        title="Editar guía"
-                      >
-                        Editar
-                      </button>
-                      <button
-                        type="button"
-                        className="btn-eliminar"
-                        onClick={() => handleDeleteGuia(idx)}
-                        title="Eliminar guía"
-                      >
-                        Eliminar
-                      </button>
-                    </div>
-                    {destinosDiferentesPorGuia && (
-                      <div className="destino-guia-fields">
-                        <div className="destino-guia-input-wrap">
-                          <label>Entidad destino</label>
-                          <input
-                            type="text"
-                            value={destinosGuias[idx] ?? ""}
-                            onChange={(e) => {
-                              handleDestinoEstadoChange(idx, "destino", e.target.value);
-                              handleDestinoInput(idx, e);
-                            }}
-                            onFocus={() => handleDestinoInput(idx, { target: { value: destinosGuias[idx] ?? "" } })}
-                            placeholder="Escribe el nombre de la empresa"
-                            autoComplete="off"
-                          />
-                          {suggestionGuiaIndex === idx && suggestionsList.length > 0 && (
-                            <ul className="destino-suggestions">
-                              {suggestionsList.map((c, i) => (
-                                <li
-                                  key={i}
-                                  role="button"
-                                  tabIndex={0}
-                                  onMouseDown={() => handleSelectDestino(idx, c)}
-                                  onKeyDown={(e) => e.key === "Enter" && handleSelectDestino(idx, c)}
-                                >
-                                  {c.nombre}
-                                </li>
-                              ))}
-                            </ul>
-                          )}
+                  <div key={idx} className="lista-guia-bloque">
+                    <div className="lista-item">
+                      <span className="lista-item-text">
+                        Guía {idx + 1}: {codigo}
+                        {pesosGuias[idx] && ` - ${pesosGuias[idx]} kg`}
+                      </span>
+                      <div className="lista-item-actions">
+                        <button
+                          type="button"
+                          className="btn-editar"
+                          onClick={() => handleEditGuia(idx)}
+                          title="Editar guía"
+                        >
+                          Editar
+                        </button>
+                        <button
+                          type="button"
+                          className="btn-eliminar"
+                          onClick={() => handleDeleteGuia(idx)}
+                          title="Eliminar guía"
+                        >
+                          Eliminar
+                        </button>
+                      </div>
+                      {destinosDiferentesPorGuia && (
+                        <div className="destino-guia-display">
+                          <span>
+                            Entidad destino:{" "}
+                            {destinosGuias[idx] != null &&
+                            String(destinosGuias[idx]).trim() !== ""
+                              ? destinosGuias[idx]
+                              : "No registrado"}
+                          </span>
+                          <span>
+                            Estado destino:{" "}
+                            {estadosDestinoGuias[idx] != null &&
+                            String(estadosDestinoGuias[idx]).trim() !== ""
+                              ? estadosDestinoGuias[idx]
+                              : "No registrado"}
+                          </span>
                         </div>
-                        <div className="destino-guia-input-wrap">
-                          <label>Estado destino</label>
-                          <input
-                            type="text"
-                            value={estadosDestinoGuias[idx] ?? ""}
-                            onChange={(e) => handleDestinoEstadoChange(idx, "estado", e.target.value)}
-                            onBlur={() => handleSaveDestinoGuia(idx)}
-                            placeholder="Estado"
-                          />
+                      )}
+                    </div>
+                    {editingGuiaIndex === idx && (
+                      <div className="inline-add-form guia-edit-inline">
+                        <label>Código de guía (9 dígitos):</label>
+                        <input
+                          type="text"
+                          maxLength={9}
+                          value={draftCodigo}
+                          onChange={(e) => setDraftCodigo(e.target.value)}
+                          placeholder="Ingrese código de guía"
+                        />
+                        <label>Peso de la guía:</label>
+                        <input
+                          type="text"
+                          value={draftPeso}
+                          onChange={(e) => setDraftPeso(e.target.value)}
+                          placeholder="Ingrese peso"
+                        />
+                        {destinosDiferentesPorGuia && (
+                          <>
+                            <div className="destino-guia-input-wrap">
+                              <label>Entidad destino</label>
+                              <input
+                                type="text"
+                                value={draftDestinoGuia}
+                                onChange={(e) => {
+                                  setDraftDestinoGuia(e.target.value);
+                                  handleDestinoInputDraft(e);
+                                }}
+                                onFocus={() =>
+                                  handleDestinoInputDraft({
+                                    target: { value: draftDestinoGuia ?? "" },
+                                  })
+                                }
+                                onBlur={() =>
+                                  setTimeout(() => {
+                                    setSuggestionGuiaIndex(null);
+                                    setSuggestionsList([]);
+                                  }, 200)
+                                }
+                                placeholder="Escribe el nombre de la empresa"
+                                autoComplete="off"
+                              />
+                              {suggestionGuiaIndex === editingGuiaIndex &&
+                                suggestionsList.length > 0 && (
+                                  <ul className="destino-suggestions">
+                                    {suggestionsList.map((c, i) => (
+                                      <li
+                                        key={i}
+                                        role="button"
+                                        tabIndex={0}
+                                        onMouseDown={() => handleSelectDestinoDraft(c)}
+                                        onKeyDown={(e) =>
+                                          e.key === "Enter" && handleSelectDestinoDraft(c)
+                                        }
+                                      >
+                                        {c.nombre}
+                                      </li>
+                                    ))}
+                                  </ul>
+                                )}
+                            </div>
+                            <div className="destino-guia-input-wrap">
+                              <label>Estado destino</label>
+                              <input
+                                type="text"
+                                value={draftEstadoDestinoGuia}
+                                onChange={(e) =>
+                                  setDraftEstadoDestinoGuia(e.target.value)
+                                }
+                                placeholder="Estado"
+                              />
+                            </div>
+                          </>
+                        )}
+                        <div className="inline-add-buttons">
+                          <button
+                            type="button"
+                            onClick={handleCancelAddGuia}
+                            className="btn-cancelar"
+                          >
+                            Cancelar
+                          </button>
+                          <button
+                            type="button"
+                            onClick={handleSaveEditGuia}
+                            className="btn-agregar"
+                          >
+                            Guardar
+                          </button>
                         </div>
                       </div>
                     )}
@@ -691,7 +768,7 @@ const DatosG4 = () => {
               </div>
             )}
 
-            {showAddGuia || editingGuiaIndex !== null ? (
+            {showAddGuia && editingGuiaIndex === null ? (
               <div className="inline-add-form">
                 <label>Código de guía (9 dígitos):</label>
                 <input
@@ -718,25 +795,32 @@ const DatosG4 = () => {
                   </button>
                   <button
                     type="button"
-                    onClick={
-                      editingGuiaIndex !== null
-                        ? handleSaveEditGuia
-                        : handleConfirmAddGuia
-                    }
+                    onClick={handleConfirmAddGuia}
                     className="btn-agregar"
                   >
-                    {editingGuiaIndex !== null ? "Guardar" : "Agregar"}
+                    Agregar
                   </button>
                 </div>
               </div>
             ) : (
-              <button
-                type="button"
-                className="btn-agregar-guia-precinto"
-                onClick={() => setShowAddGuia(true)}
-              >
-                + Agregar guía
-              </button>
+              editingGuiaIndex === null && (
+                <button
+                  type="button"
+                  className="btn-agregar-guia-precinto"
+                  onClick={() => {
+                    setEditingGuiaIndex(null);
+                    setDraftDestinoGuia("");
+                    setDraftEstadoDestinoGuia("");
+                    setDraftCodigoEspejoGuia("");
+                    setDraftTransporteGuia("");
+                    setSuggestionGuiaIndex(null);
+                    setSuggestionsList([]);
+                    setShowAddGuia(true);
+                  }}
+                >
+                  + Agregar guía
+                </button>
+              )
             )}
           </div>
 

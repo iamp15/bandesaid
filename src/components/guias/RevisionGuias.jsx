@@ -37,17 +37,17 @@ const RevisionGuias = () => {
         <div className="section">
           <h3>Chofer y Vehículo</h3>
           <p>
-            Nombre: <span className="value">{currentCarga.chofer}</span>{" "}
+            Nombre: <span className="value">{currentCarga.choferNombre || currentCarga.chofer || "—"}</span>{" "}
           </p>
           <p>
-            Cédula: <span className="value">{currentCarga.cedula}</span>{" "}
+            Cédula: <span className="value">{currentCarga.cedula || "—"}</span>{" "}
           </p>
           <p>
             Marca vehículo:{" "}
-            <span className="value">{currentCarga.marcaVehiculo}</span>{" "}
+            <span className="value">{currentCarga.marcaVehiculo || "—"}</span>{" "}
           </p>
           <p>
-            Placa: <span className="value">{currentCarga.placa}</span>{" "}
+            Placa: <span className="value">{currentCarga.placa || "—"}</span>{" "}
           </p>
           <p>
             ID de unidad:{" "}

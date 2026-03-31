@@ -14,7 +14,20 @@ import {
 } from "firebase/firestore";
 import { db } from "../firebase/config";
 import { formatDate2 } from "../utils/FormatDate";
-import { PROVIDER_MAP } from "../constants/constants";
+import { PROVIDER_MAP, PLANTAS, PLANTA_DEFAULT } from "../constants/constants";
+// Funciones de Firestore para choferes y camiones
+import {
+  subscribeToChoferes,
+  addChofer as addChoferToFirestore,
+  updateChofer as updateChoferInFirestore,
+  deleteChofer as deleteChoferFromFirestore,
+} from "../firebase/choferes";
+import {
+  subscribeToCamiones,
+  addCamion as addCamionToFirestore,
+  updateCamion as updateCamionInFirestore,
+  deleteCamion as deleteCamionFromFirestore,
+} from "../firebase/camiones";
 
 export const EstadosContext = createContext();
 
@@ -45,6 +58,13 @@ export const EstadosProvider = ({ children }) => {
     return savedProveedor ? savedProveedor : "";
   });
 
+  const [planta, setPlanta] = useState(() => {
+    const savedPlanta = localStorage.getItem("planta");
+    return savedPlanta || PLANTA_DEFAULT;
+  });
+
+  const plantaConfig = PLANTAS[planta] || PLANTAS[PLANTA_DEFAULT];
+
   // Estados para manejo de conectividad y sincronización
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [syncStatus, setSyncStatus] = useState({
@@ -61,6 +81,14 @@ export const EstadosProvider = ({ children }) => {
     av: false,
     an: false,
   });
+
+  // Estados para catálogo de choferes (global)
+  const [choferes, setChoferes] = useState([]);
+  const [choferesLoaded, setChoferesLoaded] = useState(false);
+
+  // Estados para catálogo de camiones (global)
+  const [camiones, setCamiones] = useState([]);
+  const [camionesLoaded, setCamionesLoaded] = useState(false);
 
   // Monitor de conectividad
   useEffect(() => {
@@ -83,14 +111,64 @@ export const EstadosProvider = ({ children }) => {
     };
   }, []);
 
-  // Fetch cargas from all provider subcollections for today (real-time)
+  // Subscribe a cambios en tiempo real de la colección de choferes
+  useEffect(() => {
+    let loaded = false;
+    
+    // Timeout de seguridad: si no hay datos en 5 segundos, mostrar interfaz vacía
+    const timeoutId = setTimeout(() => {
+      if (!loaded) {
+        console.log("Timeout: No se recibieron datos de choferes, mostrando interfaz vacía");
+        setChoferesLoaded(true);
+      }
+    }, 5000);
+
+    const unsubscribe = subscribeToChoferes((choferesData) => {
+      loaded = true;
+      clearTimeout(timeoutId);
+      setChoferes(choferesData);
+      setChoferesLoaded(true);
+    });
+
+    return () => {
+      clearTimeout(timeoutId);
+      unsubscribe();
+    };
+  }, []);
+
+  // Subscribe a cambios en tiempo real de la colección de camiones
+  useEffect(() => {
+    let loaded = false;
+    
+    // Timeout de seguridad: si no hay datos en 5 segundos, mostrar interfaz vacía
+    const timeoutId = setTimeout(() => {
+      if (!loaded) {
+        console.log("Timeout: No se recibieron datos de camiones, mostrando interfaz vacía");
+        setCamionesLoaded(true);
+      }
+    }, 5000);
+
+    const unsubscribe = subscribeToCamiones((camionesData) => {
+      loaded = true;
+      clearTimeout(timeoutId);
+      setCamiones(camionesData);
+      setCamionesLoaded(true);
+    });
+
+    return () => {
+      clearTimeout(timeoutId);
+      unsubscribe();
+    };
+  }, []);
+
+  // Fetch cargas from all provider subcollections for today and current plant (real-time)
   useEffect(() => {
     const unsubscribes = [];
     const loadedProviders = new Set();
     const totalProviders = providers.length;
 
     providers.forEach((prov) => {
-      const provColRef = collection(db, "cargas", todayId, prov);
+      const provColRef = collection(db, "cargas", todayId, "plantas", planta, prov);
       const unsubscribe = onSnapshot(
         provColRef,
         (provSnap) => {
@@ -140,7 +218,7 @@ export const EstadosProvider = ({ children }) => {
     return () => {
       unsubscribes.forEach((unsub) => unsub());
     };
-  }, [todayId]);
+  }, [todayId, planta]);
 
   useEffect(() => {
     const key_prov = PROVIDER_MAP[proveedor];
@@ -153,7 +231,7 @@ export const EstadosProvider = ({ children }) => {
   // Migration function to fix existing cargas with timestamp cargaNumbers
   const migrateCargaNumbers = async (provider) => {
     try {
-      const provColRef = collection(db, "cargas", todayId, provider);
+      const provColRef = collection(db, "cargas", todayId, "plantas", planta, provider);
       const existingCargas = await getDocs(provColRef);
 
       const cargasToMigrate = [];
@@ -182,7 +260,7 @@ export const EstadosProvider = ({ children }) => {
           const carga = cargasToMigrate[i];
           const newCargaNumber = i + 1;
 
-          const cargaDocRef = doc(db, "cargas", todayId, provider, carga.id);
+          const cargaDocRef = doc(db, "cargas", todayId, "plantas", planta, provider, carga.id);
           await updateDoc(cargaDocRef, { cargaNumber: newCargaNumber });
         }
 
@@ -211,9 +289,9 @@ export const EstadosProvider = ({ children }) => {
       currentAuthUser.email
     );
 
-    const provColRef = collection(db, "cargas", todayId, provider);
-    // Contador atómico por proveedor (transaction.get() solo acepta DocumentReference, no Query)
-    const counterRef = doc(db, "cargas", todayId, "_counters", provider);
+    const provColRef = collection(db, "cargas", todayId, "plantas", planta, provider);
+    // Contador atómico por proveedor y planta
+    const counterRef = doc(db, "cargas", todayId, "plantas", planta, "_counters", provider);
 
     // Refs de cargas existentes para inicializar el contador si no existe (solo lectura, se usa dentro de la transacción)
     const existingSnap = await getDocs(provColRef);
@@ -263,7 +341,7 @@ export const EstadosProvider = ({ children }) => {
       `Updating carga ${cargaId} for provider ${provider} with fields:`,
       updatedFields
     );
-    const cargaDocRef = doc(db, "cargas", todayId, provider, cargaId);
+    const cargaDocRef = doc(db, "cargas", todayId, "plantas", planta, provider, cargaId);
     await updateDoc(cargaDocRef, updatedFields);
     // Do not update local state here; let onSnapshot handle it
   };
@@ -271,13 +349,69 @@ export const EstadosProvider = ({ children }) => {
   // Delete a carga (simplified version)
   const deleteCarga = async (provider, cargaId) => {
     try {
-      const cargaDocRef = doc(db, "cargas", todayId, provider, cargaId);
+      const cargaDocRef = doc(db, "cargas", todayId, "plantas", planta, provider, cargaId);
       await deleteDoc(cargaDocRef);
       // Do not update local state here; let onSnapshot handle it
     } catch (error) {
       console.error("Error deleting carga:", error);
       throw error;
     }
+  };
+
+  // ==================== FUNCIONES PARA CHOFERES ====================
+
+  /**
+   * Agregar un nuevo chofer al catálogo global
+   * @param {Object} choferData - Datos del chofer { nombre, cedula }
+   * @returns {Promise<string>} ID del chofer creado
+   */
+  const addChofer = async (choferData) => {
+    return await addChoferToFirestore(choferData);
+  };
+
+  /**
+   * Actualizar un chofer existente
+   * @param {string} choferId - ID del chofer
+   * @param {Object} choferData - Datos actualizados { nombre, cedula }
+   */
+  const updateChofer = async (choferId, choferData) => {
+    return await updateChoferInFirestore(choferId, choferData);
+  };
+
+  /**
+   * Eliminar un chofer del catálogo
+   * @param {string} choferId - ID del chofer a eliminar
+   */
+  const deleteChofer = async (choferId) => {
+    return await deleteChoferFromFirestore(choferId);
+  };
+
+  // ==================== FUNCIONES PARA CAMIONES ====================
+
+  /**
+   * Agregar un nuevo camión al catálogo global
+   * @param {Object} camionData - Datos del camión { placa, marca }
+   * @returns {Promise<string>} ID del camión creado
+   */
+  const addCamion = async (camionData) => {
+    return await addCamionToFirestore(camionData);
+  };
+
+  /**
+   * Actualizar un camión existente
+   * @param {string} camionId - ID del camión
+   * @param {Object} camionData - Datos actualizados { placa, marca }
+   */
+  const updateCamion = async (camionId, camionData) => {
+    return await updateCamionInFirestore(camionId, camionData);
+  };
+
+  /**
+   * Eliminar un camión del catálogo
+   * @param {string} camionId - ID del camión a eliminar
+   */
+  const deleteCamion = async (camionId) => {
+    return await deleteCamionFromFirestore(camionId);
   };
 
   const [rol, setRol] = useState(() => {
@@ -307,6 +441,10 @@ export const EstadosProvider = ({ children }) => {
   useEffect(() => {
     localStorage.setItem("proveedor", proveedor);
   }, [proveedor]);
+
+  useEffect(() => {
+    localStorage.setItem("planta", planta);
+  }, [planta]);
 
   useEffect(() => {
     localStorage.setItem("guias_precintos", JSON.stringify(guias_precintos));
@@ -344,12 +482,27 @@ export const EstadosProvider = ({ children }) => {
     setRol,
     proveedor,
     setProveedor,
+    planta,
+    setPlanta,
+    plantaConfig,
     guias_precintos,
     setGuias_precintos,
     // Estados de conectividad
     isOnline,
     syncStatus,
     providerSnapshotReceived,
+    // Catálogo de choferes (global)
+    choferes,
+    choferesLoaded,
+    addChofer,
+    updateChofer,
+    deleteChofer,
+    // Catálogo de camiones (global)
+    camiones,
+    camionesLoaded,
+    addCamion,
+    updateCamion,
+    deleteCamion,
   };
 
   return (

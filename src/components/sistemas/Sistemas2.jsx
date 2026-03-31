@@ -11,8 +11,9 @@ import { useAlert } from "../alert/AlertContext";
 import { useEstados } from "../../contexts/EstadosContext";
 
 const Sistemas2 = () => {
-  const { cargaActual, proveedor, currentCarga, updateCargaField } =
+  const { cargaActual, proveedor, currentCarga, updateCargaField, plantaConfig } =
     useEstados();
+  const marcaSuggestions = Object.values(plantaConfig?.MARCA || {}).map((m) => m.nombre);
   const { currentUser, loading } = useAuth();
   const key = PROVIDER_MAP[proveedor];
   const navigate = useNavigate();
@@ -103,6 +104,7 @@ const Sistemas2 = () => {
             setShowSuggestions={setShowSuggestions}
             setOnEdit={setOnEdit}
             onEdit={onEdit}
+            suggestions={marcaSuggestions}
           />
 
           {/*****Núme*****/}

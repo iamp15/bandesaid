@@ -29,6 +29,8 @@ import MenuConfiguracion from "./components/configuracion/MenuConfiguracion";
 import LogViewer from "./components/configuracion/logs/LogViewer";
 import Pruebas from "./components/configuracion/Pruebas";
 import ScannerGuiaSADA from "./components/qr/ScannerGuiaSADA";
+import AdminChoferes from "./components/configuracion/AdminChoferes";
+import AdminCamiones from "./components/configuracion/AdminCamiones";
 
 function App() {
   return (
@@ -203,6 +205,22 @@ function App() {
             }
           />
           <Route path="/pruebas" element={<Pruebas />} />
+          <Route
+            path="/admin-choferes"
+            element={
+              <ProtectedRoute>
+                <AdminChoferes />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin-camiones"
+            element={
+              <ProtectedRoute>
+                <AdminCamiones />
+              </ProtectedRoute>
+            }
+          />
           <Route
             path="/scanner-guia-sada"
             element={

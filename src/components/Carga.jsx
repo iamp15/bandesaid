@@ -43,13 +43,16 @@ const Carga = () => {
   const [lastAddTime, setLastAddTime] = useState(0);
 
   // Cargas están "cargadas" solo cuando Firestore ha enviado al menos un snapshot para este proveedor
+  // (el estado inicial tiene arrays vacíos, por eso no se puede usar solo Array.isArray(cargas[key]))
   const cargasLoading = !providerSnapshotReceived[key];
+  // Show spinner for a short time on first mount to avoid flash of empty content
   const [initialLoading, setInitialLoading] = useState(true);
   useEffect(() => {
     const timer = setTimeout(() => setInitialLoading(false), 3000);
     return () => clearTimeout(timer);
   }, []);
 
+  // Sincronizar marca_rubro y cnd por defecto cuando cambia la planta
   useEffect(() => {
     setNewCargaData((prev) => ({
       ...prev,
@@ -58,12 +61,14 @@ const Carga = () => {
     }));
   }, [plantaConfig?.id]);
 
+  // Sort providerCargas by cargaNumber before rendering
   const providerCargas = useMemo(() => {
     return (cargas[key] || [])
       .slice()
       .sort((a, b) => (a.cargaNumber || 0) - (b.cargaNumber || 0));
   }, [cargas, key]);
 
+  // Mostrar loading solo para estados críticos
   if (loading || initialLoading) {
     return <LoadingSpinner />;
   }

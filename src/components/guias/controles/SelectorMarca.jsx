@@ -1,8 +1,10 @@
 /* eslint-disable react/prop-types */
-import { MARCA } from "../../../constants/constants";
+import { useEstados } from "../../../contexts/EstadosContext";
 import "../../../styles/guias/SelectorMarca.css";
 
 const SelectorMarca = ({ chickenBrand, onChange }) => {
+  const { plantaConfig } = useEstados();
+  const MARCA = plantaConfig?.MARCA || {};
   return (
     <div className="radio-buttons-container">
       <p className="label-bold">Marca de Pollo: </p>

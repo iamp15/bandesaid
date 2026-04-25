@@ -103,7 +103,7 @@ const ControlPesaje = () => {
               ).toLocaleTimeString("es-ES", {
                 hour: "2-digit",
                 minute: "2-digit",
-                hour12: true, // This ensures 24-hour format
+                hour12: true,
               })}
             </p>
           )}

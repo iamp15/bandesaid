@@ -27,15 +27,12 @@ import Distribucion from "./components/formatos/Distribucion";
 import SelectorFormatos from "./components/formatos/SelectorFormatos";
 import MenuConfiguracion from "./components/configuracion/MenuConfiguracion";
 import LogViewer from "./components/configuracion/logs/LogViewer";
-import { useEstados } from "./contexts/EstadosContext";
 import Pruebas from "./components/configuracion/Pruebas";
 import ScannerGuiaSADA from "./components/qr/ScannerGuiaSADA";
 import AdminChoferes from "./components/configuracion/AdminChoferes";
 import AdminCamiones from "./components/configuracion/AdminCamiones";
 
 function App() {
-  const { cargas } = useEstados();
-  console.log(cargas);
   return (
     <>
       <Navbar />

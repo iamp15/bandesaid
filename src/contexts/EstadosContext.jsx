@@ -29,12 +29,39 @@ import {
 } from "../firebase/camiones";
 
 const PROVIDERS = ["tr", "tg", "al", "av", "an"];
+const APP_DATE_STORAGE_KEY = "appDate";
+const VOLATILE_STORAGE_KEYS = [
+  "cargaActual",
+  "proveedor",
+  "rol",
+  "guias_precintos",
+];
+const DATE_CHECK_INTERVAL_MS = 60 * 1000;
+const DEFAULT_GUIAS_PRECINTOS = {
+  guias: "",
+  precintos: "",
+};
 
 const createProviderMap = (createValue) =>
   PROVIDERS.reduce((acc, provider) => {
     acc[provider] = createValue(provider);
     return acc;
   }, {});
+
+const syncAppDate = () => {
+  const currentDate = formatDate2();
+  const savedDate = localStorage.getItem(APP_DATE_STORAGE_KEY);
+
+  if (savedDate && savedDate !== currentDate) {
+    VOLATILE_STORAGE_KEYS.forEach((key) => localStorage.removeItem(key));
+  }
+
+  if (savedDate !== currentDate) {
+    localStorage.setItem(APP_DATE_STORAGE_KEY, currentDate);
+  }
+
+  return currentDate;
+};
 
 export const EstadosContext = createContext();
 
@@ -44,15 +71,15 @@ export function useEstados() {
 
 // eslint-disable-next-line react/prop-types
 export const EstadosProvider = ({ children }) => {
+  const todayId = syncAppDate();
   const [cargas, setCargas] = useState({
-    id: formatDate2(),
+    id: todayId,
     tr: [],
     tg: [],
     al: [],
     av: [],
     an: [],
   });
-  const todayId = formatDate2();
   const providers = PROVIDERS;
   const [currentCarga, setCurrentCarga] = useState({});
   const [cargaActual, setCargaActual] = useState(() => {
@@ -492,11 +519,31 @@ export const EstadosProvider = ({ children }) => {
     const savedGuias_precintos = localStorage.getItem("guias_precintos");
     return savedGuias_precintos
       ? JSON.parse(savedGuias_precintos)
-      : {
-          guias: "",
-          precintos: "",
-        };
+      : { ...DEFAULT_GUIAS_PRECINTOS };
   });
+
+  useEffect(() => {
+    const resetVolatileStateIfDateChanged = () => {
+      const savedDate = localStorage.getItem(APP_DATE_STORAGE_KEY);
+      const currentDate = formatDate2();
+
+      if (savedDate === currentDate) return;
+
+      syncAppDate();
+      setCargaActual("");
+      setProveedor("");
+      setRol("");
+      setGuias_precintos({ ...DEFAULT_GUIAS_PRECINTOS });
+      setCurrentCarga({});
+    };
+
+    const intervalId = setInterval(
+      resetVolatileStateIfDateChanged,
+      DATE_CHECK_INTERVAL_MS
+    );
+
+    return () => clearInterval(intervalId);
+  }, []);
 
   // Save cargaActual to sessionStorage whenever it changes
   useEffect(() => {

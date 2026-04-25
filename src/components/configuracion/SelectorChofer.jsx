@@ -4,6 +4,7 @@ import { useEstados } from "../../contexts/EstadosContext";
 import { capitalizeWords } from "../../utils/Capitalizer";
 import { addChofer as addChoferToFirestore } from "../../firebase/choferes";
 import { useAlert } from "../alert/AlertContext";
+import { normalizeSearchText } from "../../utils/normalizeSearchText";
 
 /**
  * Componente selector de choferes con búsqueda/autocompletado
@@ -31,9 +32,9 @@ const SelectorChofer = ({
   // Filtrar choferes según búsqueda
   const filteredChoferes = choferes.filter((chofer) => {
     if (!searchTerm) return true;
-    const search = searchTerm.toLowerCase().trim();
+    const search = normalizeSearchText(searchTerm);
     return (
-      chofer.nombre?.toLowerCase().includes(search) ||
+      normalizeSearchText(chofer.nombre).includes(search) ||
       chofer.cedula?.includes(search)
     );
   });

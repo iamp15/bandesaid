@@ -97,7 +97,6 @@ const compareNombreChofer = (nombre1, nombre2) => {
 
   // Referencia = el nombre con más palabras (el "completo"); el otro es el "parcial"
   const [refWords, queryWords] = w1.length >= w2.length ? [w1, w2] : [w2, w1];
-  const refSet = new Set(refWords);
   const querySet = new Set(queryWords);
 
   // Referencia de 1 sola palabra: coincide si la query contiene esa palabra
@@ -113,6 +112,27 @@ const compareNombreChofer = (nombre1, nombre2) => {
   const tieneApellido = [...querySet].some((w) => apellidosRef.has(w));
 
   return tieneNombre && tieneApellido;
+};
+
+const getNombreChoferManual = (currentCarga) => {
+  const nombreGuardado =
+    currentCarga.choferNombre ||
+    currentCarga.nombreChofer ||
+    currentCarga.nombre_chofer ||
+    "";
+
+  if (String(nombreGuardado).trim()) {
+    return String(nombreGuardado).trim();
+  }
+
+  const chofer = String(currentCarga.chofer || "").trim();
+  if (!chofer) return "";
+
+  const coincideConCedula =
+    compareStrictNumber(chofer, currentCarga.cedula || "") ||
+    compareStrictNumber(chofer, currentCarga.choferId || "");
+
+  return coincideConCedula || !/[a-zA-ZÀ-ÿ]/.test(chofer) ? "" : chofer;
 };
 
 /**
@@ -210,13 +230,14 @@ export const compareGuiaSADA = (datosExtraidos, currentCarga, guiaIndex) => {
   };
 
   // Comparar conductor (nombre) con lógica flexible: al menos un nombre y un apellido
+  const nombreChoferManual = getNombreChoferManual(currentCarga);
   resultados.conductor = {
     coincide: compareNombreChofer(
       datosExtraidos.conductor,
-      currentCarga.chofer || ""
+      nombreChoferManual
     ),
     valorExtraido: datosExtraidos.conductor || "",
-    valorManual: currentCarga.chofer || "",
+    valorManual: nombreChoferManual,
   };
 
   // Comparar cédula del conductor (estricto: mismo número)

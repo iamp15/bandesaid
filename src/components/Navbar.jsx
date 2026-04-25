@@ -6,8 +6,15 @@ import { useEstados } from "../contexts/EstadosContext";
 
 const Navbar = () => {
   const { currentUser, logout } = useAuth();
-  const { rol, setRol, proveedor, setProveedor, cargaActual, setCargaActual } =
-    useEstados();
+  const {
+    rol,
+    setRol,
+    proveedor,
+    setProveedor,
+    cargaActual,
+    setCargaActual,
+    currentCarga,
+  } = useEstados();
 
   const rolClicked = () => {
     setRol(null);
@@ -64,9 +71,9 @@ const Navbar = () => {
             <p>{proveedor}</p>
           </Link>
         ) : null}
-        {cargaActual > 0 ? (
+        {cargaActual && currentCarga?.cargaNumber ? (
           <Link to={"/carga"} onClick={cargaClicked}>
-            <p>Carga #{cargaActual}</p>
+            <p>Carga #{currentCarga.cargaNumber}</p>
           </Link>
         ) : null}
       </div>

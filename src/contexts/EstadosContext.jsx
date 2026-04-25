@@ -4,7 +4,6 @@ import {
   addDoc,
   updateDoc,
   doc,
-  deleteDoc,
   onSnapshot,
   runTransaction,
   query,
@@ -29,6 +28,14 @@ import {
   deleteCamion as deleteCamionFromFirestore,
 } from "../firebase/camiones";
 
+const PROVIDERS = ["tr", "tg", "al", "av", "an"];
+
+const createProviderMap = (createValue) =>
+  PROVIDERS.reduce((acc, provider) => {
+    acc[provider] = createValue(provider);
+    return acc;
+  }, {});
+
 export const EstadosContext = createContext();
 
 export function useEstados() {
@@ -46,12 +53,12 @@ export const EstadosProvider = ({ children }) => {
     an: [],
   });
   const todayId = formatDate2();
-  const providers = ["tr", "tg", "al", "av", "an"];
+  const providers = PROVIDERS;
   const [currentCarga, setCurrentCarga] = useState({});
   const [cargaActual, setCargaActual] = useState(() => {
-    // Initialize cargaActual from sessionStorage or use default value
+    // Guarda el ID del documento de Firestore, no el numero visible de carga.
     const savedCargaActual = localStorage.getItem("cargaActual");
-    return savedCargaActual ? parseInt(savedCargaActual) : 0;
+    return savedCargaActual && savedCargaActual !== "0" ? savedCargaActual : "";
   });
   const [proveedor, setProveedor] = useState(() => {
     const savedProveedor = localStorage.getItem("proveedor");
@@ -71,16 +78,19 @@ export const EstadosProvider = ({ children }) => {
     isConnected: false,
     lastSync: null,
     hasInitialData: false,
+    isStale: false,
     pendingOperations: 0,
   });
   // Indica qué proveedores ya recibieron al menos un snapshot (evita mostrar lista vacía antes de que lleguen datos)
-  const [providerSnapshotReceived, setProviderSnapshotReceived] = useState({
-    tr: false,
-    tg: false,
-    al: false,
-    av: false,
-    an: false,
-  });
+  const [providerSnapshotReceived, setProviderSnapshotReceived] = useState(() =>
+    createProviderMap(() => false)
+  );
+  const [providerSyncStatus, setProviderSyncStatus] = useState(() =>
+    createProviderMap(() => ({
+      fromCache: false,
+      hasPendingWrites: false,
+    }))
+  );
 
   // Estados para catálogo de choferes (global)
   const [choferes, setChoferes] = useState([]);
@@ -110,6 +120,21 @@ export const EstadosProvider = ({ children }) => {
       window.removeEventListener("offline", handleOffline);
     };
   }, []);
+
+  useEffect(() => {
+    const statuses = Object.values(providerSyncStatus);
+    const isStale = statuses.some((status) => status.fromCache);
+    const pendingOperations = statuses.filter(
+      (status) => status.hasPendingWrites
+    ).length;
+
+    setSyncStatus((prev) => ({
+      ...prev,
+      isStale,
+      pendingOperations,
+      isConnected: isStale ? false : prev.isConnected,
+    }));
+  }, [providerSyncStatus]);
 
   // Subscribe a cambios en tiempo real de la colección de choferes
   useEffect(() => {
@@ -167,11 +192,49 @@ export const EstadosProvider = ({ children }) => {
     const loadedProviders = new Set();
     const totalProviders = providers.length;
 
+    setCargas((prevCargas) => ({
+      ...prevCargas,
+      ...createProviderMap(() => []),
+    }));
+    setProviderSnapshotReceived(createProviderMap(() => false));
+    setProviderSyncStatus(
+      createProviderMap(() => ({
+        fromCache: false,
+        hasPendingWrites: false,
+      }))
+    );
+    setSyncStatus((prev) => ({
+      ...prev,
+      hasInitialData: false,
+      isStale: false,
+      pendingOperations: 0,
+    }));
+
     providers.forEach((prov) => {
       const provColRef = collection(db, "cargas", todayId, "plantas", planta, prov);
       const unsubscribe = onSnapshot(
         provColRef,
+        { includeMetadataChanges: true },
         (provSnap) => {
+          const fromCache = provSnap.metadata.fromCache;
+          const hasPendingWrites = provSnap.metadata.hasPendingWrites;
+
+          setProviderSyncStatus((prev) => ({
+            ...prev,
+            [prov]: {
+              fromCache,
+              hasPendingWrites,
+            },
+          }));
+
+          if (!fromCache) {
+            setSyncStatus((prev) => ({
+              ...prev,
+              lastSync: new Date(),
+              isConnected: true,
+            }));
+          }
+
           setCargas((prevCargas) => ({
             ...prevCargas,
             [prov]: provSnap.docs.map((d) => ({
@@ -208,6 +271,7 @@ export const EstadosProvider = ({ children }) => {
           setSyncStatus((prev) => ({
             ...prev,
             isConnected: false,
+            isStale: true,
             lastSync: prev.lastSync, // Keep last successful sync time
           }));
         }
@@ -222,54 +286,30 @@ export const EstadosProvider = ({ children }) => {
 
   useEffect(() => {
     const key_prov = PROVIDER_MAP[proveedor];
-    const carga = (cargas[key_prov] || []).find(
-      (c) => c.cargaNumber === cargaActual
-    );
-    setCurrentCarga(carga || {});
-  }, [cargas, cargaActual, proveedor]);
+    const providerCargas = cargas[key_prov] || [];
+    const carga = providerCargas.find((c) => c.id === cargaActual);
 
-  // Migration function to fix existing cargas with timestamp cargaNumbers
-  const migrateCargaNumbers = async (provider) => {
-    try {
-      const provColRef = collection(db, "cargas", todayId, "plantas", planta, provider);
-      const existingCargas = await getDocs(provColRef);
-
-      const cargasToMigrate = [];
-      existingCargas.docs.forEach((doc) => {
-        const carga = doc.data();
-        // If cargaNumber is a timestamp (very large number), it needs migration
-        if (carga.cargaNumber && carga.cargaNumber > 1000000) {
-          cargasToMigrate.push({ id: doc.id, data: carga });
-        }
-      });
-
-      if (cargasToMigrate.length > 0) {
-        console.log(
-          `Migrating ${cargasToMigrate.length} cargas for provider ${provider}`
-        );
-
-        // Sort by creation time or timestamp to maintain order
-        cargasToMigrate.sort((a, b) => {
-          const timeA = a.data.createdAt || a.data.cargaNumber;
-          const timeB = b.data.createdAt || b.data.cargaNumber;
-          return new Date(timeA) - new Date(timeB);
-        });
-
-        // Assign simple consecutive numbers
-        for (let i = 0; i < cargasToMigrate.length; i++) {
-          const carga = cargasToMigrate[i];
-          const newCargaNumber = i + 1;
-
-          const cargaDocRef = doc(db, "cargas", todayId, "plantas", planta, provider, carga.id);
-          await updateDoc(cargaDocRef, { cargaNumber: newCargaNumber });
-        }
-
-        console.log(`Migration completed for provider ${provider}`);
-      }
-    } catch (error) {
-      console.error(`Error migrating cargas for provider ${provider}:`, error);
+    if (carga) {
+      setCurrentCarga(carga);
+      return;
     }
-  };
+
+    // Migra una seleccion vieja guardada como numero visible, solo si no es ambigua.
+    const legacyCargaNumber = Number(cargaActual);
+    if (cargaActual && Number.isFinite(legacyCargaNumber)) {
+      const legacyMatches = providerCargas.filter(
+        (c) => c.cargaNumber === legacyCargaNumber
+      );
+
+      if (legacyMatches.length === 1) {
+        setCargaActual(legacyMatches[0].id);
+        setCurrentCarga(legacyMatches[0]);
+        return;
+      }
+    }
+
+    setCurrentCarga({});
+  }, [cargas, cargaActual, proveedor]);
 
   // Add a new carga for a provider with simple consecutive numbering.
   // Uses a Firestore transaction so the next number is assigned atomically and
@@ -292,35 +332,23 @@ export const EstadosProvider = ({ children }) => {
     const provColRef = collection(db, "cargas", todayId, "plantas", planta, provider);
     // Contador atómico por proveedor y planta
     const counterRef = doc(db, "cargas", todayId, "plantas", planta, "_counters", provider);
+    const counterNotInitializedError = "COUNTER_NOT_INITIALIZED";
 
-    // Refs de cargas existentes para inicializar el contador si no existe (solo lectura, se usa dentro de la transacción)
-    const existingSnap = await getDocs(provColRef);
-    const existingDocRefs = existingSnap.docs.map((d) => d.ref);
-
-    await runTransaction(db, async (transaction) => {
+    const createCargaWithCounter = async (fallbackCargaNumber) => runTransaction(db, async (transaction) => {
       const counterSnap = await transaction.get(counterRef);
       let newCargaNumber;
 
       if (counterSnap.exists()) {
         newCargaNumber = counterSnap.data().nextCargaNumber ?? 1;
-        transaction.set(counterRef, {
-          nextCargaNumber: newCargaNumber + 1,
-        });
-      } else if (existingDocRefs.length === 0) {
-        newCargaNumber = 1;
-        transaction.set(counterRef, { nextCargaNumber: 2 });
+      } else if (typeof fallbackCargaNumber === "number") {
+        newCargaNumber = fallbackCargaNumber;
       } else {
-        let maxCargaNumber = 0;
-        for (const ref of existingDocRefs) {
-          const snap = await transaction.get(ref);
-          if (snap.exists()) {
-            const n = snap.data().cargaNumber;
-            if (typeof n === "number" && n > maxCargaNumber) maxCargaNumber = n;
-          }
-        }
-        newCargaNumber = maxCargaNumber + 1;
-        transaction.set(counterRef, { nextCargaNumber: newCargaNumber + 1 });
+        throw new Error(counterNotInitializedError);
       }
+
+      transaction.set(counterRef, {
+        nextCargaNumber: newCargaNumber + 1,
+      });
 
       console.log(`Creating carga #${newCargaNumber} for provider ${provider}`);
 
@@ -332,6 +360,22 @@ export const EstadosProvider = ({ children }) => {
         createdAt: new Date().toISOString(),
       });
     });
+
+    try {
+      await createCargaWithCounter();
+    } catch (error) {
+      if (error.message !== counterNotInitializedError) {
+        throw error;
+      }
+
+      const existingSnap = await getDocs(provColRef);
+      const maxCargaNumber = existingSnap.docs.reduce((max, cargaDoc) => {
+        const n = cargaDoc.data().cargaNumber;
+        return typeof n === "number" && n > max ? n : max;
+      }, 0);
+
+      await createCargaWithCounter(maxCargaNumber + 1);
+    }
     // Do not update local state here; onSnapshot will update the UI
   };
 
@@ -346,11 +390,36 @@ export const EstadosProvider = ({ children }) => {
     // Do not update local state here; let onSnapshot handle it
   };
 
-  // Delete a carga (simplified version)
+  // Delete a carga and rewind the counter only when deleting the latest carga.
   const deleteCarga = async (provider, cargaId) => {
     try {
       const cargaDocRef = doc(db, "cargas", todayId, "plantas", planta, provider, cargaId);
-      await deleteDoc(cargaDocRef);
+      const counterRef = doc(db, "cargas", todayId, "plantas", planta, "_counters", provider);
+
+      await runTransaction(db, async (transaction) => {
+        const cargaSnap = await transaction.get(cargaDocRef);
+
+        if (!cargaSnap.exists()) {
+          throw new Error("La carga que intentas eliminar ya no existe.");
+        }
+
+        const cargaNumber = cargaSnap.data().cargaNumber;
+        const counterSnap = await transaction.get(counterRef);
+
+        if (counterSnap.exists() && typeof cargaNumber === "number") {
+          const nextCargaNumber = counterSnap.data().nextCargaNumber;
+          const lastCargaNumber =
+            typeof nextCargaNumber === "number" ? nextCargaNumber - 1 : null;
+
+          if (cargaNumber === lastCargaNumber) {
+            transaction.update(counterRef, {
+              nextCargaNumber: Math.max(1, nextCargaNumber - 1),
+            });
+          }
+        }
+
+        transaction.delete(cargaDocRef);
+      });
       // Do not update local state here; let onSnapshot handle it
     } catch (error) {
       console.error("Error deleting carga:", error);
@@ -450,31 +519,12 @@ export const EstadosProvider = ({ children }) => {
     localStorage.setItem("guias_precintos", JSON.stringify(guias_precintos));
   }, [guias_precintos]);
 
-  // Auto-migrate carga numbers when data is initially loaded
-  useEffect(() => {
-    if (syncStatus.hasInitialData) {
-      providers.forEach(async (provider) => {
-        const providerCargas = cargas[provider] || [];
-        // Check if any cargas need migration (have timestamp cargaNumbers)
-        const needsMigration = providerCargas.some(
-          (carga) => carga.cargaNumber && carga.cargaNumber > 1000000
-        );
-
-        if (needsMigration) {
-          console.log(`Auto-migrating carga numbers for provider: ${provider}`);
-          await migrateCargaNumbers(provider);
-        }
-      });
-    }
-  }, [syncStatus.hasInitialData, cargas]);
-
   const values = {
     cargas,
     setCargas, // Optional: you may want to restrict direct usage
     addCarga,
     updateCargaField,
     deleteCarga,
-    migrateCargaNumbers, // Migration function
     cargaActual,
     setCargaActual,
     currentCarga,
@@ -491,6 +541,7 @@ export const EstadosProvider = ({ children }) => {
     isOnline,
     syncStatus,
     providerSnapshotReceived,
+    providerSyncStatus,
     // Catálogo de choferes (global)
     choferes,
     choferesLoaded,

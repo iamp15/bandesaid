@@ -5,6 +5,7 @@ import "../../styles/pesaje/ControlPesaje3.css";
 import { useNavigate } from "react-router-dom";
 import { useEstados } from "../../contexts/EstadosContext";
 import LoadingSpinner from "../LoadingSpinner";
+import { formatCargaNumber } from "../../utils/formatCargaNumber";
 
 const ControlPesaje3 = () => {
   const { setCargaActual, cargaActual, proveedor, currentCarga, plantaConfig } = useEstados();
@@ -17,17 +18,12 @@ const ControlPesaje3 = () => {
 
   if (!currentCarga || !currentCarga.id) return <LoadingSpinner />;
 
+  const cargaNumber = formatCargaNumber(currentCarga.cargaNumber);
+
   const pVerificadoText = () => {
-    const numeracion = () => {
-      if (cargaActual < 10) {
-        return "0" + cargaActual;
-      } else {
-        return cargaActual;
-      }
-    };
     return (
       "**PESO VERIFICADO**\n" +
-      `**CARGA Nº ${numeracion()}**\n` +
+      `**CARGA Nº ${cargaNumber}**\n` +
       `**Proveedor:** ${proveedor}\n` +
       `**Galpón:** ${GALPON}\n` +
       `**Rubro:** ${RUBRO}\n` +

@@ -3,6 +3,7 @@ import BotonCopiar from "../BotonCopiar";
 import { RUBRO } from "../../constants/constants";
 import { useEstados } from "../../contexts/EstadosContext";
 import LoadingSpinner from "../LoadingSpinner";
+import { formatCargaNumber } from "../../utils/formatCargaNumber";
 
 const ControlCalidad2 = () => {
   const { setCargaActual, cargaActual, proveedor, currentCarga, plantaConfig } = useEstados();
@@ -14,6 +15,8 @@ const ControlCalidad2 = () => {
   }
 
   if (!currentCarga || !currentCarga.id) return <LoadingSpinner />;
+
+  const cargaNumber = formatCargaNumber(currentCarga.cargaNumber);
 
   const paredes = () => {
     switch (currentCarga.paredes) {
@@ -33,11 +36,6 @@ const ControlCalidad2 = () => {
   };
 
   const genFormato = () => {
-    const numeracion = () => {
-      if (cargaActual < 10) return `0${cargaActual}`;
-      else return `${cargaActual}`;
-    };
-
     const genObservacion = () => {
       const paletas =
         currentCarga.paletas === "Si"
@@ -70,7 +68,7 @@ const ControlCalidad2 = () => {
 
     return (
       "**INSPECCIÓN DE VEHÍCULO** 👀\n" +
-      `**CARGA Nº ${numeracion()}:**\n` +
+      `**CARGA Nº ${cargaNumber}:**\n` +
       `**Proveedor:** ${proveedor}\n` +
       `**Galpón:** ${GALPON}\n` +
       `**Rubro:** ${RUBRO}\n` +

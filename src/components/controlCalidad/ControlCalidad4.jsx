@@ -3,6 +3,7 @@ import { RUBRO } from "../../constants/constants";
 import BotonCopiar from "../BotonCopiar";
 import LoadingSpinner from "../LoadingSpinner";
 import { useEstados } from "../../contexts/EstadosContext";
+import { formatCargaNumber } from "../../utils/formatCargaNumber";
 
 const ControlCalidad4 = () => {
   const { setCargaActual, cargaActual, proveedor, currentCarga, plantaConfig } = useEstados();
@@ -16,18 +17,12 @@ const ControlCalidad4 = () => {
 
   if (!currentCarga || !currentCarga.id) return <LoadingSpinner />;
 
-  const numeracion = () => {
-    if (cargaActual < 10) {
-      return "0" + cargaActual;
-    } else {
-      return cargaActual;
-    }
-  };
+  const cargaNumber = formatCargaNumber(currentCarga.cargaNumber);
 
   const genTextCC = () => {
     return (
       "**CONTROL DE CALIDAD 1/1**\n" +
-      `**CARGA Nº ${numeracion()}**\n` +
+      `**CARGA Nº ${cargaNumber}**\n` +
       `**Proveedor:** ${proveedor}\n` +
       `**Galpón:** ${GALPON}\n` +
       `**Rubro:** ${RUBRO}\n` +
@@ -38,7 +33,7 @@ const ControlCalidad4 = () => {
   const genTextTyP = () => {
     return (
       "**RESULTADOS DE MUESTRAS VERIFICADAS**\n" +
-      `**CARGA Nº ${numeracion()}**\n` +
+      `**CARGA Nº ${cargaNumber}**\n` +
       `**Proveedor:** ${proveedor}\n` +
       `**Galpón:** ${GALPON}\n` +
       `**Rubro:** ${RUBRO}\n` +
@@ -57,7 +52,7 @@ const ControlCalidad4 = () => {
   const genTextMuestras = () => {
     return (
       "**MUESTRAS VERIFICADAS**\n" +
-      `**CARGA Nº ${numeracion()}**\n` +
+      `**CARGA Nº ${cargaNumber}**\n` +
       `**Proveedor:** ${proveedor}\n` +
       `**Galpón:** ${GALPON}\n` +
       `**Rubro:** ${RUBRO}\n` +

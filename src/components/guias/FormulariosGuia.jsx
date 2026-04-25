@@ -9,6 +9,10 @@ import {
   getDestinoForGuia,
   getDestinosUnicosParaSaliendoPlanta,
 } from "../../utils/destinoPorGuia";
+import {
+  formatCargaGuiaNumber,
+  formatCargaNumber,
+} from "../../utils/formatCargaNumber";
 
 const FormulariosGuia = () => {
   const { cargaActual, setCargaActual, proveedor, currentCarga, plantaConfig } = useEstados();
@@ -29,13 +33,10 @@ const FormulariosGuia = () => {
     navigate("/despachos");
   }
 
-  const generateGuiaText1 = (index) => {
-    const numeracion = () => {
-      if (numGuias === 1 && cargaActual < 10) return `0${cargaActual}`;
-      if (numGuias === 1 && cargaActual >= 10) return `${cargaActual}`;
-      else return `${cargaActual}.${index + 1}`;
-    };
+  const cargaNumber = currentCarga.cargaNumber;
+  const formattedCargaNumber = formatCargaNumber(cargaNumber);
 
+  const generateGuiaText1 = (index) => {
     const choosePeso = () => {
       if (numGuias > 1) return currentCarga?.pesos_guias[index];
       else return currentCarga?.p_total;
@@ -73,7 +74,7 @@ const FormulariosGuia = () => {
 
     return (
       "**DATOS DE LA GUIA** 🧾\n" +
-      `**Carga Nº ${numeracion()}**:\n` +
+      `**Carga Nº ${formatCargaGuiaNumber(cargaNumber, index, numGuias)}**:\n` +
       `**Empresa:** ${proveedor}\n` +
       `**Galpón:** ${GALPON}\n` +
       `**Rubro:** ${RUBRO}\n` +
@@ -96,12 +97,12 @@ const FormulariosGuia = () => {
 
   const generateGuiaText2 = (index) => {
     if (numGuias === 1) return "Datos de la guía";
-    else return `Datos de la guía ${cargaActual}.${index + 1}`;
+    else return `Datos de la guía ${cargaNumber}.${index + 1}`;
   };
 
   const generateActaText2 = (index) => {
     if (numGuias === 1) return "Acta de responsabilidad";
-    else return `Acta de responsabilidad ${cargaActual}.${index + 1}`;
+    else return `Acta de responsabilidad ${cargaNumber}.${index + 1}`;
   };
 
   const checkTk = () => {
@@ -110,14 +111,9 @@ const FormulariosGuia = () => {
   };
 
   const generateDatosVehiculo = () => {
-    const numeracion = () => {
-      if (cargaActual < 10) return `0${cargaActual}`;
-      else return `${cargaActual}`;
-    };
-
     return (
       "**DATOS DEL VEHÍCULO** 🚚\n" +
-      `**Carga Nº ${numeracion()}:**\n` +
+      `**Carga Nº ${formattedCargaNumber}:**\n` +
       `**Empresa:** ${proveedor}\n` +
       `**Galpón:** ${GALPON}\n` +
       `**Rubro:** ${RUBRO}\n` +
@@ -139,15 +135,9 @@ const FormulariosGuia = () => {
   };
 
   const generateActaResponsabilidad = (index) => {
-    const numeracion = () => {
-      if (numGuias === 1 && cargaActual < 10) return `0${cargaActual}`;
-      if (numGuias === 1 && cargaActual >= 10) return `${cargaActual}`;
-      else return `${cargaActual}.${index + 1}`;
-    };
-
     return (
       "**ACTA DE RESPONSABILIDAD**\n" +
-      `**CARGA Nº ${numeracion()}**\n` +
+      `**CARGA Nº ${formatCargaGuiaNumber(cargaNumber, index, numGuias)}**\n` +
       `**Proveedor:** ${proveedor}\n` +
       `**Galpón:** ${GALPON}\n` +
       `**Rubro:** ${RUBRO}\n` +
@@ -157,10 +147,6 @@ const FormulariosGuia = () => {
   };
 
   const generateSaliendoPlanta = () => {
-    const numeracion = () => {
-      if (cargaActual < 10) return `0${cargaActual}`;
-      else return `${cargaActual}`;
-    };
     const destinosUnicos = getDestinosUnicosParaSaliendoPlanta(
       currentCarga,
       numGuias
@@ -169,7 +155,7 @@ const FormulariosGuia = () => {
       destinosUnicos.length > 0 ? destinosUnicos.join(" / ") : "";
     return (
       "**SALIENDO DE PLANTA**\n" +
-      `**CARGA Nº ${numeracion()}**\n` +
+      `**CARGA Nº ${formattedCargaNumber}**\n` +
       `**Empresa:** ${proveedor}\n` +
       `**Galpón:** ${GALPON}\n` +
       `**Producto:** ${RUBRO}\n` +

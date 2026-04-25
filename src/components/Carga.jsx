@@ -14,10 +14,10 @@ const Carga = () => {
     addCarga,
     deleteCarga,
     proveedor,
-    setCargas,
     isOnline,
     syncStatus,
     providerSnapshotReceived,
+    providerSyncStatus,
     plantaConfig,
   } = useEstados();
   const firstMarca = Object.values(plantaConfig?.MARCA || {})[0];
@@ -45,6 +45,10 @@ const Carga = () => {
   // Cargas están "cargadas" solo cuando Firestore ha enviado al menos un snapshot para este proveedor
   // (el estado inicial tiene arrays vacíos, por eso no se puede usar solo Array.isArray(cargas[key]))
   const cargasLoading = !providerSnapshotReceived[key];
+  const currentProviderSync = providerSyncStatus[key] || {};
+  const isProviderStale = !cargasLoading && currentProviderSync.fromCache;
+  const hasProviderPendingWrites =
+    !cargasLoading && currentProviderSync.hasPendingWrites;
   // Show spinner for a short time on first mount to avoid flash of empty content
   const [initialLoading, setInitialLoading] = useState(true);
   useEffect(() => {
@@ -188,6 +192,24 @@ const Carga = () => {
           }}
         >
           ⚠️ Sin conexión a internet. Los datos pueden estar desactualizados.
+        </div>
+      )}
+
+      {(isProviderStale || hasProviderPendingWrites) && (
+        <div
+          style={{
+            background: "#ff9800",
+            color: "white",
+            padding: "10px",
+            textAlign: "center",
+            marginBottom: "10px",
+            borderRadius: "4px",
+            fontWeight: "bold",
+          }}
+        >
+          {isProviderStale
+            ? "⚠️ Esta lista puede estar desactualizada. Se está mostrando información desde caché."
+            : "🔄 Hay cambios pendientes de sincronizar. Espera antes de trabajar sobre la lista."}
         </div>
       )}
 

@@ -11,6 +11,7 @@ import { useAlert } from "../alert/AlertContext";
 import "../../styles/pesaje/ControlPesaje2.css";
 import { useEstados } from "../../contexts/EstadosContext";
 import LoadingSpinner from "../LoadingSpinner";
+import { formatCargaNumber } from "../../utils/formatCargaNumber";
 
 const ControlPesaje2 = () => {
   const { cargaActual, proveedor, currentCarga, updateCargaField, plantaConfig } =
@@ -28,6 +29,8 @@ const ControlPesaje2 = () => {
   }
 
   if (!currentCarga || !currentCarga.id) return <LoadingSpinner />;
+
+  const cargaNumber = formatCargaNumber(currentCarga.cargaNumber);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -61,16 +64,9 @@ const ControlPesaje2 = () => {
   };
 
   const inicioCargaText = () => {
-    const numeracion = () => {
-      if (cargaActual < 10) {
-        return "0" + cargaActual;
-      } else {
-        return cargaActual;
-      }
-    };
     return (
       "**INICIO DE CARGA  👀**\n" +
-      `**CARGA Nº ${numeracion()}**\n` +
+      `**CARGA Nº ${cargaNumber}**\n` +
       `**Proveedor:** ${proveedor}\n` +
       `**Galpón:** ${GALPON}\n` +
       `**Rubro:** ${RUBRO}\n` +
@@ -80,16 +76,9 @@ const ControlPesaje2 = () => {
   };
 
   const cargaFinalizadaText = () => {
-    const numeracion = () => {
-      if (cargaActual < 10) {
-        return "0" + cargaActual;
-      } else {
-        return cargaActual;
-      }
-    };
     return (
       "**CARGA CULMINADA**\n" +
-      `**CARGA Nº ${numeracion()}**\n` +
+      `**CARGA Nº ${cargaNumber}**\n` +
       `**Proveedor:** ${proveedor}\n` +
       `**Galpón:** ${GALPON}\n` +
       `**Rubro:** ${RUBRO}\n` +

@@ -1,0 +1,81 @@
+.guias-tabs {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.guias-tabs-header {
+  position: sticky;
+  top: 40px;
+  z-index: 20;
+  background-color: #fff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+}
+
+.guias-back-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  padding: 10px;
+  border: none;
+  background-color: #e9ecef;
+  color: #333;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.guias-back-btn:hover {
+  background-color: #dee2e6;
+}
+
+.guias-back-arrow {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.guias-tabs-bar {
+  display: flex;
+}
+
+.guias-tab {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 8px 2px 6px;
+  border: none;
+  background-color: #f8f9fa;
+  color: #6c757d;
+  font-size: 11px;
+  line-height: 1;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.guias-tab-icon {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.guias-tab.active {
+  background-color: #fff;
+  color: var(--primary-color);
+  border-bottom-color: var(--primary-color);
+  font-weight: 700;
+}
+
+.guias-tabs-content .wrap-container {
+  height: auto;
+  width: 100%;
+}
+
+.guias-tabs-content .menu {
+  height: auto;
+  overflow: visible;
+  margin-bottom: 24px;
+}

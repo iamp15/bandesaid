@@ -39,7 +39,7 @@ const ControlCalidad4 = () => {
       `**Rubro:** ${RUBRO}\n` +
       `**Fecha:** ${currentCarga.fecha}\n` +
       `\n**✓ Marca del rubro:** ${currentCarga.marca_rubro}\n` +
-      "✓ **Fecha Elaboración:** N/A\n" +
+      `✓ **Fecha Elaboración:** ${currentCarga.felaboracion || "N/A"}\n` +
       "✓ **Fecha Vencimiento:** N/A\n" +
       `✓ **Nº Lote:** ${currentCarga.lote || "N/A"}\n` +
       `✓ **Peso promedio:** ${currentCarga.p_promedio} kg\n` +

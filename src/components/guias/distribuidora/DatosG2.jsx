@@ -1,7 +1,5 @@
-import { Link } from "react-router-dom";
 import { PROVIDER_MAP } from "../../../constants/constants";
 import { useState, useEffect } from "react";
-import { capitalizeWords } from "../../../utils/Capitalizer";
 import "../../../styles/guias/DatosG2.css";
 import { codigos_espejo as companyNames } from "../../../constants/CodigosEspejo";
 import { sinCodigo } from "../../../constants/Sincodigo";
@@ -9,9 +7,8 @@ import EditableField from "../../EditableField";
 import { useAuth } from "../../login/AuthContext";
 import LoadingSpinner from "../../LoadingSpinner";
 import { useNavigate } from "react-router-dom";
-import { checkOnlineStatus } from "../../../utils/OnlineStatus";
-import { useAlert } from "../../alert/AlertContext";
 import { useEstados } from "../../../contexts/EstadosContext";
+import { useGuiaTabs } from "../GuiaTabsLayout";
 
 const DatosG2 = () => {
   const { cargaActual, proveedor, updateCargaField, currentCarga } =
@@ -35,7 +32,7 @@ const DatosG2 = () => {
   const { currentUser, loading } = useAuth();
   const [onEdit, setOnEdit] = useState(null);
   const navigate = useNavigate();
-  const { addAlert } = useAlert();
+  const { setIsEditing } = useGuiaTabs() || {};
 
   useEffect(() => {
     if (currentCarga) {
@@ -76,6 +73,12 @@ const DatosG2 = () => {
     }
   }, [currentCarga]);
 
+  // Reportar al layout si hay una edición en curso para bloquear el cambio de pestaña
+  useEffect(() => {
+    setIsEditing?.(onEdit !== null);
+    return () => setIsEditing?.(false);
+  }, [onEdit, setIsEditing]);
+
   // Guard: show loading spinner if cargas is not loaded yet
   if (!currentCarga || loading || !currentCarga.id) {
     return <LoadingSpinner />;
@@ -84,24 +87,6 @@ const DatosG2 = () => {
   if (!proveedor || !cargaActual) {
     navigate("/despachos");
   }
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (onEdit !== null) {
-      alert("Por favor, guarda los cambios antes de continuar");
-      return;
-    }
-
-    if (!checkOnlineStatus()) {
-      addAlert(
-        "No hay conexión a internet. No se puede guardar la información.",
-        "error"
-      );
-      return;
-    }
-
-    navigate("/datosg3");
-  };
 
   /**
    * Calcula puntuación y metadatos para ordenar sugerencias.
@@ -192,16 +177,16 @@ const DatosG2 = () => {
 
       updatedData = {
         ...currentCarga,
-        destino: value,
-        codigo_espejo: company ? company.codigo : "N/A",
-        ...(estadoValido && { estadoDestino: company.estado }),
+        destino: value.toUpperCase(),
+        codigo_espejo: company ? String(company.codigo).toUpperCase() : "N/A",
+        ...(estadoValido && { estadoDestino: String(company.estado).toUpperCase() }),
         ...(companyEspejo?.entidad != null && companyEspejo.entidad !== "" && {
-          transporte: companyEspejo.entidad,
+          transporte: String(companyEspejo.entidad).toUpperCase(),
         }),
         editHistory: {
           ...currentCarga.editHistory,
           [name]: {
-            value,
+            value: value.toUpperCase(),
             editedBy: currentUser.name,
             editedAt: new Date().toISOString(),
           },
@@ -210,11 +195,11 @@ const DatosG2 = () => {
     } else {
       updatedData = {
         ...currentCarga,
-        [name]: value,
+        [name]: value.toUpperCase(),
         editHistory: {
           ...currentCarga.editHistory,
           [name]: {
-            value,
+            value: value.toUpperCase(),
             editedBy: currentUser.name,
             editedAt: new Date().toISOString(),
           },
@@ -227,7 +212,7 @@ const DatosG2 = () => {
   return (
     <div className="wrap-container">
       <div className="menu">
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={(e) => e.preventDefault()}>
           <h2>Comercializadora: </h2>
           {/****** Entidad destino *****/}
           <div className="empresa-input-container">
@@ -250,6 +235,7 @@ const DatosG2 = () => {
                 setOnEdit={setOnEdit}
                 onEdit={onEdit}
                 currentUser={currentUser} // Pass currentUser
+                formatValue={(val) => val.toUpperCase()}
               />
             </div>
           </div>
@@ -273,7 +259,7 @@ const DatosG2 = () => {
             onSave={handleFieldSave}
             currentUser={currentUser}
             editHistory={currentCarga?.editHistory}
-            formatValue={capitalizeWords}
+            formatValue={(val) => val.toUpperCase()}
             setShowSuggestions={setShowSuggestions}
             setOnEdit={setOnEdit}
             onEdit={onEdit}
@@ -287,19 +273,11 @@ const DatosG2 = () => {
             onSave={handleFieldSave}
             currentUser={currentUser}
             editHistory={currentCarga?.editHistory}
-            formatValue={capitalizeWords}
+            formatValue={(val) => val.toUpperCase()}
             setShowSuggestions={setShowSuggestions}
             setOnEdit={setOnEdit}
             onEdit={onEdit}
           />
-
-          {/****** Botones *****/}
-          <div className="button-group">
-            <Link to={"/datosg1"}>
-              <button>Atras</button>
-            </Link>
-            <button type="submit">Continuar</button>
-          </div>
         </form>
       </div>
     </div>

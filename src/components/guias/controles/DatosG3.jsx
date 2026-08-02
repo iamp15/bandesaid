@@ -1,6 +1,5 @@
-import { Link } from "react-router-dom";
 import { PROVIDER_MAP } from "../../../constants/constants";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import SelectorMarca from "./SelectorMarca";
 import { decimalComma, decimalPeriod } from "../../../utils/FormatDecimal";
 import { formatNumber } from "../../../utils/FormatNumber";
@@ -12,6 +11,7 @@ import { useNavigate } from "react-router-dom";
 import { checkOnlineStatus } from "../../../utils/OnlineStatus";
 import { useAlert } from "../../alert/AlertContext";
 import { useEstados } from "../../../contexts/EstadosContext";
+import { useGuiaTabs } from "../GuiaTabsLayout";
 
 const DatosG3 = () => {
   const { cargaActual, proveedor, updateCargaField, currentCarga, plantaConfig } =
@@ -23,6 +23,13 @@ const DatosG3 = () => {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const navigate = useNavigate();
   const { addAlert } = useAlert();
+  const { setIsEditing } = useGuiaTabs() || {};
+
+  // Reportar al layout si hay una edición en curso para bloquear el cambio de pestaña
+  useEffect(() => {
+    setIsEditing?.(onEdit !== null);
+    return () => setIsEditing?.(false);
+  }, [onEdit, setIsEditing]);
 
   // Early return for loading state
   if (loading || !currentUser || !currentCarga || !currentCarga.id) {
@@ -40,27 +47,22 @@ const DatosG3 = () => {
     return brand ? brand.CND : null;
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const toDateInputValue = (value) => {
+    if (!value) return "";
+    if (/^\d{4}-\d{2}-\d{2}$/.test(value)) return value;
+    const parts = String(value).split("/");
+    if (parts.length !== 3) return "";
+    const [dd, mm, yyyy] = parts;
+    return `${yyyy}-${mm}-${dd}`;
+  };
 
-    const new_p_promedio = combinedFormat(currentCarga.p_promedio);
-
-    if (onEdit) {
-      alert("Guarda los cambios antes de continuar");
-      return;
+  const toDisplayDate = (value) => {
+    if (!value) return "";
+    if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+      const [yyyy, mm, dd] = value.split("-");
+      return `${dd}/${mm}/${yyyy}`;
     }
-
-    if (currentCarga.t_promedio > 0) {
-      alert("Alerta: la temperatura promedio debería ser negativa.");
-      return;
-    }
-
-    if (new_p_promedio < 0) {
-      alert("Alerta: el peso promedio debe ser positivo.");
-      return;
-    }
-
-    navigate("/datosg4");
+    return value;
   };
 
   const handleChickenBrandChange = (e) => {
@@ -113,7 +115,7 @@ const DatosG3 = () => {
   return (
     <div className="wrap-container">
       <div className="menu">
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={(e) => e.preventDefault()}>
           <h2>Control de Calidad</h2>
 
           {/****** Marca ******/}
@@ -147,6 +149,25 @@ const DatosG3 = () => {
             setShowSuggestions={setShowSuggestions}
             setOnEdit={setOnEdit}
             onEdit={onEdit}
+          />
+
+          {/****** Fecha de elaboración ******/}
+          <EditableField
+            fieldName="felaboracion"
+            label="Fecha de elaboración"
+            value={currentCarga?.felaboracion}
+            placeholder="Seleccione la fecha"
+            onSave={handleFieldSave}
+            currentUser={currentUser}
+            editHistory={currentCarga?.editHistory}
+            setShowSuggestions={setShowSuggestions}
+            setOnEdit={setOnEdit}
+            onEdit={onEdit}
+            type="date"
+            formatValue={toDisplayDate}
+            formatEditValue={toDateInputValue}
+            parseEditValue={toDisplayDate}
+            emptyText="N/A"
           />
 
           {/****** Peso promedio ******/}
@@ -214,14 +235,6 @@ const DatosG3 = () => {
             onEdit={onEdit}
             unit="kg"
           />
-
-          {/****** Botones de navegación ******/}
-          <div className="button-group">
-            <Link to={"/datosg2"}>
-              <button>Atras</button>
-            </Link>
-            <button type="submit">Continuar</button>
-          </div>
         </form>
       </div>
     </div>

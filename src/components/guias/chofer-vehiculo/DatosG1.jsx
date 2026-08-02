@@ -1,5 +1,4 @@
 /* eslint-disable react/prop-types */
-import { Link } from "react-router-dom";
 import { PROVIDER_MAP } from "../../../constants/constants";
 import { capitalizeWords } from "../../../utils/Capitalizer";
 import "../../../styles/guias/DatosG1.css";
@@ -14,12 +13,12 @@ import { useEstados } from "../../../contexts/EstadosContext";
 import { editableFieldProps } from "../../../utils/editableFieldProps";
 import SelectorChofer from "../../configuracion/SelectorChofer";
 import SelectorCamion from "../../configuracion/SelectorCamion";
+import { useGuiaTabs } from "../GuiaTabsLayout";
 
 const DatosG1 = () => {
   const {
     updateCargaField,
     cargaActual,
-    setCargaActual,
     proveedor,
     currentCarga,
   } = useEstados();
@@ -28,6 +27,7 @@ const DatosG1 = () => {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [onEdit, setOnEdit] = useState(null);
   const { addAlert } = useAlert();
+  const { setIsEditing } = useGuiaTabs() || {};
   const key_prov = PROVIDER_MAP[proveedor];
 
   // Estados para los selectores de chofer y camión
@@ -58,6 +58,12 @@ const DatosG1 = () => {
       navigate("/despachos");
     }
   }, [proveedor, cargaActual, navigate]);
+
+  // Reportar al layout si hay una edición en curso para bloquear el cambio de pestaña
+  useEffect(() => {
+    setIsEditing?.(onEdit !== null);
+    return () => setIsEditing?.(false);
+  }, [onEdit, setIsEditing]);
 
   // Single check for loading state
   if (loading || !currentCarga || !currentCarga.id) return <LoadingSpinner />;
@@ -108,13 +114,6 @@ const DatosG1 = () => {
     await updateCargaField(key_prov, currentCarga.id, updatedData);
   };
 
-  const handleContinue = () => {
-    if (onEdit !== null) {
-      alert("Por favor, guarda los cambios antes de continuar");
-      return;
-    } else navigate("/datosg2");
-  };
-
   const handleTkChange = async (e) => {
     if (!requireOnline()) return;
     const value = e.target.value;
@@ -139,7 +138,7 @@ const DatosG1 = () => {
   return (
     <div className="wrap-container">
       <div className="menu">
-        <form>
+        <form onSubmit={(e) => e.preventDefault()}>
           <h2>Chofer:</h2>
 
           {/***** Selector de Chofer *****/}
@@ -204,16 +203,6 @@ const DatosG1 = () => {
               })}
             </p>
           )}
-
-          {/****** Botones ******/}
-          <div className="button-group">
-            <Link to={"/carga"}>
-              <button onClick={() => setCargaActual(0)}>Atras</button>
-            </Link>
-            <button type="button" onClick={handleContinue}>
-              Continuar
-            </button>
-          </div>
         </form>
       </div>
     </div>

@@ -1,10 +1,11 @@
 import { useNavigate } from "react-router-dom";
 import { RUBRO } from "../../constants/constants";
-import { validarDatosParaAnclajes } from "../../utils/validarDatosAnclajes";
+import { validarDatosParaAnclajes, validarRestriccionesCarga } from "../../utils/validarDatosAnclajes";
 import { getDestinoForGuia } from "../../utils/destinoPorGuia";
 import "../../styles/guias/revisionGuias.css";
 import LoadingSpinner from "../LoadingSpinner";
 import { useEstados } from "../../contexts/EstadosContext";
+import { formatoFechaElaboracion } from "../../utils/formatoFechaElaboracion";
 
 const RevisionGuias = () => {
   const { cargaActual, proveedor, currentCarga } = useEstados();
@@ -27,6 +28,13 @@ const RevisionGuias = () => {
       );
       return;
     }
+
+    const errorRestriccion = validarRestriccionesCarga(currentCarga);
+    if (errorRestriccion) {
+      alert(errorRestriccion);
+      return;
+    }
+
     navigate("/formulariosguia");
   };
 
@@ -134,6 +142,10 @@ const RevisionGuias = () => {
           </p>
           <p>
             Lote: <span className="value">{currentCarga.lote}</span>
+          </p>
+          <p>
+            Fecha de elaboración:{" "}
+            <span className="value">{formatoFechaElaboracion(currentCarga.felaboracion, "—")}</span>
           </p>
           <p>
             Peso promedio:{" "}

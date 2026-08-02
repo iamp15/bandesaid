@@ -1,3 +1,172 @@
-.datos-muestras {
-  margin-bottom: 10px;
+/* Línea divisoria tenue entre secciones */
+.section-divider {
+  border: none;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  margin: 28px 0 24px;
+}
+
+/* Sección de muestras (consistente con DatosG4) */
+.section-g4 {
+  margin-bottom: 24px;
+}
+
+.section-g4 h2 {
+  color: #333;
+  border-bottom: 2px solid #ddd;
+  padding-bottom: 10px;
+  margin-top: 20px;
+  margin-bottom: 12px;
+}
+
+/* Lista de muestras agregadas */
+.lista-muestras {
+  margin-bottom: 16px;
+}
+
+.lista-item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  background-color: #f8f8f8;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  gap: 12px;
+}
+
+.lista-item-text {
+  flex: 1;
+  font-size: 15px;
+}
+
+.lista-item-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* Botones: tamaño unificado en la sección */
+.btn-eliminar,
+.btn-agregar,
+.btn-cancelar,
+.btn-agregar-guia-precinto {
+  padding: 6px 12px;
+  font-size: 13px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-eliminar {
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+}
+
+.btn-eliminar:hover {
+  background-color: #c0392b;
+}
+
+/* Botón agregar muestra */
+.btn-agregar-guia-precinto {
+  background-color: var(--primary-color, #007bff);
+  color: white;
+  border: none;
+}
+
+.btn-agregar-guia-precinto:hover {
+  background-color: var(--primary-color-hover, #0056b3);
+}
+
+.btn-agregar-guia-precinto:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Formulario inline para agregar muestra */
+.inline-add-form {
+  padding: 16px;
+  margin-bottom: 12px;
+  background-color: #fafafa;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+}
+
+.inline-add-form label {
+  display: block;
+  margin-top: 12px;
+  margin-bottom: 4px;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.inline-add-form label:first-child {
+  margin-top: 0;
+}
+
+.inline-add-form input {
+  width: 100%;
+  padding: 8px 12px;
+  font-size: 15px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+.inline-add-form input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+}
+
+.inline-add-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.btn-agregar {
+  background-color: #28a745;
+  color: white;
+  border: none;
+}
+
+.btn-agregar:hover {
+  background-color: #218838;
+}
+
+.btn-cancelar {
+  background-color: #6c757d;
+  color: white;
+  border: none;
+}
+
+.btn-cancelar:hover {
+  background-color: #5a6268;
+}
+
+/* Notificación de información guardada */
+.notificacion {
+  background-color: #4caf50;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 14px;
+  white-space: nowrap;
+  display: inline-block;
+  margin-bottom: 12px;
+  opacity: 0;
+  animation: fadeInOut 2s ease-in-out;
+}
+
+@keyframes fadeInOut {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  10%,
+  90% {
+    opacity: 1;
+  }
 }

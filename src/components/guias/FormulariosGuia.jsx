@@ -1,6 +1,6 @@
 import BotonCopiar from "../BotonCopiar";
 import { useNavigate } from "react-router-dom";
-import { RUBRO, LOTE } from "../../constants/constants";
+import { RUBRO } from "../../constants/constants";
 import "../../styles/guias/formulariosGuia.css";
 import { formatNumber } from "../../utils/FormatNumber";
 import LoadingSpinner from "../LoadingSpinner";
@@ -13,6 +13,7 @@ import {
   formatCargaGuiaNumber,
   formatCargaNumber,
 } from "../../utils/formatCargaNumber";
+import { formatoFechaElaboracion } from "../../utils/formatoFechaElaboracion";
 
 const FormulariosGuia = () => {
   const { cargaActual, setCargaActual, proveedor, currentCarga, plantaConfig } = useEstados();
@@ -83,8 +84,8 @@ const FormulariosGuia = () => {
       `**Número de Guía:** ${currentCarga?.codigos_guias[index]}\n` +
       `**Marca:** ${currentCarga?.marca_rubro}\n` +
       `**Números de lotes:** ${currentCarga.lote}\n` +
-      `**Fecha de Elaboración:** ${LOTE.elaboracion}\n` +
-      `**Fecha de Vencimiento:** ${LOTE.vencimiento}\n` +
+      `**Fecha de Elaboración:** ${formatoFechaElaboracion(currentCarga.felaboracion)}\n` +
+      `**Fecha de Vencimiento:** N/A\n` +
       `**Peso Promedio:** ${currentCarga.p_promedio} kg\n` +
       `**Temperatura Promedio:** ${currentCarga.t_promedio} ºC\n` +
       `**CND o CPE:** ${currentCarga.cnd}\n` +

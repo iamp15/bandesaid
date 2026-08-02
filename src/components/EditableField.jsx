@@ -11,15 +11,19 @@ const EditableField = ({
   placeholder,
   onSave,
   onChange,
-  suggestions,
-  showSuggestions,
+  suggestions = [],
+  showSuggestions = false,
   setShowSuggestions,
   editHistory,
   autoComplete,
   onEdit,
   setOnEdit,
   unit,
+  type = "text",
   formatValue = (val) => val, // Optional formatter function
+  formatEditValue = (val) => val, // Converts stored value to input value
+  parseEditValue = (val) => val, // Converts input value to stored value
+  emptyText = "No registrado",
 }) => {
   const [editValue, setEditValue] = useState("");
   const { addAlert } = useAlert();
@@ -27,19 +31,40 @@ const EditableField = ({
   const inputRef = useRef(null);
 
   // Added useEffect to set editValue when isEditing becomes true
+  // Se usa un ref para la función formatEditValue: su identidad cambia en cada
+  // render (el default se recrea), por lo que no debe ser dependencia del
+  // effect de reseteo o de lo contrario borra lo que el usuario escribe.
+  const latestFormatEditRef = useRef(formatEditValue);
+  useEffect(() => {
+    latestFormatEditRef.current = formatEditValue;
+  }, [formatEditValue]);
+
   useEffect(() => {
     if (onEdit) {
-      setEditValue(value);
+      setEditValue(latestFormatEditRef.current(value));
     }
   }, [onEdit, value]);
 
   useEffect(() => {
     if (onEdit === fieldName && inputRef.current) {
       inputRef.current.focus();
-      const len = inputRef.current.value?.length ?? 0;
-      inputRef.current.setSelectionRange(len, len);
+      // Los inputs de tipo "date" (y otros sin selección de texto)
+      // lanzan un error si se llama setSelectionRange, por lo que se omite.
+      const supportsSelection = [
+        "text",
+        "search",
+        "password",
+        "number",
+        "tel",
+        "url",
+        "email",
+      ].includes(type);
+      if (supportsSelection) {
+        const len = inputRef.current.value?.length ?? 0;
+        inputRef.current.setSelectionRange(len, len);
+      }
     }
-  }, [onEdit, fieldName]);
+  }, [onEdit, fieldName, type]);
 
   // Check if field is locked before starting edit
   const handleEdit = () => {
@@ -48,16 +73,16 @@ const EditableField = ({
       return;
     }
     setOnEdit(fieldName);
-    setEditValue(value);
+    setEditValue(formatEditValue(value));
   };
 
   const handleSave = () => {
-    onSave(fieldName, formatValue(editValue));
+    onSave(fieldName, formatValue(parseEditValue(editValue)));
     setOnEdit(null);
   };
 
   const cancelEditing = () => {
-    setEditValue(value);
+    setEditValue(formatEditValue(value));
     setOnEdit(null);
   };
 
@@ -75,7 +100,7 @@ const EditableField = ({
   };
 
   // Format the display value, not in the render
-  const displayValue = value ? formatValue(value) + setUnit() : "No registrado";
+  const displayValue = value ? formatValue(value) + setUnit() : emptyText;
 
   return (
     <div className="editable-field">
@@ -86,7 +111,7 @@ const EditableField = ({
             <input
               ref={inputRef}
               className="edit-input"
-              type="text"
+              type={type}
               id={fieldName}
               value={editValue || ""}
               onChange={(e) => {
@@ -185,7 +210,11 @@ EditableField.propTypes = {
   suggestions: PropTypes.array, // Added suggestions to propTypes
   showSuggestions: PropTypes.bool, // Added showSuggestions to propTypes
   setShowSuggestions: PropTypes.func,
+  type: PropTypes.string,
   formatValue: PropTypes.func,
+  formatEditValue: PropTypes.func,
+  parseEditValue: PropTypes.func,
+  emptyText: PropTypes.string,
   autoComplete: PropTypes.string,
   setOnEdit: PropTypes.func.isRequired,
   onEdit: PropTypes.string,

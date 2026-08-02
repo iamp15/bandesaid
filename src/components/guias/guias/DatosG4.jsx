@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 import { PROVIDER_MAP } from "../../../constants/constants";
 import { formatNumber } from "../../../utils/FormatNumber";
 import { useAuth } from "../../login/AuthContext";
@@ -12,6 +11,7 @@ import { useAlert } from "../../alert/AlertContext";
 import { useEstados } from "../../../contexts/EstadosContext";
 import { codigos_espejo as companyNames } from "../../../constants/CodigosEspejo";
 import { sinCodigo } from "../../../constants/Sincodigo";
+import { useGuiaTabs } from "../GuiaTabsLayout";
 
 const DatosG4 = () => {
   const { cargaActual, proveedor, updateCargaField, currentCarga } =
@@ -21,6 +21,7 @@ const DatosG4 = () => {
   const [onEdit, setOnEdit] = useState(null);
   const navigate = useNavigate();
   const { addAlert } = useAlert();
+  const { setIsEditing } = useGuiaTabs() || {};
   const [numGuias, setNumGuias] = useState([]);
   const [pesosGuias, setPesosGuias] = useState([]);
   const [precintos, setPrecintos] = useState([]);
@@ -33,7 +34,6 @@ const DatosG4 = () => {
   const [draftDestinoGuia, setDraftDestinoGuia] = useState("");
   const [draftEstadoDestinoGuia, setDraftEstadoDestinoGuia] = useState("");
   const [draftCodigoEspejoGuia, setDraftCodigoEspejoGuia] = useState("");
-  const [draftTransporteGuia, setDraftTransporteGuia] = useState("");
   const [draftPrecinto, setDraftPrecinto] = useState("");
   const key_prov = PROVIDER_MAP[proveedor];
 
@@ -43,7 +43,6 @@ const DatosG4 = () => {
   const [destinosGuias, setDestinosGuias] = useState([]);
   const [estadosDestinoGuias, setEstadosDestinoGuias] = useState([]);
   const [codigosEspejoGuias, setCodigosEspejoGuias] = useState([]);
-  const [transportesGuias, setTransportesGuias] = useState([]);
   const [suggestionGuiaIndex, setSuggestionGuiaIndex] = useState(null);
   const [suggestionsList, setSuggestionsList] = useState([]);
 
@@ -58,27 +57,28 @@ const DatosG4 = () => {
       setDestinosGuias([]);
       setEstadosDestinoGuias([]);
       setCodigosEspejoGuias([]);
-      setTransportesGuias([]);
     } else if (currentCarga.destinos_diferentes_por_guia && currentCarga.destinos_guias?.length === n) {
       setDestinosGuias(currentCarga.destinos_guias);
       setEstadosDestinoGuias(currentCarga.estados_destino_guias || Array(n).fill(""));
       setCodigosEspejoGuias(currentCarga.codigos_espejo_guias || Array(n).fill(""));
-      setTransportesGuias(currentCarga.transportes_guias || Array(n).fill(""));
     } else {
       const destinosBase = currentCarga.destinos_guias?.length ? currentCarga.destinos_guias.slice(0, n) : [];
       const estadosBase = currentCarga.estados_destino_guias?.length ? currentCarga.estados_destino_guias.slice(0, n) : [];
       const codigosBase = currentCarga.codigos_espejo_guias?.length ? currentCarga.codigos_espejo_guias.slice(0, n) : [];
-      const transportesBase = currentCarga.transportes_guias?.length ? currentCarga.transportes_guias.slice(0, n) : [];
       while (destinosBase.length < n) destinosBase.push(currentCarga.destino || "");
       while (estadosBase.length < n) estadosBase.push(currentCarga.estadoDestino || "");
       while (codigosBase.length < n) codigosBase.push(currentCarga.codigo_espejo || "");
-      while (transportesBase.length < n) transportesBase.push(currentCarga.transporte || "");
       setDestinosGuias(destinosBase);
       setEstadosDestinoGuias(estadosBase);
       setCodigosEspejoGuias(codigosBase);
-      setTransportesGuias(transportesBase);
     }
   }, [currentCarga]);
+
+  // Reportar al layout si hay una edición en curso para bloquear el cambio de pestaña
+  useEffect(() => {
+    setIsEditing?.(onEdit !== null);
+    return () => setIsEditing?.(false);
+  }, [onEdit, setIsEditing]);
 
   if (loading || !currentUser || !currentCarga || !currentCarga.id) {
     return <LoadingSpinner />;
@@ -87,60 +87,6 @@ const DatosG4 = () => {
   if (!proveedor || !cargaActual) {
     navigate("/despachos");
   }
-
-  const parsePeso = (pesoStr) => {
-    if (!pesoStr) return 0;
-    const parts = String(pesoStr).split(",");
-    if (parts.length > 1) {
-      const integerPart = parts.slice(0, -1).join("").replace(/\./g, "");
-      const decimalPart = parts[parts.length - 1];
-      const finalValue = parseFloat(`${integerPart}.${decimalPart}`);
-      return isNaN(finalValue) ? 0 : finalValue;
-    }
-    const finalValue = parseFloat(
-      String(pesoStr).replace(/\./g, "").replace(",", ".")
-    );
-    return isNaN(finalValue) ? 0 : finalValue;
-  };
-
-  const checkPesos = () => {
-    if (numGuias.length === 0) return true;
-    const sumPesos =
-      pesosGuias.reduce((acc, peso) => acc + parsePeso(peso), 0) || 0;
-    const pesoTotal = parsePeso(currentCarga.p_total) || 0;
-
-    if (Math.abs(sumPesos - pesoTotal) > 0.001) {
-      addAlert(
-        `La suma de los pesos de las guías (${sumPesos}) debe ser igual al peso total de la carga (${pesoTotal}).`,
-        "error"
-      );
-      return false;
-    }
-    return true;
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
-    if (!checkOnlineStatus()) {
-      addAlert(
-        "No hay conexión a internet. No se puede guardar la información.",
-        "error"
-      );
-      return;
-    }
-
-    if (onEdit) {
-      addAlert("Por favor, guarda los cambios antes de continuar", "error");
-      return;
-    }
-
-    if (!checkPesos()) {
-      return;
-    }
-
-    navigate("/revisionguias");
-  };
 
   const handleFieldSave = (fieldName, newValue) => {
     if (!checkOnlineStatus()) {
@@ -183,14 +129,13 @@ const DatosG4 = () => {
   };
 
   const handleSelectDestinoDraft = (company) => {
-    setDraftDestinoGuia(company.nombre);
+    setDraftDestinoGuia(company.nombre.toUpperCase());
     setDraftEstadoDestinoGuia(
       company.estado && String(company.estado).toUpperCase() !== "N/A"
-        ? company.estado
+        ? String(company.estado).toUpperCase()
         : ""
     );
-    setDraftCodigoEspejoGuia(company.codigo != null ? String(company.codigo) : "");
-    setDraftTransporteGuia(company.entidad && company.entidad !== "" ? company.entidad : "");
+    setDraftCodigoEspejoGuia(company.codigo != null ? String(company.codigo).toUpperCase() : "");
     setSuggestionGuiaIndex(null);
     setSuggestionsList([]);
   };
@@ -202,18 +147,15 @@ const DatosG4 = () => {
     const n = numGuias.length;
     const payload = { destinos_diferentes_por_guia: checked };
     if (checked && n > 0) {
-      const destinos = destinosGuias.length === n ? destinosGuias : Array(n).fill(currentCarga.destino || "");
-      const estados = estadosDestinoGuias.length === n ? estadosDestinoGuias : Array(n).fill(currentCarga.estadoDestino || "");
-      const codigos = codigosEspejoGuias.length === n ? codigosEspejoGuias : Array(n).fill(currentCarga.codigo_espejo || "");
-      const transportes = transportesGuias.length === n ? transportesGuias : Array(n).fill(currentCarga.transporte || "");
+      const destinos = destinosGuias.length === n ? destinosGuias : Array(n).fill((currentCarga.destino || "").toUpperCase());
+      const estados = estadosDestinoGuias.length === n ? estadosDestinoGuias : Array(n).fill((currentCarga.estadoDestino || "").toUpperCase());
+      const codigos = codigosEspejoGuias.length === n ? codigosEspejoGuias : Array(n).fill((currentCarga.codigo_espejo || "").toUpperCase());
       payload.destinos_guias = destinos;
       payload.estados_destino_guias = estados;
       payload.codigos_espejo_guias = codigos;
-      payload.transportes_guias = transportes;
       setDestinosGuias(destinos);
       setEstadosDestinoGuias(estados);
       setCodigosEspejoGuias(codigos);
-      setTransportesGuias(transportes);
     }
     try {
       await updateCargaField(key_prov, currentCarga.id, payload);
@@ -278,15 +220,13 @@ const DatosG4 = () => {
     const newPesosGuias = [...pesosGuias, pesoFormateado];
     let payload = { codigos_guias: newNumGuias, pesos_guias: newPesosGuias };
     if (destinosDiferentesPorGuia) {
-      const newDestinos = [...destinosGuias, currentCarga.destino || ""];
-      const newEstados = [...estadosDestinoGuias, currentCarga.estadoDestino || ""];
-      const newCodigos = [...codigosEspejoGuias, currentCarga.codigo_espejo || ""];
-      const newTransportes = [...transportesGuias, currentCarga.transporte || ""];
-      payload = { ...payload, destinos_guias: newDestinos, estados_destino_guias: newEstados, codigos_espejo_guias: newCodigos, transportes_guias: newTransportes };
+      const newDestinos = [...destinosGuias, (currentCarga.destino || "").toUpperCase()];
+      const newEstados = [...estadosDestinoGuias, (currentCarga.estadoDestino || "").toUpperCase()];
+      const newCodigos = [...codigosEspejoGuias, (currentCarga.codigo_espejo || "").toUpperCase()];
+      payload = { ...payload, destinos_guias: newDestinos, estados_destino_guias: newEstados, codigos_espejo_guias: newCodigos };
       setDestinosGuias(newDestinos);
       setEstadosDestinoGuias(newEstados);
       setCodigosEspejoGuias(newCodigos);
-      setTransportesGuias(newTransportes);
     }
 
     setNumGuias(newNumGuias);
@@ -331,7 +271,6 @@ const DatosG4 = () => {
     setDraftDestinoGuia(destinosGuias[idx] ?? "");
     setDraftEstadoDestinoGuia(estadosDestinoGuias[idx] ?? "");
     setDraftCodigoEspejoGuia(codigosEspejoGuias[idx] ?? "");
-    setDraftTransporteGuia(transportesGuias[idx] ?? "");
     setSuggestionGuiaIndex(null);
     setSuggestionsList([]);
   };
@@ -378,29 +317,24 @@ const DatosG4 = () => {
     const prevDestinosGuias = destinosDiferentesPorGuia ? [...destinosGuias] : null;
     const prevEstadosDestinoGuias = destinosDiferentesPorGuia ? [...estadosDestinoGuias] : null;
     const prevCodigosEspejoGuias = destinosDiferentesPorGuia ? [...codigosEspejoGuias] : null;
-    const prevTransportesGuias = destinosDiferentesPorGuia ? [...transportesGuias] : null;
 
     let payload = { codigos_guias: newNumGuias, pesos_guias: newPesosGuias };
     if (destinosDiferentesPorGuia) {
       const newDestinos = [...destinosGuias];
       const newEstados = [...estadosDestinoGuias];
       const newCodigos = [...codigosEspejoGuias];
-      const newTransportes = [...transportesGuias];
-      newDestinos[idxSave] = String(draftDestinoGuia ?? "").trim();
-      newEstados[idxSave] = String(draftEstadoDestinoGuia ?? "").trim();
-      newCodigos[idxSave] = String(draftCodigoEspejoGuia ?? "").trim();
-      newTransportes[idxSave] = String(draftTransporteGuia ?? "").trim();
+      newDestinos[idxSave] = String(draftDestinoGuia ?? "").trim().toUpperCase();
+      newEstados[idxSave] = String(draftEstadoDestinoGuia ?? "").trim().toUpperCase();
+      newCodigos[idxSave] = String(draftCodigoEspejoGuia ?? "").trim().toUpperCase();
       payload = {
         ...payload,
         destinos_guias: newDestinos,
         estados_destino_guias: newEstados,
         codigos_espejo_guias: newCodigos,
-        transportes_guias: newTransportes,
       };
       setDestinosGuias(newDestinos);
       setEstadosDestinoGuias(newEstados);
       setCodigosEspejoGuias(newCodigos);
-      setTransportesGuias(newTransportes);
     }
 
     setNumGuias(newNumGuias);
@@ -411,7 +345,6 @@ const DatosG4 = () => {
     setDraftDestinoGuia("");
     setDraftEstadoDestinoGuia("");
     setDraftCodigoEspejoGuia("");
-    setDraftTransporteGuia("");
     setSuggestionGuiaIndex(null);
     setSuggestionsList([]);
 
@@ -425,7 +358,6 @@ const DatosG4 = () => {
         setDestinosGuias(prevDestinosGuias);
         setEstadosDestinoGuias(prevEstadosDestinoGuias);
         setCodigosEspejoGuias(prevCodigosEspejoGuias);
-        setTransportesGuias(prevTransportesGuias);
       }
       setEditingGuiaIndex(null);
       addAlert(
@@ -449,7 +381,6 @@ const DatosG4 = () => {
     const newDestinosGuias = destinosGuias.filter((_, i) => i !== idx);
     const newEstadosDestinoGuias = estadosDestinoGuias.filter((_, i) => i !== idx);
     const newCodigosEspejoGuias = codigosEspejoGuias.filter((_, i) => i !== idx);
-    const newTransportesGuias = transportesGuias.filter((_, i) => i !== idx);
 
     const prevNumGuias = [...numGuias];
     const prevPesosGuias = [...pesosGuias];
@@ -459,7 +390,6 @@ const DatosG4 = () => {
     setDestinosGuias(newDestinosGuias);
     setEstadosDestinoGuias(newEstadosDestinoGuias);
     setCodigosEspejoGuias(newCodigosEspejoGuias);
-    setTransportesGuias(newTransportesGuias);
 
     const payload = {
       codigos_guias: newNumGuias.length > 0 ? newNumGuias : [],
@@ -469,7 +399,6 @@ const DatosG4 = () => {
       payload.destinos_guias = newDestinosGuias;
       payload.estados_destino_guias = newEstadosDestinoGuias;
       payload.codigos_espejo_guias = newCodigosEspejoGuias;
-      payload.transportes_guias = newTransportesGuias;
     }
     try {
       await updateCargaField(key_prov, currentCarga.id, payload);
@@ -480,7 +409,6 @@ const DatosG4 = () => {
       setDestinosGuias(destinosGuias);
       setEstadosDestinoGuias(estadosDestinoGuias);
       setCodigosEspejoGuias(codigosEspejoGuias);
-      setTransportesGuias(transportesGuias);
       addAlert(
         "Error al eliminar la guía. Verifique su conexión e intente de nuevo.",
         "error"
@@ -608,7 +536,7 @@ const DatosG4 = () => {
   return (
     <div className="wrap-container">
       <div className="menu">
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={(e) => e.preventDefault()}>
           {/* Datos Guía */}
           <div className="section-g4">
             <h2>Datos Guía</h2>
@@ -696,6 +624,7 @@ const DatosG4 = () => {
                                 type="text"
                                 value={draftDestinoGuia}
                                 onChange={(e) => {
+                                  e.target.value = e.target.value.toUpperCase();
                                   setDraftDestinoGuia(e.target.value);
                                   handleDestinoInputDraft(e);
                                 }}
@@ -738,7 +667,7 @@ const DatosG4 = () => {
                                 type="text"
                                 value={draftEstadoDestinoGuia}
                                 onChange={(e) =>
-                                  setDraftEstadoDestinoGuia(e.target.value)
+                                  setDraftEstadoDestinoGuia(e.target.value.toUpperCase())
                                 }
                                 placeholder="Estado"
                               />
@@ -812,7 +741,6 @@ const DatosG4 = () => {
                     setDraftDestinoGuia("");
                     setDraftEstadoDestinoGuia("");
                     setDraftCodigoEspejoGuia("");
-                    setDraftTransporteGuia("");
                     setSuggestionGuiaIndex(null);
                     setSuggestionsList([]);
                     setShowAddGuia(true);
@@ -916,13 +844,6 @@ const DatosG4 = () => {
             onEdit={onEdit}
             setShowSuggestions={setShowSuggestions}
           />
-
-          <div className="button-group">
-            <Link to={"/datosg3"}>
-              <button type="button">Atras</button>
-            </Link>
-            <button type="submit">Continuar</button>
-          </div>
         </form>
       </div>
     </div>

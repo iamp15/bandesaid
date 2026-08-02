@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { PROVIDER_MAP } from "../../constants/constants";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../login/AuthContext";
@@ -24,26 +24,31 @@ const ControlCalidad3 = () => {
   const MARCA = plantaConfig?.MARCA || {};
   const defaultMarca = Object.values(MARCA)[0]?.nombre || "";
   const navigate = useNavigate();
-  const [muestras, setMuestras] = useState(0);
   const [temperaturas, setTemperaturas] = useState(
     currentCarga.temperaturas || []
   );
   const [pesos, setPesos] = useState(currentCarga.pesos || []);
+  const muestras = temperaturas.length;
   const [chickenBrand, setChickenBrand] = useState(
     currentCarga.marca_rubro || defaultMarca
   );
   const { currentUser } = useAuth();
   const [onEdit, setOnEdit] = useState(null);
   const [showSuggestions, setShowSuggestions] = useState(false);
-  const { addAlert } = useAlert();
+  const { addAlert, askConfirmation } = useAlert();
   const [showNotification, setShowNotification] = useState(null);
+  const [addingSample, setAddingSample] = useState(false);
+  const [draftPeso, setDraftPeso] = useState("");
+  const [draftTemp, setDraftTemp] = useState("");
+
+  const hydratedCargaId = useRef(null);
 
   useEffect(() => {
-    if (currentCarga.muestras) {
-      setMuestras(currentCarga.muestras);
-      setTemperaturas(currentCarga.temperaturas || []);
-      setPesos(currentCarga.pesos || []);
-    }
+    const { id, temperaturas, pesos } = currentCarga;
+    if (!id || hydratedCargaId.current === id) return;
+    hydratedCargaId.current = id;
+    setTemperaturas(temperaturas || []);
+    setPesos(pesos || []);
   }, [currentCarga]);
 
   if (!proveedor || !cargaActual) {
@@ -54,11 +59,18 @@ const ControlCalidad3 = () => {
     return <LoadingSpinner />;
   }
 
+  const toNumber = (value) => {
+    if (value === "" || value === null || value === undefined) return null;
+    const num = Number(String(value).replace(",", "."));
+    return Number.isNaN(num) ? null : num;
+  };
+
   const promedio = (valores) => {
-    if (!valores || valores.length === 0) return 0;
-    if (valores.length === 1) return valores[0];
-    const sum = valores.reduce((acc, temp) => acc + temp, 0);
-    return sum / valores.length;
+    if (!valores || valores.length === 0) return null;
+    const numeros = valores.map(toNumber).filter((num) => num !== null);
+    if (numeros.length === 0) return null;
+    const sum = numeros.reduce((acc, num) => acc + num, 0);
+    return sum / numeros.length;
   };
 
   const getCnd = (brandName) => {
@@ -68,28 +80,93 @@ const ControlCalidad3 = () => {
     return brand ? brand.CND : null;
   };
 
-  const handleMuestrasChange = (e) => {
-    const inputValue = e.target.value;
-    const newMuestrasValue =
-      inputValue === "" ? "" : Math.min(Math.max(0, Number(inputValue)), 6);
-
-    setMuestras(newMuestrasValue);
-    setTemperaturas(new Array(newMuestrasValue).fill(""));
-    setPesos(new Array(newMuestrasValue).fill(""));
+  const toDateInputValue = (value) => {
+    if (!value) return "";
+    if (/^\d{4}-\d{2}-\d{2}$/.test(value)) return value;
+    const parts = String(value).split("/");
+    if (parts.length !== 3) return "";
+    const [dd, mm, yyyy] = parts;
+    return `${yyyy}-${mm}-${dd}`;
   };
 
-  const handleTemperaturaChange = (index, value) => {
-    const newTemperaturas = [...temperaturas];
-    const formattedValue = value.replace(",", ".");
-    newTemperaturas[index] = Number(formattedValue);
+  const toDisplayDate = (value) => {
+    if (!value) return "";
+    if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+      const [yyyy, mm, dd] = value.split("-");
+      return `${dd}/${mm}/${yyyy}`;
+    }
+    return value;
+  };
+
+  const handleAgregarMuestra = () => {
+    if (temperaturas.length >= 6) {
+      addAlert("Máximo 6 muestras.", "warning");
+      return;
+    }
+    setDraftPeso("");
+    setDraftTemp("");
+    setAddingSample(true);
+  };
+
+  const persistMuestras = (newTemperaturas, newPesos) => {
+    if (!checkOnlineStatus()) {
+      addAlert(
+        "No hay conexión a internet. No se puede guardar la información.",
+        "error"
+      );
+      return;
+    }
+
+    setShowNotification(true);
+    setTimeout(() => {
+      setShowNotification(false);
+    }, 2000);
+    const newData = {
+      muestras: newTemperaturas.length,
+      temperaturas: newTemperaturas,
+      pesos: newPesos,
+    };
+    updateCargaField(key_prov, currentCarga.id, newData);
+  };
+
+  const handleGuardarMuestra = () => {
+    const peso = draftPeso.trim();
+    const temp = draftTemp.trim();
+    if (!peso || !temp) {
+      addAlert(
+        "Debes completar el peso y la temperatura de la muestra.",
+        "warning"
+      );
+      return;
+    }
+    const newTemperaturas = [...temperaturas, temp];
+    const newPesos = [...pesos, peso];
     setTemperaturas(newTemperaturas);
+    setPesos(newPesos);
+    setDraftPeso("");
+    setDraftTemp("");
+    setAddingSample(false);
+    persistMuestras(newTemperaturas, newPesos);
   };
 
-  const handlePesoChange = (index, value) => {
-    const newPesos = [...pesos];
-    const formattedValue = value.replace(",", ".");
-    newPesos[index] = Number(formattedValue);
-    setPesos(newPesos);
+  const handleCancelarMuestra = () => {
+    setDraftPeso("");
+    setDraftTemp("");
+    setAddingSample(false);
+  };
+
+  const handleQuitarMuestra = (index) => {
+    askConfirmation(
+      `¿Está seguro de eliminar la muestra ${index + 1}?`,
+      (confirmed) => {
+        if (!confirmed) return;
+        const newTemperaturas = temperaturas.filter((_, i) => i !== index);
+        const newPesos = pesos.filter((_, i) => i !== index);
+        setTemperaturas(newTemperaturas);
+        setPesos(newPesos);
+        persistMuestras(newTemperaturas, newPesos);
+      }
+    );
   };
 
   const handleChickenBrandChange = (e) => {
@@ -116,18 +193,25 @@ const ControlCalidad3 = () => {
       );
       return;
     }
+    if (addingSample) {
+      addAlert(
+        "Debes guardar o cancelar la muestra antes de continuar.",
+        "warning"
+      );
+      return;
+    }
     const cndNumber = getCnd(chickenBrand);
-    const t_promedio = temperaturas.length ? promedio(temperaturas) : null;
-    const p_promedio = pesos.length ? promedio(pesos) : null;
+    const t_promedio = promedio(temperaturas);
+    const p_promedio = promedio(pesos);
 
-    if (t_promedio > 0) {
+    if (t_promedio !== null && t_promedio > 0) {
       addAlert(
         "La temperatura promedio debería ser negativa. Revisa los valores.",
         "warning"
       );
       return;
     }
-    if (p_promedio < 0) {
+    if (p_promedio !== null && p_promedio < 0) {
       addAlert(
         "El peso promedio debería ser positivo. Revisa los valores.",
         "warning"
@@ -137,11 +221,15 @@ const ControlCalidad3 = () => {
     const newData = {
       ...currentCarga,
       cnd: cndNumber,
-      muestras: Number(muestras),
+      muestras: muestras,
       temperaturas: temperaturas,
       pesos: pesos,
-      t_promedio: parseFloat(decimalPeriod(t_promedio)).toFixed(1),
-      p_promedio: decimalComma(p_promedio.toFixed(2)),
+      t_promedio:
+        t_promedio === null
+          ? null
+          : parseFloat(decimalPeriod(t_promedio)).toFixed(1),
+      p_promedio:
+        p_promedio === null ? null : decimalComma(p_promedio.toFixed(2)),
     };
     updateCargaField(key_prov, currentCarga.id, newData)
       .then(() => {
@@ -192,27 +280,6 @@ const ControlCalidad3 = () => {
     );
   };
 
-  const saveInfo = () => {
-    if (!checkOnlineStatus()) {
-      addAlert(
-        "No hay conexión a internet. No se puede guardar la información.",
-        "error"
-      );
-      return;
-    }
-
-    setShowNotification(true);
-    setTimeout(() => {
-      setShowNotification(false);
-    }, 2000);
-    const newData = {
-      muestras: Number(muestras),
-      temperaturas: temperaturas,
-      pesos: pesos,
-    };
-    updateCargaField(key_prov, currentCarga.id, newData);
-  };
-
   return (
     <div className="wrap-container">
       <div className="menu">
@@ -240,57 +307,101 @@ const ControlCalidad3 = () => {
             onEdit={onEdit}
           />
 
-          {/* Muestras */}
-          <label htmlFor="muestras">Cantidad de muestras: </label>
-          <input
-            type="number"
-            id="muestras"
-            min={1}
-            max={6}
-            step={1}
-            value={muestras}
-            onChange={handleMuestrasChange}
-            placeholder="Ingrese la cantidad de muestras"
+          {/* Fecha de elaboración */}
+          <EditableField
+            fieldName="felaboracion"
+            label="Fecha de elaboración"
+            value={currentCarga.felaboracion}
+            placeholder="Seleccione la fecha"
+            onSave={saveData}
+            currentUser={currentUser}
+            editHistory={currentCarga.editHistory}
+            setShowSuggestions={setShowSuggestions}
+            setOnEdit={setOnEdit}
+            onEdit={onEdit}
+            type="date"
+            formatValue={toDisplayDate}
+            formatEditValue={toDateInputValue}
+            parseEditValue={toDisplayDate}
+            emptyText="N/A"
           />
 
-          {[...Array(Number(muestras))].map((_, index) => (
-            <div key={index}>
-              <h3>Muestra {index + 1}</h3>
-              <div className="datos-muestras">
-                <label htmlFor={`peso-${index}`}>Peso: </label>
-                <input
-                  type="text"
-                  id={`peso-${index}`}
-                  onChange={(e) => handlePesoChange(index, e.target.value)}
-                  placeholder="Ingrese el peso"
-                  defaultValue={pesos[index]}
-                />
-              </div>
-              <div>
-                <label htmlFor={`temperatura-${index}`}>Temperatura: </label>
-                <input
-                  type="text"
-                  id={`temperatura-${index}`}
-                  onChange={(e) =>
-                    handleTemperaturaChange(index, e.target.value)
-                  }
-                  placeholder="Ingrese la temperatura"
-                  defaultValue={temperaturas[index]}
-                />
-              </div>
-            </div>
-          ))}
+          <hr className="section-divider" />
 
-          {muestras > 0 && (
-            <div className="button-group">
-              {showNotification && (
-                <div className="notificacion">¡Información guardada!</div>
-              )}
-              <button type="button" onClick={saveInfo}>
-                Guardar
+          {/* Muestras */}
+          <div className="section-g4">
+            <h2>Muestras</h2>
+
+            {muestras > 0 && (
+              <div className="lista-muestras">
+                {temperaturas.map((temp, index) => (
+                  <div key={index} className="lista-item">
+                    <span className="lista-item-text">
+                      Muestra {index + 1}: {pesos[index]} kg / {temp} ºC
+                    </span>
+                    <div className="lista-item-actions">
+                      <button
+                        type="button"
+                        className="btn-eliminar"
+                        onClick={() => handleQuitarMuestra(index)}
+                        title="Eliminar muestra"
+                      >
+                        Eliminar
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {showNotification && (
+              <div className="notificacion">¡Información guardada!</div>
+            )}
+
+            {addingSample ? (
+              <div className="inline-add-form">
+                <label>Peso de la muestra:</label>
+                <input
+                  type="text"
+                  value={draftPeso}
+                  onChange={(e) => setDraftPeso(e.target.value)}
+                  placeholder="Ingrese el peso"
+                />
+                <label>Temperatura de la muestra:</label>
+                <input
+                  type="text"
+                  value={draftTemp}
+                  onChange={(e) => setDraftTemp(e.target.value)}
+                  placeholder="Ingrese la temperatura"
+                />
+                <div className="inline-add-buttons">
+                  <button
+                    type="button"
+                    onClick={handleCancelarMuestra}
+                    className="btn-cancelar"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleGuardarMuestra}
+                    className="btn-agregar"
+                  >
+                    Guardar muestra
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <button
+                type="button"
+                className="btn-agregar-guia-precinto"
+                onClick={handleAgregarMuestra}
+                disabled={muestras >= 6}
+              >
+                + Agregar muestra
               </button>
-            </div>
-          )}
+            )}
+          </div>
 
           <div className="button-group">
             <button

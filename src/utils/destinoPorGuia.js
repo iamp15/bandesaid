@@ -25,12 +25,11 @@ export const getDestinoForGuia = (carga, index) => {
   if (tieneDestinoEnGuia) {
     const estados = carga.estados_destino_guias || [];
     const codigos = carga.codigos_espejo_guias || [];
-    const transportes = carga.transportes_guias || [];
     return {
       destino: String(destinosGuias[index] ?? "").trim(),
       estadoDestino: String(estados[index] ?? "").trim(),
       codigo_espejo: String(codigos[index] ?? carga.codigo_espejo ?? "").trim(),
-      transporte: String(transportes[index] ?? carga.transporte ?? "").trim(),
+      transporte: String(carga.transporte ?? "").trim(),
     };
   }
 

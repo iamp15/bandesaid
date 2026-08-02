@@ -12,6 +12,7 @@ import DatosG4 from "./components/guias/guias/DatosG4";
 import ControlPesaje2 from "./components/controlPesaje/ControlPesaje2";
 import RevisionGuias from "./components/guias/RevisionGuias";
 import FormulariosGuia from "./components/guias/FormulariosGuia";
+import GuiaTabsLayout from "./components/guias/GuiaTabsLayout";
 import Navbar from "./components/Navbar";
 import ControlPesaje3 from "./components/controlPesaje/ControlPesaje3";
 import Menu from "./components/Menu";
@@ -124,7 +125,9 @@ function App() {
             path="/datosg1"
             element={
               <ProtectedRoute>
-                <DatosG1 />
+                <GuiaTabsLayout>
+                  <DatosG1 />
+                </GuiaTabsLayout>
               </ProtectedRoute>
             }
           />
@@ -132,7 +135,9 @@ function App() {
             path="/datosg2"
             element={
               <ProtectedRoute>
-                <DatosG2 />
+                <GuiaTabsLayout>
+                  <DatosG2 />
+                </GuiaTabsLayout>
               </ProtectedRoute>
             }
           />
@@ -140,7 +145,9 @@ function App() {
             path="/datosg3"
             element={
               <ProtectedRoute>
-                <DatosG3 />
+                <GuiaTabsLayout>
+                  <DatosG3 />
+                </GuiaTabsLayout>
               </ProtectedRoute>
             }
           />
@@ -148,7 +155,9 @@ function App() {
             path="/datosg4"
             element={
               <ProtectedRoute>
-                <DatosG4 />
+                <GuiaTabsLayout>
+                  <DatosG4 />
+                </GuiaTabsLayout>
               </ProtectedRoute>
             }
           />
@@ -156,7 +165,9 @@ function App() {
             path="/revisionguias"
             element={
               <ProtectedRoute>
-                <RevisionGuias />
+                <GuiaTabsLayout>
+                  <RevisionGuias />
+                </GuiaTabsLayout>
               </ProtectedRoute>
             }
           />
